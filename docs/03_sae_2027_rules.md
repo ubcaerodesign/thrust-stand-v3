@@ -19,19 +19,19 @@ The 2027 SAE Aero Design rules introduce fundamental changes to electric propuls
 
 ```mermaid
 flowchart LR
-    subgraph Micro Constraints [Micro Class Powertrain Limits]
-        M1[Single Electric Motor]
-        P1[Single Propeller <= 12 in]
-        B1[3S LiPo Battery <= 1000 mAh]
+    subgraph Micro_Constraints ["Micro Class Powertrain Limits"]
+        M1["Single Electric Motor"]
+        P1["Single Propeller <= 12 in"]
+        B1["3S LiPo Battery <= 1000 mAh"]
     end
 
-    subgraph Mission Drag [Mission Payload: Extreme Drag]
-        D1[Up to 3 External 3D-Printed Articles<br/>Chicken, Banana, Pig, etc.]
-        D2[High Aerodynamic Drag Profile]
+    subgraph Mission_Drag ["Mission Payload: Extreme Drag"]
+        D1["Up to 3 External 3D-Printed Articles<br/>Chicken, Banana, Pig, etc."]
+        D2["High Aerodynamic Drag Profile"]
     end
 
-    Micro Constraints --> MCR_Plane[Micro Airframe]
-    Mission Drag --> MCR_Plane
+    Micro_Constraints --> MCR_Plane["Micro Airframe"]
+    Mission_Drag --> MCR_Plane
 ```
 
 * **Powertrain Limits (Section 9.2):** Exactly 1 motor, exactly 1 propeller ($\le 12''$), and a **3S LiPo pack (max 1000 mAh)**.
