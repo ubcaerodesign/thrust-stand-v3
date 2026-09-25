@@ -1,0 +1,119 @@
+# ==============================================================================
+# AeroThrust V3 - Project-Wide .gitignore
+# Covers: Python/FastAPI, Node/React, Rust/Tauri, PlatformIO/STM32, SQLite/Data
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Operating system artifacts
+# ------------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
+
+# ------------------------------------------------------------------------------
+# IDEs & Editors
+# ------------------------------------------------------------------------------
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.sublime-workspace
+*.sublime-project
+*.swp
+*.swo
+*~
+
+# ------------------------------------------------------------------------------
+# Python (Backend daemon & Simulation)
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ------------------------------------------------------------------------------
+# Node & Frontend (Tauri / React / Vite)
+# ------------------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+lerna-debug.log*
+.turbo
+.parcel-cache
+
+# Frontend build outputs
+frontend/dist/
+frontend/build/
+dist/
+
+# ------------------------------------------------------------------------------
+# Rust (Tauri Backend Desktop Core)
+# ------------------------------------------------------------------------------
+# Rust build artifacts
+target/
+src-tauri/target/
+**/*.rs.bk
+Cargo.lock
+
+# ------------------------------------------------------------------------------
+# Embedded Firmware (PlatformIO & STM32)
+# ------------------------------------------------------------------------------
+.pio/
+.pioenvs/
+.piolibdeps/
+.clangd/
+*.bin
+*.elf
+*.hex
+
+# ------------------------------------------------------------------------------
+# Local Databases & Telemetry Run Files (Offline Testing Data)
+# ------------------------------------------------------------------------------
+# Never commit active database files or high-frequency test dumps
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.parquet
+
+# Test run output directories (keep sample data directories if explicitly needed)
+runs/
+data/
+exports/*.csv
+!exports/.gitkeep
