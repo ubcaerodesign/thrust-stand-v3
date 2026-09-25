@@ -37,6 +37,10 @@ CRC16_INITIAL = 0xFFFF
 
 # Low-level protocol utils
 def compute_crc16(data: bytes) -> int:
+    """
+    Computes a 16-bit CRC-CCITT checksum over the provided byte sequence.
+    Polynomial: 0x1021 (x^16 + x^12 + x^5 + 1), Initial: 0xFFFF.
+    """
     crc = CRC16_INITIAL
     for byte in data:
         crc ^= (byte << 8)
@@ -49,10 +53,14 @@ def compute_crc16(data: bytes) -> int:
 
 
 def cobs_encode(data: bytes) -> bytes:
+    """
+    Encodes an arbitrary byte sequence using COBS.
+    Guarantees that the delimiter byte (0x00) doesn't appear in the output.
+    """
     out = bytearray()
     code_idx = 0
     code = 1
-    out.append(0)
+    out.append(0) # Reserve space for the first code pointer
 
     for byte in data:
         if byte == 0:
@@ -74,6 +82,10 @@ def cobs_encode(data: bytes) -> bytes:
 
 
 def cobs_decode(data: bytes) -> bytes:
+    """
+    Decodes a COBS-encoded byte sequence.
+    Raises ValueError if the packet format is corrupted or contains illegal zeroes.
+    """
     out = bytearray()
     idx = 0
     length = len(data)
@@ -97,27 +109,33 @@ def cobs_decode(data: bytes) -> bytes:
 # Virtual physics & stand sim engine
 class VirtualThrustStand:
     def __init__(self):
+        # Operational states
         self.armed = False
         self.estop = False
         self.dshot_mode = True
         self.sd_logging = True
         self.tare_offsets = [0.0, 0.0, 0.0, 0.0]
 
+        # Motor dynamics
         self.throttle_command_pct = 0.0
         self.current_throttle_pct = 0.0
         self.max_rpm = 16500.0
 
+        # Battery model (4S LiPo: 16.8V max, 0.025 Ohm internal resistance)
         self.battery_v_open_circuit = 16.8
         self.battery_internal_r = 0.028
         self.consumed_mah = 0.0
 
+        # Safety & watchdog
         self.last_heartbeat_time = time.time()
-        self.watchdog_timeout_sec = 0.250
+        self.watchdog_timeout_sec = 0.250 # 250ms hardware fail-safe cutoff
 
+        # Sim clock
         self.start_time = time.time()
         self.last_update_time = time.time()
 
     def update_physics(self):
+        """Advances physical based on elapsed time."""
         now = time.time()
         dt = now - self.last_update_time
         self.last_update_time = now
@@ -149,12 +167,14 @@ class VirtualThrustStand:
         # Electrical load
         base_current = 0.8 + (rpm_ratio ** 2.2) * 37.2 + random.gauss(0, 0.15)
         bus_current = max(0.0, base_current)
-        self.consumed_mah += (bus_current * (dt / 3600.0)) * 1000.0
+        self.consumed_mah += (bus_current * (dt / 3600.0)) * 1000.0 # Accumulate consumed capacity
 
+        # Voltage sag
         discharge_sag = (self.consumed_mah / 2200.0) * 1.5
         bus_voltage = self.battery_v_open_circuit - (bus_current * self.battery_internal_r) - discharge_sag
         bus_voltage = max(10.0, bus_voltage)
 
+        # Store outputs for packet serialization
         self.telemetry = {
             "uptime_ms": int((now - self.start_time) * 1000) & 0xFFFFFFFF,
             "thrust_g": int(round(raw_thrust - self.tare_offsets[0])),
@@ -180,6 +200,7 @@ class VirtualThrustStand:
         return flags
 
     def trigger_failsafe(self, reason: str):
+        """Immediately engages the fail-safe emergency stop."""
         if not self.estop or self.armed:
             print(f"[FAILSAFE TRIGGERED] {reason}", flush=True)
         self.armed = False
@@ -187,16 +208,20 @@ class VirtualThrustStand:
         self.throttle_command_pct = 0.0
 
     def handle_command(self, cmd_id: int, value: int, protocol_mode: int):
-        self.last_heartbeat_time = time.time()
+        """Executes incoming commands received from the host computer."""
+        self.last_heartbeat_time = time.time() # Reset watchdog on any valid command
 
         if cmd_id == CMD_HEARTBEAT:
+            # Heartbeat keep-alive; timer reset handled above
             pass
         elif cmd_id == CMD_SET_THROTTLE:
             if not self.estop:
                 self.armed = True
                 if protocol_mode == 0x01:
+                    # D-Shot mode: range is 0 to 2047 (0 to 100%)
                     self.throttle_command_pct = max(0.0, min(100.0, (value / 2047.0) * 100.0))
                 else:
+                    # Standard Servo PWM: range is 1000 to 2000 microseconds
                     clamped_pwm = max(1000, min(2000, value))
                     self.throttle_command_pct = ((clamped_pwm - 1000) / 1000.0) * 100.0
                 print(f"[CMD] Set Throttle: {self.throttle_command_pct:.1f}%", flush=True)
@@ -205,6 +230,7 @@ class VirtualThrustStand:
             self.trigger_failsafe("Manual E-Stop requested by host.")
 
         elif cmd_id == CMD_TARE_CHANNELS:
+            # Value is treated as a bitmask for channels 1 to 4
             if value & (1 << 0):
                 self.tare_offsets[0] += self.telemetry["thrust_g"]
             if value & (1 << 1):
@@ -216,6 +242,11 @@ class VirtualThrustStand:
             print(f"[CMD] Tared channels with mask 0x{value:02X}", flush=True)
 
     def serialize_telemetry_packet(self) -> bytes:
+        """
+        Packs the 22-byte telemetry structure (Little-Endian),
+        computes CRC16, encodes with COBS, and appends the 0x00 delimiter.
+        """
+        # Pack unencoded payload (bytes 0 to 19 = 20 bytes)
         payload = struct.pack(
             "<B I 4h 3H B",
             PACKET_ID_TELEMETRY,
