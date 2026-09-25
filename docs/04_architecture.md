@@ -1,10 +1,10 @@
-# 04 — Modernized Software Architecture
+# 04 — System Architecture & Implementation
 
-AeroThrust V3 transitions from a monolithic desktop GUI to a decoupled, service-oriented architecture matching the ground software sub-team’s unification strategy.
+AeroThrust V3 uses a decoupled, event-driven desktop architecture designed for high-rate telemetry, safety watchdogs, and future ground station unification.
 
 ---
 
-## 1. System Architecture
+## 1. Architecture Flowchart
 
 ```mermaid
 flowchart TD
@@ -13,55 +13,74 @@ flowchart TD
     classDef storage fill:#1e1e2e,stroke:#f59e0b,stroke-width:2px,color:#f8fafc;
     classDef hw fill:#14532d,stroke:#22c55e,stroke-width:2px,color:#f8fafc;
 
-    subgraph UI_Layer ["Desktop Shell (React + TypeScript / Tauri)"]
-        UI_View["Telemetry Dashboard<br/>• uPlot 60 FPS Canvas Plots<br/>• Throttle Sliders & Sequence Runner<br/>• E-Stop Hotkey (Spacebar)"]:::ui
+    subgraph UI_Layer ["DESKTOP FRONTEND (Tauri / React + TypeScript)"]
+        UI_Dash["Dashboard View<br/>• Mode: Thrust Stand vs. Wind Tunnel<br/>• uPlot 60 FPS Canvas Plots<br/>• RPM Gauge & Throttle Sequencer<br/>• Global E-Stop Hotkey (Spacebar)"]:::ui
+        UI_Comm["Transport Selector<br/>(USB Serial COM vs. Bluetooth LE)"]:::ui
     end
 
-    subgraph Backend_Layer ["Core Engine (FastAPI / Python AsyncIO)"]
-        WS_Server["WebSocket & REST Router"]:::backend
-        Watchdog["Safety Watchdog Service"]:::backend
-        Sequencer["Automated Test Sequencer"]:::backend
-        SerialHAL["Async Serial Driver (115200 baud)"]:::backend
+    subgraph Backend_Layer ["LOCAL BACKEND DAEMON (FastAPI / Python AsyncIO)"]
+        WS_Router["WebSocket & REST Event Dispatcher"]:::backend
+        Watchdog["Safety Watchdog Service (250ms Heartbeat)"]:::backend
+        Seq_Engine["Automated Sweep & Test Sequencer"]:::backend
+        HAL_Serial["Async Serial Transport (115200 baud)"]:::backend
+        HAL_BLE["BLE Transport Manager (Bleak Client)"]:::backend
     end
 
-    subgraph Storage_Layer ["Data Storage Engine"]
-        SQLite[(SQLite Database with WAL)]:::storage
-        Parquet[(Parquet Time-Series Files)]:::storage
-        CSV[1-Click CSV Exporter]:::storage
+    subgraph Storage_Layer ["OFFLINE LOCAL STORAGE (Laptop Hard Drive)"]
+        SQLite[(SQLite DB with WAL Mode)]:::storage
+        Parquet[(Parquet Time-Series Cache)]:::storage
+        CSV_Export[1-Click CSV Exporter]:::storage
     end
 
-    subgraph Hardware_Layer ["Embedded Test Stand"]
-        MCU["Arduino Leonardo"]:::hw
-        Sensors["2x HX711 Load Cells + V/I Dividers"]:::hw
-        Motor["ESC & Motor Assembly"]:::hw
+    subgraph HW_Layer ["TEST STAND HARDWARE (STM32 Controller)"]
+        STM["STM32 Microcontroller (32-bit Arm)"]:::hw
+        BLE_Mod["External BLE Module (UART Bridge)"]:::hw
+        SD_Card["Onboard MicroSD Card (Blackbox Log)"]:::hw
+        ESC["D-Shot ESC + Brushless Motor"]:::hw
+        Sensors["4x Load Cell Channels<br/>Voltage & Current Sensors"]:::hw
     end
 
-    UI_View <== "Local WebSocket (JSON Telemetry Stream)" ==> WS_Server
-    WS_Server --> Watchdog
-    WS_Server --> Sequencer
-    Watchdog --> SerialHAL
-    Sequencer --> SerialHAL
-    
-    SerialHAL <== "USB Serial (Framed Binary Packets)" ==> MCU
-    MCU --> Sensors
-    MCU --> Motor
+    UI_Dash <== "Local WebSocket (JSON Telemetry Stream)" ==> WS_Router
+    UI_Comm --> WS_Router
 
-    SerialHAL --> SQLite
+    WS_Router --> Watchdog
+    WS_Router --> Seq_Engine
+
+    Watchdog --> HAL_Serial
+    Watchdog --> HAL_BLE
+    Seq_Engine --> HAL_Serial
+    Seq_Engine --> HAL_BLE
+
+    HAL_Serial <== "USB Serial (COBS Framed Binary)" ==> STM
+    HAL_BLE <== "Wireless Bluetooth LE" ==> BLE_Mod
+    BLE_Mod <--> STM
+
+    STM <== "Bidirectional D-Shot (PWM + Telemetry)" ==> ESC
+    Sensors --> STM
+    STM --> SD_Card
+
+    HAL_Serial --> SQLite
+    HAL_BLE --> SQLite
     SQLite --> Parquet
-    SQLite --> CSV
+    SQLite --> CSV_Export
 ```
 
 ---
 
-## 2. Key Architectural Decisions
+## 2. Key Architecture Components
 
-1. **FastAPI Backend Core:**
-   * Aligns directly with the DACSQY team's migration away from Redis to a lightweight FastAPI service.
-   * Runs non-blocking asynchronous event loops (`asyncio`) to ensure incoming serial packets from the USB port never block or get delayed.
-2. **Tauri + React/TypeScript UI:**
-   * Modern, memory-safe desktop shell with a fraction of Electron’s footprint.
-   * Enables building a shared library of ground-station UI components (gauges, serial connection bars, and charts) used by both AeroThrust and DACSQY.
-3. **High-Performance Plotting (uPlot / Canvas):**
-   * Replaces `pyqtgraph` with `uPlot`, rendering tens of thousands of data points at 60 FPS without memory leaks.
-4. **Structured Storage (SQLite WAL / Parquet):**
-   * Raw samples write directly to an embedded SQLite database using **Write-Ahead Logging (WAL)**. WAL allows rapid writes without locking the database file, completely eliminating the $O(N^2)$ memory copying bottleneck of Pandas `concat`.
+### A. Dual Hardware Abstraction Layer (HAL)
+The backend abstracts the physical communication link behind an abstract transport interface:
+* **USB Serial Driver:** Uses asynchronous non-blocking serial polling (`pyserial-asyncio`) at **115,200 baud**.
+* **Bluetooth Low Energy (BLE) Driver:** Uses Python's asynchronous `bleak` library to connect to the external BLE UART service.
+* Both transports feed identically framed binary packets into the parser, meaning the UI and database pipelines remain completely agnostic to whether the test is wired or wireless.
+
+### B. High-Speed Local Storage Engine
+* **Offline-First SQLite (WAL Mode):** Operates serverless on the local testing laptop. Write-Ahead Logging (WAL) allows $50\text{ Hz}$ telemetry ingestion without locking queries or causing UI micro-stutters.
+* **Onboard SD Card Blackbox Synchronization:** The STM32 hardware logs raw data to an onboard microSD card. If a Bluetooth connection experiences wireless packet drops during a test, the desktop application provides a **"Sync SD Blackbox"** utility to backfill any missing data points into SQLite.
+* **Analysis-Ready Exports:** Standardized exports to `.csv` and `.parquet` enable immediate handoff to the aerodynamics sub-team for report generation.
+
+### C. Mode Switching: Thrust Stand vs. Wind Tunnel
+The system supports two operating contexts selectable in the header:
+* **Thrust Stand Mode:** Visualizes Channels 1 & 2 as Thrust and Torque, displays motor RPM, and exposes throttle control sliders.
+* **Wind Tunnel Mode:** Disables motor throttle controls and visualizes all 4 load cell channels simultaneously (configured for Lift, Drag, Side Force, and Moments) with multi-channel taring.
