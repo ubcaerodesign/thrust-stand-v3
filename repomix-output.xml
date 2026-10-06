@@ -1,0 +1,3182 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+backend/
+  app/
+    core/
+      __init__.py
+      config.py
+      protocol.py
+    hal/
+      __init__.py
+      base.py
+      serial_transport.py
+      tcp_transport.py
+    routers/
+      __init__.py
+      control.py
+      session.py
+      telemetry.py
+    services/
+      __init__.py
+      connection_manager.py
+      safety_watchdog.py
+      storage_service.py
+    __init__.py
+    main.py
+  README.md
+  requirements.txt
+  run.py
+docs/
+  01_system_overview.md
+  02_old_repo_audit.md
+  03_sae_2027_rules.md
+  04_architecture.md
+  05_safety_spec.md
+  06_serial_protocol.md
+frontend/
+  src/
+    assets/
+      logo_white_horizontal.svg
+      logo-primary.png
+    components/
+      common/
+        Badge.tsx
+        Modal.tsx
+      controls/
+        ConnectionSlider.tsx
+        SessionRecorder.tsx
+        ThrottleSlider.tsx
+      instruments/
+        BatteryGauge.tsx
+        NumericCard.tsx
+        TachometerGauge.tsx
+      plots/
+        PlotControls.tsx
+        TelemetryPlot.tsx
+      safety/
+        EStopButton.tsx
+        SafetyBanner.tsx
+    hooks/
+      useKeyboardEStop.ts
+      useTelemetryStream.ts
+      useUPlot.ts
+    services/
+      api.ts
+      websocket.ts
+    styles/
+      theme.css
+    types/
+      session.ts
+      telemetry.ts
+    App.tsx
+    main.tsx
+  src-tauri/
+    Cargo.toml
+    tauri.conf.json
+  index.html
+  package.json
+  tsconfig.json
+  tsconfig.node.json
+  vite.config.ts
+sim/
+  README.md
+  test_client.py
+  virtual_stand.py
+.gitignore
+README.md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="frontend/src/assets/logo_white_horizontal.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 803.85 337.35"><defs><style>.cls-1{fill:#fff;}</style></defs><g id="Layer_3" data-name="Layer 3"><path class="cls-1" d="M381.27,182.25a34.31,34.31,0,0,0,13.16-2.39,26.62,26.62,0,0,0,9.8-6.85,30.19,30.19,0,0,0,6.12-10.89,46.6,46.6,0,0,0,2.11-14.6V55.85h36.61v91.67a70.37,70.37,0,0,1-4.71,26.13,58.65,58.65,0,0,1-13.48,20.5,61.2,61.2,0,0,1-21.34,13.38,86.31,86.31,0,0,1-56.65,0,61.07,61.07,0,0,1-21.33-13.38,57.85,57.85,0,0,1-13.43-20.5,71,71,0,0,1-4.66-26.13V55.85h36.61v91.56a46.6,46.6,0,0,0,2.11,14.6,30.72,30.72,0,0,0,6.12,11,26.28,26.28,0,0,0,9.8,6.9A34.31,34.31,0,0,0,381.27,182.25Z"/><path class="cls-1" d="M480.05,210.61V55.85H538.1q16.35,0,27.84,3t18.74,8.39a32.07,32.07,0,0,1,10.56,13.17,43.8,43.8,0,0,1,3.3,17.32,33.42,33.42,0,0,1-1.52,10,29.42,29.42,0,0,1-4.76,9.08,35.47,35.47,0,0,1-8.34,7.7,54.52,54.52,0,0,1-12.24,6q15.6,3.72,23.07,12.06t7.47,21.4a43.54,43.54,0,0,1-3.9,18.38,42.24,42.24,0,0,1-11.42,14.81,54.35,54.35,0,0,1-18.58,9.88,82,82,0,0,1-25.24,3.56ZM516.66,121h19.06a63.71,63.71,0,0,0,10.94-.85,23.14,23.14,0,0,0,8.28-3,13.73,13.73,0,0,0,5.2-5.85,21.51,21.51,0,0,0,1.79-9.34,25.81,25.81,0,0,0-1.41-9.19,13.23,13.23,0,0,0-4.33-5.9,18.34,18.34,0,0,0-7.42-3.18,51.71,51.71,0,0,0-10.67-1H516.66Zm0,24v38.55h25.77a33,33,0,0,0,11.86-1.8,18.82,18.82,0,0,0,7.21-4.67,15.71,15.71,0,0,0,3.57-6.48,28,28,0,0,0,1-7.33,24,24,0,0,0-1.14-7.65,12.66,12.66,0,0,0-3.9-5.74,19.32,19.32,0,0,0-7.31-3.61A43.4,43.4,0,0,0,542.22,145Z"/><path class="cls-1" d="M735.33,170.57a7.41,7.41,0,0,1,2.6.47,7,7,0,0,1,2.49,1.65l14.52,15a60.23,60.23,0,0,1-23.89,18.43q-14.34,6.21-33.95,6.21-18,0-32.22-6a69.7,69.7,0,0,1-24.16-16.57,72.67,72.67,0,0,1-15.21-25.07,90.9,90.9,0,0,1-5.31-31.49,81.71,81.71,0,0,1,6.06-31.82,74.34,74.34,0,0,1,17-25,76.61,76.61,0,0,1,26-16.36,92.5,92.5,0,0,1,33.47-5.84,86.73,86.73,0,0,1,16.74,1.54,82.16,82.16,0,0,1,14.67,4.25,68.9,68.9,0,0,1,12.57,6.48,61,61,0,0,1,10.18,8.33L744.54,91a15.43,15.43,0,0,1-2.82,2.7,7.39,7.39,0,0,1-4.55,1.23,8.35,8.35,0,0,1-3.68-.85A41.35,41.35,0,0,1,729.81,92l-4.28-2.65A33.08,33.08,0,0,0,720,86.7a47.33,47.33,0,0,0-7.48-2.07,52.47,52.47,0,0,0-10-.85,46.61,46.61,0,0,0-18.19,3.45,40.1,40.1,0,0,0-14.14,9.88,45.8,45.8,0,0,0-9.2,15.56,59.87,59.87,0,0,0-3.31,20.51A62.36,62.36,0,0,0,661,154.31a46.29,46.29,0,0,0,9,15.57,38.15,38.15,0,0,0,13.27,9.61,40.37,40.37,0,0,0,16.24,3.29,79,79,0,0,0,9.1-.48,38.36,38.36,0,0,0,7.64-1.64,35.83,35.83,0,0,0,6.71-3,45.2,45.2,0,0,0,6.45-4.62,12.59,12.59,0,0,1,2.81-1.75A7.51,7.51,0,0,1,735.33,170.57Z"/><path class="cls-1" d="M313.2,285.33l13.25-52.67h17.32l13.33,52.67h-8.78L345.42,274H324.8l-2.9,11.31Zm20-45.52-6.66,26.68H343.7l-6.59-26.68Z"/><path class="cls-1" d="M364.78,285.33V232.66h33.87v7.46H373.49V255H394v7.38H373.49v15.38h25.16v7.54Z"/><path class="cls-1" d="M416.84,266.57v18.76h-8.71V232.66h20.39q18.18,0,18.18,16.76,0,11.24-8.78,15.22l8.86,20.69h-9.56l-7.76-18.76Zm20.93-17.07q0-9.47-9.25-9.46H416.84v19.15h11.83q4.71,0,6.9-2.66A10.7,10.7,0,0,0,437.77,249.5Z"/><path class="cls-1" d="M493.07,279.71q-4.81,6.46-17,6.46t-17-6.5q-4.86-6.5-4.86-20.41t4.9-20.68q4.89-6.77,17-6.76T493,238.54q4.86,6.74,4.86,20.72T493.07,279.71Zm-27.16-5.53q2.67,4.53,10.19,4.53t10.15-4.46q2.63-4.46,2.63-14.95T486.18,244q-2.71-4.77-10.08-4.77T466,244q-2.75,4.77-2.74,15.18T465.91,274.18Z"/><path class="cls-1" d="M526.59,285.33H508V232.66h18.58q12.38,0,16.93,6.15t4.55,19.3a60.71,60.71,0,0,1-.91,11.34,25.66,25.66,0,0,1-3.17,8.42Q539.52,285.32,526.59,285.33Zm12.46-27.22q0-9.54-2.43-13.76t-10-4.23h-9.88v37.67h9.88q7.75,0,10.34-5.61a22.25,22.25,0,0,0,1.69-6.08A61.38,61.38,0,0,0,539.05,258.11Z"/><path class="cls-1" d="M558.26,285.33V232.66h33.86v7.46H567V255h20.46v7.38H567v15.38h25.16v7.54Z"/><path class="cls-1" d="M617.36,239.27q-9.95,0-10,6.85,0,3.52,2.35,5t10.39,3.69q8,2.19,11.32,5.23t3.3,9.57q0,8.31-4.82,12.42t-13.13,4.11a78.87,78.87,0,0,1-14.74-1.54l-2.82-.53.86-6.85a133.54,133.54,0,0,0,16.15,1.39q9.72,0,9.72-8.46a5.62,5.62,0,0,0-2.2-4.88q-2.19-1.57-9.88-3.46t-11.44-5.19q-3.76-3.3-3.76-10.46t4.74-10.8q4.74-3.64,13.13-3.65a88.06,88.06,0,0,1,14.27,1.38l2.74.46-.7,6.92Q621.91,239.27,617.36,239.27Z"/><path class="cls-1" d="M644.17,285.33V232.66h8.71v52.67Z"/><path class="cls-1" d="M687.13,265.18v-7.53h15.29V284.4a69.19,69.19,0,0,1-8.58,1.16q-6.48.62-9.37.61-12.22,0-16.86-6.61T663,258.84q0-14.11,4.74-20.57t16.42-6.45a89.81,89.81,0,0,1,15.53,1.53l2.74.54-.31,6.77a133.8,133.8,0,0,0-17-1.23q-7.53,0-10.31,4.15T672,259q0,11.22,2.63,15.49t10.62,4.26a38.93,38.93,0,0,0,8.55-.69V265.18Z"/><path class="cls-1" d="M713.32,285.33V232.66h15.2l16.31,45.13H746V232.66h8.7v52.67h-14.9l-16.69-45.21H722v45.21Z"/><path class="cls-1" d="M300.62,261.46c-32.26-10-60.83-21.3-86.46-34-.14.19-.27.38-.39.56l-.3.42a40.25,40.25,0,0,1-11.82,11.93,38.05,38.05,0,0,1-9.76,4.36c27.85,10.6,58.72,17.47,91.05,17.47Q291.72,262.15,300.62,261.46Z"/><path class="cls-1" d="M120.3,205.79h0c-3.21,2.32-6.65,5.77-11.15,7.91a160.38,160.38,0,0,0,42.2,12c-23.65-2-43.48-6.09-57.59-11.16A47.35,47.35,0,0,0,101.2,210c3.21-2.46,6.45-5.17,7.48-6.74-21.54-4.56-30.09-9.73-40.92-16.49,8.53,7.7,14.72,13.14,26.45,19.59a90,90,0,0,1-10.93,5.25c-4.85,2.08-9.38,3.88-9.38,3.88l0,0c26.93,12.24,61.44,22.64,102.1,22.64h.14c19.65,0,26.11-8.64,30.32-14.67,1.67-2.39,3-4.37,4.64-5.27,2.25-1.23,6-1.65,9.94-1.65a110.66,110.66,0,0,1,17.5,1.76c-13.75-4.85-12.09-23.28-33.43-23.28h-.31a83.92,83.92,0,0,0-15.35,2.07,27.13,27.13,0,0,1-5.32.5c-23,0-56.07-25.48-78.45-47.53l-.19-.19C84,128.42,64.9,104.71,47,78.65c2.73,24.21,8.92,52.87,22.58,74.9C80.15,170.66,96.51,188.42,120.3,205.79Z"/><path class="cls-1" d="M280.74,270.7v8H63.63V160.24c-.47-.72-.93-1.45-1.38-2.17A122.63,122.63,0,0,1,56.18,147v139.2h232V270.66c-1.76,0-3.51.06-5.26.06Z"/><path class="cls-1" d="M63.63,87.36V61.6H280.74V245.92c2.47.86,4.95,1.7,7.46,2.54V54.15h-232V76.89Q59.9,82.23,63.63,87.36Z"/></g></svg>
+</file>
+
+<file path="frontend/src/components/common/Badge.tsx">
+
+</file>
+
+<file path="frontend/src/components/common/Modal.tsx">
+
+</file>
+
+<file path="frontend/src/components/controls/ConnectionSlider.tsx">
+
+</file>
+
+<file path="frontend/src/components/controls/SessionRecorder.tsx">
+
+</file>
+
+<file path="frontend/src/components/controls/ThrottleSlider.tsx">
+
+</file>
+
+<file path="frontend/src/components/instruments/BatteryGauge.tsx">
+
+</file>
+
+<file path="frontend/src/components/instruments/NumericCard.tsx">
+import React, { useEffect, useRef } from 'react';
+
+interface NumericCardProps {
+  title: string;
+  unit: string;
+  getValue: () => number | string;
+  precision?: number;
+}
+
+export const NumericCard: React.FC<NumericCardProps> = ({ title, unit, getValue, precision = 2 }) => {
+  const valueRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    let animationFrameId: number;
+    let lastValue: string = "";
+
+    const renderLoop = () => {
+      const rawValue = getValue();
+      
+      let displayValue = "---";
+      if (typeof rawValue === 'number' && !isNaN(rawValue)) {
+        displayValue = rawValue.toFixed(precision);
+      } else if (typeof rawValue === 'string') {
+        displayValue = rawValue;
+      }
+
+      // Only touch the DOM if the value actually changed to save CPU cycles
+      if (valueRef.current && displayValue !== lastValue) {
+        valueRef.current.textContent = displayValue;
+        lastValue = displayValue;
+      }
+
+      // Sync the next update with the monitor's refresh rate (usually 60Hz)
+      animationFrameId = requestAnimationFrame(renderLoop);
+    };
+
+    animationFrameId = requestAnimationFrame(renderLoop);
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [getValue, precision]);
+
+  return (
+    <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <span style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+        {title}
+      </span>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+        <span ref={valueRef} style={{ fontSize: '32px', fontWeight: 'bold', color: 'var(--text-accent)', fontVariantNumeric: 'tabular-nums' }}>
+          ---
+        </span>
+        <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+          {unit}
+        </span>
+      </div>
+    </div>
+  );
+};
+</file>
+
+<file path="frontend/src/components/instruments/TachometerGauge.tsx">
+
+</file>
+
+<file path="frontend/src/components/plots/PlotControls.tsx">
+
+</file>
+
+<file path="frontend/src/components/plots/TelemetryPlot.tsx">
+
+</file>
+
+<file path="frontend/src/components/safety/EStopButton.tsx">
+import React from 'react';
+
+interface EStopButtonProps {
+  onTrigger: () => void;
+  isEstopActive?: boolean;
+}
+
+export const EStopButton: React.FC<EStopButtonProps> = ({ onTrigger, isEstopActive = false }) => {
+  return (
+    <button
+      onClick={onTrigger}
+      style={{
+        backgroundColor: isEstopActive ? 'var(--bg-base)' : 'var(--color-danger)',
+        color: isEstopActive ? 'var(--color-danger)' : 'white',
+        border: `2px solid var(--color-danger)`,
+        padding: '12px 24px',
+        borderRadius: '8px',
+        fontSize: '16px',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        boxShadow: isEstopActive ? 'none' : '0 0 15px rgba(239, 68, 68, 0.5)',
+        transition: 'all 0.2s ease-in-out',
+        textTransform: 'uppercase',
+        letterSpacing: '1px'
+      }}
+      onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.95)')}
+      onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+      onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+    >
+      {isEstopActive ? 'E-Stop Engaged' : 'Emergency Stop (Space)'}
+    </button>
+  );
+};
+</file>
+
+<file path="frontend/src/components/safety/SafetyBanner.tsx">
+
+</file>
+
+<file path="frontend/src/hooks/useKeyboardEStop.ts">
+import { useEffect, useCallback } from 'react';
+
+export function useKeyboardEStop() {
+  const triggerEStop = useCallback(async () => {
+    try {
+      console.warn("EMERGENCY STOP TRIGGERED VIA KEYBOARD");
+      await fetch('http://127.0.0.1:8000/api/control/estop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      console.error("Failed to transmit E-Stop to backend:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Allow Escape key to always trigger E-Stop, even if typing
+      const isEscape = event.code === 'Escape';
+      const isSpace = event.code === 'Space';
+
+      if (!isEscape && !isSpace) return;
+
+      // Prevent triggering if the user is typing in a form field
+      const target = event.target as HTMLElement;
+      const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+
+      if (isSpace && isTyping) return;
+
+      // Prevent default browser scrolling if spacebar is hit
+      event.preventDefault();
+      triggerEStop();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [triggerEStop]);
+
+  return { triggerEStop };
+}
+</file>
+
+<file path="frontend/src/hooks/useTelemetryStream.ts">
+import { useEffect, useRef, useState } from 'react';
+import { TelemetryPacket } from '../types/telemetry';
+
+const WS_URL = 'ws://127.0.0.1:8000/ws/telemetry';
+
+export function useTelemetryStream() {
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+  
+  // The Ring Buffer / Latest State Ref. 
+  // Mutating this DOES NOT trigger React re-renders.
+  const latestPacket = useRef<TelemetryPacket | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+    let reconnectTimer: number;
+
+    const connect = () => {
+      const ws = new WebSocket(WS_URL);
+      wsRef.current = ws;
+
+      ws.onopen = () => setIsConnected(true);
+      
+      ws.onmessage = (event) => {
+        try {
+          // Parse JSON and silently update the memory reference
+          const data: TelemetryPacket = JSON.parse(event.data);
+          latestPacket.current = data;
+        } catch (err) {
+          console.error("Telemetry parsing error", err);
+        }
+      };
+
+      ws.onclose = () => {
+        setIsConnected(false);
+        // Attempt automatic reconnection every 2 seconds if backend drops
+        reconnectTimer = window.setTimeout(connect, 2000);
+      };
+
+      ws.onerror = () => ws.close();
+    };
+
+    connect();
+
+    return () => {
+      clearTimeout(reconnectTimer);
+      if (wsRef.current) wsRef.current.close();
+    };
+  }, []);
+
+  return { isConnected, latestPacket };
+}
+</file>
+
+<file path="frontend/src/hooks/useUPlot.ts">
+
+</file>
+
+<file path="frontend/src/services/api.ts">
+
+</file>
+
+<file path="frontend/src/services/websocket.ts">
+
+</file>
+
+<file path="frontend/src/styles/theme.css">
+:root {
+  /* AeroDesign Brand & Backgrounds */
+  --bg-base: #0f172a;
+  --bg-surface: #1e293b;
+  --bg-surface-highlight: #334155;
+  
+  /* Typography */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-accent: #38bdf8;
+  
+  /* Safety & Status Colors */
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  
+  /* Borders & Shadows */
+  --border-subtle: 1px solid #334155;
+  --shadow-panel: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  
+  /* Layout constraints */
+  --header-height: 60px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden; /* Prevent desktop window scrolling */
+  user-select: none; /* Prevent accidental text selection during frantic clicks */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.glass-panel {
+  background-color: var(--bg-surface);
+  border: var(--border-subtle);
+  border-radius: 8px;
+  box-shadow: var(--shadow-panel);
+  padding: 16px;
+}
+</file>
+
+<file path="frontend/src/types/session.ts">
+
+</file>
+
+<file path="frontend/src/types/telemetry.ts">
+export interface TelemetryPacket {
+  uptime_ms: number;
+  thrust_g: number;
+  torque_g: number;
+  ch3_g: number;
+  ch4_g: number;
+  voltage_v: number;
+  current_a: number;
+  power_w: number;
+  rpm: number;
+  flags: number;
+  armed: boolean;
+  estop: boolean;
+}
+
+export interface SystemStatus {
+  isConnected: boolean;
+  transportMode: 'simulator' | 'serial' | 'ble' | 'disconnected';
+}
+</file>
+
+<file path="frontend/src/App.tsx">
+import { useTelemetryStream } from './hooks/useTelemetryStream';
+import { useKeyboardEStop } from './hooks/useKeyboardEStop';
+import { NumericCard } from './components/instruments/NumericCard';
+import { EStopButton } from './components/safety/EStopButton';
+
+export default function App() {
+  const { isConnected, latestPacket } = useTelemetryStream();
+  const { triggerEStop } = useKeyboardEStop();
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      
+      {/* Header Zone */}
+      <header style={{ 
+        height: 'var(--header-height)', 
+        backgroundColor: 'var(--bg-surface)',
+        borderBottom: 'var(--border-subtle)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 24px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <img src="/src/assets/logo-primary.png" alt="UBC AeroDesign" style={{ height: '40px', width: '40px' }} />
+          <h2 style={{ margin: 0, fontSize: '20px', letterSpacing: '1px' }}>AEROTHRUST V3</h2>
+          <div style={{ 
+            padding: '4px 12px', 
+            borderRadius: '12px', 
+            fontSize: '12px',
+            fontWeight: 'bold',
+            backgroundColor: isConnected ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+            color: isConnected ? 'var(--color-success)' : 'var(--color-danger)' 
+          }}>
+            {isConnected ? 'LIVE TELEMETRY' : 'OFFLINE'}
+          </div>
+        </div>
+        
+        <EStopButton onTrigger={triggerEStop} />
+      </header>
+
+      {/* Main Content Zone */}
+      <main style={{ flex: 1, padding: '24px', display: 'flex', gap: '24px' }}>
+        
+        {/* Left Panel: Instruments */}
+        <section style={{ display: 'flex', flexDirection: 'column', gap: '16px', minWidth: '280px' }}>
+          <NumericCard 
+            title="Axial Thrust" 
+            unit="g" 
+            getValue={() => latestPacket.current?.thrust_g ?? 0} 
+            precision={0} 
+          />
+          <NumericCard 
+            title="Motor RPM" 
+            unit="RPM" 
+            getValue={() => latestPacket.current?.rpm ?? 0} 
+            precision={0} 
+          />
+          <NumericCard 
+            title="Bus Voltage" 
+            unit="V" 
+            getValue={() => latestPacket.current?.voltage_v ?? 0} 
+            precision={2} 
+          />
+          <NumericCard 
+            title="Bus Current" 
+            unit="A" 
+            getValue={() => latestPacket.current?.current_a ?? 0} 
+            precision={2} 
+          />
+          <NumericCard 
+            title="Propulsion Efficiency" 
+            unit="g/W" 
+            getValue={() => {
+              const p = latestPacket.current;
+              if (!p || p.power_w <= 0) return 0;
+              return p.thrust_g / p.power_w;
+            }} 
+            precision={2} 
+          />
+        </section>
+
+        {/* Right Panel: Canvas Visualization (Placeholder for uPlot integration) */}
+        <section className="glass-panel" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <p style={{ color: 'var(--text-secondary)' }}>uPlot Canvas Area (Reserved for High-Speed Plotting Integration)</p>
+        </section>
+
+      </main>
+    </div>
+  );
+}
+</file>
+
+<file path="frontend/src/main.tsx">
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
+import './styles/theme.css'
+
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
+</file>
+
+<file path="frontend/src-tauri/Cargo.toml">
+
+</file>
+
+<file path="frontend/src-tauri/tauri.conf.json">
+
+</file>
+
+<file path="frontend/index.html">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/src/assets/logo-primary.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AeroThrust V3 Thrust Stand Application</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+</file>
+
+<file path="frontend/package.json">
+{
+  "name": "aerothrust-v3-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react": "^4.0.3",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5"
+  }
+}
+</file>
+
+<file path="frontend/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
+</file>
+
+<file path="frontend/tsconfig.node.json">
+{
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["vite.config.ts"]
+}
+</file>
+
+<file path="frontend/vite.config.ts">
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    port: 1420,
+    strictPort: true,
+  }
+});
+</file>
+
+<file path="backend/app/core/__init__.py">
+
+</file>
+
+<file path="backend/app/core/config.py">
+"""
+AeroThrust V3 - Backend Configuration & Safety Limits
+"""
+
+from pathlib import Path
+
+# Paths: Resolve 4 levels up from backend/app/core/config.py -> Project Root
+BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
+DATA_DIR = BASE_DIR / "data"
+EXPORTS_DIR = BASE_DIR / "exports"
+
+# Ensure runtime directories exist at project root
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+EXPORTS_DIR.mkdir(parents=True, exist_ok=True)
+
+DATABASE_PATH = DATA_DIR / "aerothrust.db"
+
+# Network & Server
+API_HOST = "127.0.0.1"
+API_PORT = 8000
+
+# Hardware & Simulation Defaults
+SIMULATOR_HOST = "127.0.0.1"
+SIMULATOR_PORT = 8765
+DEFAULT_SERIAL_BAUD = 115200
+
+# Safety & Timing Parameters
+HEARTBEAT_INTERVAL_SEC = 0.100       # Send keep-alive every 100ms
+WATCHDOG_TIMEOUT_SEC = 0.250         # Stand triggers failsafe if no ping for 250ms
+STORAGE_FLUSH_INTERVAL_SEC = 0.200   # Flush batched samples to SQLite every 200ms
+
+# Default Safety Tripwires
+DEFAULT_MAX_CURRENT_AMPS = 55.0      # Hard cutoff above 55A to protect ESC
+DEFAULT_MIN_VOLTAGE_3S = 9.9         # 3.3V/cell cutoff for Micro Class 3S LiPo
+DEFAULT_MIN_VOLTAGE_4S = 13.2        # 3.3V/cell cutoff for Advanced Class 4S LiPo
+DEFAULT_MIN_VOLTAGE_6S = 19.8        # 3.3V/cell cutoff for 6S LiPo
+</file>
+
+<file path="backend/app/core/protocol.py">
+"""
+AeroThrust V3 - Binary Protocol, COBS Encoding, & CRC-16 Engine
+Adheres to docs/06_serial_protocol.md
+"""
+
+import struct
+from dataclasses import dataclass
+from typing import Optional, Tuple
+
+# Protocol Identifiers
+PACKET_ID_TELEMETRY = 0x01
+PACKET_ID_COMMAND = 0x02
+
+# Command Enumerations
+CMD_SET_THROTTLE = 0x01
+CMD_EMERGENCY_STOP = 0x02
+CMD_TARE_CHANNELS = 0x03
+CMD_HEARTBEAT = 0xAA
+
+# Status Flags Bitmask
+FLAG_ARMED = 1 << 0
+FLAG_ESTOP_ACTIVE = 1 << 1
+FLAG_DSHOT_ENABLED = 1 << 2
+FLAG_SD_LOGGING = 1 << 3
+FLAG_TRANSPORT_BLE = 1 << 4
+
+CRC16_POLYNOMIAL = 0x1021
+CRC16_INITIAL = 0xFFFF
+
+
+def compute_crc16(data: bytes) -> int:
+    """
+    Computes a 16-bit CRC-CCITT checksum over the provided bytes.
+    Polynomial: 0x1021, Initial value: 0xFFFF.
+    """
+    crc = CRC16_INITIAL
+    for byte in data:
+        crc ^= (byte << 8)
+        for _ in range(8):
+            if crc & 0x8000:
+                crc = ((crc << 1) ^ CRC16_POLYNOMIAL) & 0xFFFF
+            else:
+                crc = (crc << 1) & 0xFFFF
+    return crc
+
+
+def cobs_encode(data: bytes) -> bytes:
+    """
+    Encodes bytes using Consistent Overhead Byte Stuffing (COBS).
+    Guarantees that 0x00 never appears in the encoded output.
+    """
+    out = bytearray()
+    code_idx = 0
+    code = 1
+    out.append(0)  # Reserve leading code pointer
+
+    for byte in data:
+        if byte == 0:
+            out[code_idx] = code
+            code_idx = len(out)
+            out.append(0)
+            code = 1
+        else:
+            out.append(byte)
+            code += 1
+            if code == 0xFF:
+                out[code_idx] = code
+                code_idx = len(out)
+                out.append(0)
+                code = 1
+
+    out[code_idx] = code
+    return bytes(out)
+
+
+def cobs_decode(data: bytes) -> bytes:
+    """
+    Decodes a COBS-encoded byte sequence.
+    Raises ValueError if the frame is malformed.
+    """
+    out = bytearray()
+    idx = 0
+    length = len(data)
+
+    while idx < length:
+        code = data[idx]
+        if code == 0:
+            raise ValueError("Zero byte encountered inside COBS block.")
+        idx += 1
+        for _ in range(code - 1):
+            if idx >= length:
+                raise ValueError("Incomplete COBS block pointer.")
+            out.append(data[idx])
+            idx += 1
+        if code < 0xFF and idx < length:
+            out.append(0)
+
+    return bytes(out)
+
+
+@dataclass
+class TelemetryData:
+    uptime_ms: int
+    thrust_g: int
+    torque_g: int
+    ch3_g: int
+    ch4_g: int
+    voltage_v: float
+    current_a: float
+    power_w: float
+    rpm: int
+    flags: int
+    armed: bool
+    estop: bool
+    dshot_enabled: bool
+    sd_logging: bool
+
+
+def unpack_telemetry(payload: bytes) -> Optional[TelemetryData]:
+    """
+    Parses a 22-byte unencoded telemetry frame, checks its CRC16,
+    and returns a structured TelemetryData object.
+    """
+    if len(payload) != 22:
+        return None
+
+    # Unpack 20 bytes of payload + 2 bytes of trailing CRC
+    pkt_id, uptime, t1, t2, ch3, ch4, v_centi, i_centi, rpm, flags, rx_crc = struct.unpack(
+        "<B I 4h 3H B H", payload
+    )
+
+    if pkt_id != PACKET_ID_TELEMETRY:
+        return None
+
+    calc_crc = compute_crc16(payload[:20])
+    if calc_crc != rx_crc:
+        return None  # Discard corrupted packet
+
+    voltage = v_centi / 100.0
+    current = i_centi / 100.0
+    power = round(voltage * current, 2)
+
+    return TelemetryData(
+        uptime_ms=uptime,
+        thrust_g=t1,
+        torque_g=t2,
+        ch3_g=ch3,
+        ch4_g=ch4,
+        voltage_v=voltage,
+        current_a=current,
+        power_w=power,
+        rpm=rpm,
+        flags=flags,
+        armed=bool(flags & FLAG_ARMED),
+        estop=bool(flags & FLAG_ESTOP_ACTIVE),
+        dshot_enabled=bool(flags & FLAG_DSHOT_ENABLED),
+        sd_logging=bool(flags & FLAG_SD_LOGGING)
+    )
+
+
+def pack_command(cmd: int, value: int = 0, protocol_mode: int = 0x01) -> bytes:
+    """
+    Packs a 7-byte command payload, computes its CRC-16, encodes it with COBS,
+    and appends the 0x00 delimiter byte. Ready for immediate transmission.
+    """
+    payload = struct.pack("<B B H B", PACKET_ID_COMMAND, cmd, value, protocol_mode)
+    crc = compute_crc16(payload)
+    framed = cobs_encode(payload + struct.pack("<H", crc)) + b"\x00"
+    return framed
+</file>
+
+<file path="backend/app/hal/__init__.py">
+
+</file>
+
+<file path="backend/app/hal/base.py">
+"""
+AeroThrust V3 - Abstract Base Transport
+"""
+
+from abc import ABC, abstractmethod
+from typing import Optional
+
+
+class BaseTransport(ABC):
+    @abstractmethod
+    async def connect(self) -> bool:
+        """Establish connection with physical or virtual hardware."""
+        pass
+
+    @abstractmethod
+    async def disconnect(self) -> None:
+        """Close connection cleanly."""
+        pass
+
+    @abstractmethod
+    async def is_connected(self) -> bool:
+        """Return True if connection is active."""
+        pass
+
+    @abstractmethod
+    async def read_frame(self) -> Optional[bytes]:
+        """
+        Reads incoming bytes until a 0x00 delimiter is found.
+        Returns the unencoded (COBS-decoded) payload, or None if no packet is ready.
+        """
+        pass
+
+    @abstractmethod
+    async def write_packet(self, data: bytes) -> bool:
+        """Sends framed binary data to the hardware."""
+        pass
+</file>
+
+<file path="backend/app/hal/serial_transport.py">
+"""
+AeroThrust V3 - USB Serial Transport (For Physical STM32 Controller)
+"""
+
+import asyncio
+from typing import Optional
+import serial_asyncio
+from app.hal.base import BaseTransport
+from app.core.protocol import cobs_decode
+
+
+class SerialTransport(BaseTransport):
+    def __init__(self, port: str, baudrate: int = 115200):
+        self.port = port
+        self.baudrate = baudrate
+        self.reader: Optional[asyncio.StreamReader] = None
+        self.writer: Optional[asyncio.StreamWriter] = None
+        self._rx_buffer = bytearray()
+
+    async def connect(self) -> bool:
+        try:
+            self.reader, self.writer = await serial_asyncio.open_serial_connection(
+                url=self.port, baudrate=self.baudrate
+            )
+            self._rx_buffer.clear()
+            return True
+        except Exception:
+            self.reader = None
+            self.writer = None
+            return False
+
+    async def disconnect(self) -> None:
+        if self.writer:
+            try:
+                self.writer.close()
+                await self.writer.wait_closed()
+            except Exception:
+                pass
+        self.reader = None
+        self.writer = None
+        self._rx_buffer.clear()
+
+    async def is_connected(self) -> bool:
+        return self.writer is not None and not self.writer.is_closing()
+
+    async def read_frame(self) -> Optional[bytes]:
+        if not await self.is_connected() or not self.reader:
+            return None
+
+        try:
+            chunk = await asyncio.wait_for(self.reader.read(256), timeout=0.05)
+            if not chunk:
+                return None
+            self._rx_buffer.extend(chunk)
+
+            if b"\x00" in self._rx_buffer:
+                delimiter_idx = self._rx_buffer.index(b"\x00")
+                frame = self._rx_buffer[:delimiter_idx]
+                del self._rx_buffer[:delimiter_idx + 1]
+
+                if len(frame) == 0:
+                    return None
+
+                return cobs_decode(frame)
+        except asyncio.TimeoutError:
+            return None
+        except Exception:
+            await self.disconnect()
+            return None
+
+        return None
+
+    async def write_packet(self, data: bytes) -> bool:
+        if not await self.is_connected() or not self.writer:
+            return False
+        try:
+            self.writer.write(data)
+            await self.writer.drain()
+            return True
+        except Exception:
+            await self.disconnect()
+            return False
+</file>
+
+<file path="backend/app/hal/tcp_transport.py">
+"""
+AeroThrust V3 - TCP Socket Transport (For Virtual Simulator)
+"""
+
+import asyncio
+from typing import Optional
+from app.hal.base import BaseTransport
+from app.core.protocol import cobs_decode
+
+
+class TcpTransport(BaseTransport):
+    def __init__(self, host: str, port: int):
+        self.host = host
+        self.port = port
+        self.reader: Optional[asyncio.StreamReader] = None
+        self.writer: Optional[asyncio.StreamWriter] = None
+        self._rx_buffer = bytearray()
+
+    async def connect(self) -> bool:
+        try:
+            self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
+            self._rx_buffer.clear()
+            return True
+        except (ConnectionRefusedError, OSError):
+            self.reader = None
+            self.writer = None
+            return False
+
+    async def disconnect(self) -> None:
+        if self.writer:
+            try:
+                self.writer.close()
+                await self.writer.wait_closed()
+            except Exception:
+                pass
+        self.reader = None
+        self.writer = None
+        self._rx_buffer.clear()
+
+    async def is_connected(self) -> bool:
+        return self.writer is not None and not self.writer.is_closing()
+
+    async def read_frame(self) -> Optional[bytes]:
+        if not await self.is_connected() or not self.reader:
+            return None
+
+        try:
+            # Read available chunks with a short timeout to prevent hanging
+            chunk = await asyncio.wait_for(self.reader.read(256), timeout=0.05)
+            if not chunk:
+                # Connection dropped
+                await self.disconnect()
+                return None
+            self._rx_buffer.extend(chunk)
+
+            if b"\x00" in self._rx_buffer:
+                delimiter_idx = self._rx_buffer.index(b"\x00")
+                frame = self._rx_buffer[:delimiter_idx]
+                del self._rx_buffer[:delimiter_idx + 1]
+
+                if len(frame) == 0:
+                    return None
+
+                return cobs_decode(frame)
+        except asyncio.TimeoutError:
+            return None
+        except Exception:
+            await self.disconnect()
+            return None
+
+        return None
+
+    async def write_packet(self, data: bytes) -> bool:
+        if not await self.is_connected() or not self.writer:
+            return False
+        try:
+            self.writer.write(data)
+            await self.writer.drain()
+            return True
+        except Exception:
+            await self.disconnect()
+            return False
+</file>
+
+<file path="backend/app/routers/__init__.py">
+
+</file>
+
+<file path="backend/app/routers/control.py">
+"""
+AeroThrust V3 - Motor Control & Hardware Routing Endpoints
+"""
+
+from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel, Field
+
+router = APIRouter(prefix="/api/control", tags=["Control"])
+
+
+class ConnectRequest(BaseModel):
+    mode: str = Field(..., example="simulator", description="'simulator' or 'serial'")
+    port: str = Field("COM3", description="Serial port if mode is 'serial'")
+    baudrate: int = Field(115200, description="Baud rate for serial")
+
+
+class ThrottleRequest(BaseModel):
+    throttle_pct: float = Field(..., ge=0.0, le=100.0, description="Throttle percentage (0-100%)")
+    mode: str = Field("dshot", description="'dshot' or 'pwm'")
+
+
+class TareRequest(BaseModel):
+    mask: int = Field(0x0F, description="Channel bitmask (0x01=Ch1, 0x02=Ch2, 0x0F=All)")
+
+
+@router.post("/connect")
+async def connect_hardware(req: ConnectRequest, request: Request):
+    manager = request.app.state.connection_manager
+    if req.mode == "simulator":
+        success = await manager.connect_simulator()
+    elif req.mode == "serial":
+        success = await manager.connect_serial(req.port, req.baudrate)
+    else:
+        raise HTTPException(status_code=400, detail="Invalid mode. Must be 'simulator' or 'serial'")
+
+    if not success:
+        raise HTTPException(status_code=500, detail=f"Failed to connect to {req.mode}")
+    return {"status": "connected", "mode": req.mode}
+
+
+@router.post("/disconnect")
+async def disconnect_hardware(request: Request):
+    manager = request.app.state.connection_manager
+    await manager.disconnect()
+    return {"status": "disconnected"}
+
+
+@router.post("/throttle")
+async def set_throttle(req: ThrottleRequest, request: Request):
+    manager = request.app.state.connection_manager
+    protocol_mode = 0x01 if req.mode.lower() == "dshot" else 0x00
+    success = await manager.set_throttle(req.throttle_pct, protocol_mode)
+    if not success:
+        raise HTTPException(status_code=400, detail="Failed to command throttle. Is stand connected and E-Stop cleared?")
+    return {"status": "ok", "throttle_pct": req.throttle_pct}
+
+
+@router.post("/estop")
+async def trigger_emergency_stop(request: Request):
+    manager = request.app.state.connection_manager
+    await manager.trigger_estop()
+    return {"status": "emergency_stop_triggered"}
+
+
+@router.post("/tare")
+async def tare_load_cells(req: TareRequest, request: Request):
+    manager = request.app.state.connection_manager
+    success = await manager.tare(req.mask)
+    if not success:
+        raise HTTPException(status_code=400, detail="Failed to command tare.")
+    return {"status": "ok", "tared_mask": hex(req.mask)}
+</file>
+
+<file path="backend/app/routers/session.py">
+"""
+AeroThrust V3 - Test Session Management & Export Router
+"""
+
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import FileResponse
+from pydantic import BaseModel, Field
+from typing import Optional
+
+router = APIRouter(prefix="/api/session", tags=["Session"])
+
+
+class StartSessionRequest(BaseModel):
+    name: str = Field(..., example="APC_10x4.7_Static_Ramp")
+    competition_class: str = Field("MCR", example="MCR or ADV")
+    motor_model: str = Field("Sunnysky 2216", example="Sunnysky 2216")
+    propeller_model: str = Field("APC 10x4.7 Slow Flyer", example="APC 10x4.7")
+    battery_config: str = Field("3S 1000mAh", example="3S 1000mAh")
+    notes: Optional[str] = None
+
+
+@router.post("/start")
+async def start_session(req: StartSessionRequest, request: Request):
+    storage = request.app.state.storage_service
+    if storage.active_run_id:
+        raise HTTPException(status_code=400, detail=f"Session {storage.active_run_id} is already active.")
+
+    run_id = storage.start_session(req.model_dump())
+    return {"status": "started", "run_id": run_id}
+
+
+@router.post("/stop")
+async def stop_session(request: Request):
+    storage = request.app.state.storage_service
+    run_id, csv_path = await storage.stop_session()
+    if not run_id:
+        raise HTTPException(status_code=400, detail="No active session to stop.")
+    return {
+        "status": "stopped",
+        "run_id": run_id,
+        "exported_csv": csv_path
+    }
+
+
+@router.get("/{run_id}/export")
+async def export_session_csv(run_id: str, request: Request):
+    storage = request.app.state.storage_service
+    csv_path = storage.export_csv(run_id)
+    if not csv_path:
+        raise HTTPException(status_code=404, detail="Run ID not found.")
+
+    return FileResponse(
+        path=csv_path,
+        media_type="text/csv",
+        filename=f"AeroThrust_Run_{run_id}.csv"
+    )
+</file>
+
+<file path="backend/app/routers/telemetry.py">
+"""
+AeroThrust V3 - Real-Time Telemetry WebSocket
+"""
+
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Request
+
+router = APIRouter(prefix="/ws", tags=["Telemetry"])
+
+
+@router.websocket("/telemetry")
+async def telemetry_websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    manager = websocket.app.state.connection_manager
+    await manager.register_websocket(websocket)
+    try:
+        while True:
+            # Keep socket open and process any incoming ping/messages from UI
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.unregister_websocket(websocket)
+    except Exception:
+        manager.unregister_websocket(websocket)
+</file>
+
+<file path="backend/app/services/__init__.py">
+
+</file>
+
+<file path="backend/app/services/connection_manager.py">
+"""
+AeroThrust V3 - Central Hardware Connection Manager
+"""
+
+import asyncio
+from typing import Optional, Set
+from fastapi import WebSocket
+from app.hal.base import BaseTransport
+from app.hal.tcp_transport import TcpTransport
+from app.hal.serial_transport import SerialTransport
+from app.core.config import SIMULATOR_HOST, SIMULATOR_PORT, DEFAULT_SERIAL_BAUD
+from app.core.protocol import (
+    pack_command, unpack_telemetry, TelemetryData,
+    CMD_SET_THROTTLE, CMD_TARE_CHANNELS
+)
+from app.services.safety_watchdog import SafetyWatchdog
+from app.services.storage_service import StorageService
+
+
+class ConnectionManager:
+    def __init__(self, storage: StorageService):
+        self.storage = storage
+        self.transport: Optional[BaseTransport] = None
+        self.watchdog: Optional[SafetyWatchdog] = None
+
+        self.latest_telemetry: Optional[TelemetryData] = None
+        self.active_websockets: Set[WebSocket] = set()
+
+        self._reader_task: Optional[asyncio.Task] = None
+        self._is_running = False
+
+    async def connect_simulator(self, host: str = SIMULATOR_HOST, port: int = SIMULATOR_PORT) -> bool:
+        """Connects to the virtual simulator."""
+        await self.disconnect()
+        transport = TcpTransport(host, port)
+        if await transport.connect():
+            self.transport = transport
+            self._start_services()
+            print(f"[HAL] Connected to Virtual Stand at {host}:{port}")
+            return True
+        return False
+
+    async def connect_serial(self, port: str, baud: int = DEFAULT_SERIAL_BAUD) -> bool:
+        """Connects to a physical STM32 microcontroller via USB Serial."""
+        await self.disconnect()
+        transport = SerialTransport(port, baud)
+        if await transport.connect():
+            self.transport = transport
+            self._start_services()
+            print(f"[HAL] Connected to Serial Port {port} at {baud} baud")
+            return True
+        return False
+
+    async def disconnect(self):
+        """Disconnects current transport cleanly."""
+        self._is_running = False
+        if self.watchdog:
+            await self.watchdog.stop()
+            self.watchdog = None
+
+        if self._reader_task:
+            self._reader_task.cancel()
+            self._reader_task = None
+
+        if self.transport:
+            await self.transport.disconnect()
+            self.transport = None
+            print("[HAL] Hardware disconnected.")
+
+    def _start_services(self):
+        self._is_running = True
+        self.watchdog = SafetyWatchdog(self.send_command)
+        self.watchdog.start()
+        self._reader_task = asyncio.create_task(self._read_telemetry_loop())
+
+    async def send_command(self, cmd: int, value: int = 0, protocol_mode: int = 0x01) -> bool:
+        """Encodes and sends an outbound command packet."""
+        if not self.transport or not await self.transport.is_connected():
+            return False
+        packet = pack_command(cmd, value, protocol_mode)
+        return await self.transport.write_packet(packet)
+
+    async def set_throttle(self, percent: float, protocol_mode: int = 0x01) -> bool:
+        """Sets target throttle (0.0% to 100.0%)."""
+        if self.watchdog and self.watchdog.estop_triggered:
+            print("[WARNING] Cannot set throttle: E-Stop is active.")
+            return False
+
+        clamped = max(0.0, min(100.0, percent))
+        if protocol_mode == 0x01:
+            # D-Shot Mode: 0 to 2047
+            raw_val = int((clamped / 100.0) * 2047)
+        else:
+            # PWM Mode: 1000us to 2000us
+            raw_val = int(1000 + (clamped / 100.0) * 1000)
+
+        return await self.send_command(CMD_SET_THROTTLE, raw_val, protocol_mode)
+
+    async def tare(self, channel_mask: int = 0x0F) -> bool:
+        """Tares specified load cell channels (0x0F = all 4 channels)."""
+        return await self.send_command(CMD_TARE_CHANNELS, channel_mask, 0x00)
+
+    async def trigger_estop(self):
+        """Triggers immediate E-Stop."""
+        if self.watchdog:
+            await self.watchdog.trigger_estop("User requested E-Stop")
+
+    async def _read_telemetry_loop(self):
+        """High-frequency background ingestion loop (50 Hz)."""
+        while self._is_running and self.transport and await self.transport.is_connected():
+            frame = await self.transport.read_frame()
+            if frame:
+                telemetry = unpack_telemetry(frame)
+                if telemetry:
+                    self.latest_telemetry = telemetry
+
+                    # Run safety tripwire verification
+                    if self.watchdog:
+                        await self.watchdog.verify_telemetry_safety(telemetry)
+
+                    # Buffer to SQLite if session is recording
+                    await self.storage.record_sample(telemetry)
+
+                    # Broadcast to WebSockets
+                    await self._broadcast_telemetry(telemetry)
+            else:
+                await asyncio.sleep(0.001)
+
+    async def register_websocket(self, ws: WebSocket):
+        self.active_websockets.add(ws)
+
+    def unregister_websocket(self, ws: WebSocket):
+        self.active_websockets.discard(ws)
+
+    async def _broadcast_telemetry(self, data: TelemetryData):
+        if not self.active_websockets:
+            return
+
+        payload = {
+            "uptime_ms": data.uptime_ms,
+            "thrust_g": data.thrust_g,
+            "torque_g": data.torque_g,
+            "ch3_g": data.ch3_g,
+            "ch4_g": data.ch4_g,
+            "voltage_v": data.voltage_v,
+            "current_a": data.current_a,
+            "power_w": data.power_w,
+            "rpm": data.rpm,
+            "flags": data.flags,
+            "armed": data.armed,
+            "estop": data.estop
+        }
+
+        # Broadcast concurrently; drop failed connections
+        dead_sockets = []
+        for ws in self.active_websockets:
+            try:
+                await ws.send_json(payload)
+            except Exception:
+                dead_sockets.append(ws)
+
+        for dead in dead_sockets:
+            self.unregister_websocket(dead)
+</file>
+
+<file path="backend/app/services/safety_watchdog.py">
+"""
+AeroThrust V3 - Safety Watchdog & Tripwire Service
+"""
+
+import asyncio
+from typing import Optional, Callable, Coroutine, Any
+from app.core.config import (
+    HEARTBEAT_INTERVAL_SEC, DEFAULT_MAX_CURRENT_AMPS,
+    DEFAULT_MIN_VOLTAGE_4S
+)
+from app.core.protocol import CMD_HEARTBEAT, CMD_EMERGENCY_STOP, TelemetryData
+
+
+class SafetyWatchdog:
+    def __init__(
+        self,
+        send_cmd_fn: Callable[[int, int, int], Coroutine[Any, Any, bool]]
+    ):
+        self._send_cmd = send_cmd_fn
+        self._is_running = False
+        self._heartbeat_task: Optional[asyncio.Task] = None
+
+        # Tripwire thresholds
+        self.max_current = DEFAULT_MAX_CURRENT_AMPS
+        self.min_voltage = DEFAULT_MIN_VOLTAGE_4S
+        self.estop_triggered = False
+
+    def start(self):
+        self._is_running = True
+        self.estop_triggered = False
+        self._heartbeat_task = asyncio.create_task(self._heartbeat_loop())
+
+    async def stop(self):
+        self._is_running = False
+        if self._heartbeat_task:
+            self._heartbeat_task.cancel()
+
+    async def trigger_estop(self, reason: str = "Manual E-Stop"):
+        """Instant Emergency Stop."""
+        print(f"[SAFETY ACTION] Emergency Stop Triggered: {reason}")
+        self.estop_triggered = True
+        # Command 0x02 = CMD_EMERGENCY_STOP
+        await self._send_cmd(CMD_EMERGENCY_STOP, 0, 0x01)
+
+    async def verify_telemetry_safety(self, data: TelemetryData):
+        """Tripwire verification on every received telemetry frame."""
+        if self.estop_triggered:
+            return
+
+        # Over-Current Protection
+        if data.current_a > self.max_current:
+            await self.trigger_estop(f"Over-current threshold breached: {data.current_a:.2f}A > {self.max_current}A")
+
+        # Voltage Sag Warning / Cutoff
+        if data.armed and data.voltage_v < self.min_voltage:
+            print(f"[SAFETY WARNING] Dangerous voltage sag detected: {data.voltage_v:.2f}V < {self.min_voltage}V")
+
+    async def _heartbeat_loop(self):
+        """Sends periodic 0xAA heartbeats to satisfy the stand's 250ms hardware watchdog."""
+        while self._is_running:
+            await asyncio.sleep(HEARTBEAT_INTERVAL_SEC)
+            if not self.estop_triggered:
+                await self._send_cmd(CMD_HEARTBEAT, 0, 0x01)
+</file>
+
+<file path="backend/app/services/storage_service.py">
+"""
+AeroThrust V3 - Local SQLite WAL Storage Service
+"""
+
+import sqlite3
+import asyncio
+import csv
+import uuid
+from typing import Dict, Any, List, Optional, Tuple
+from datetime import datetime
+from app.core.config import DATABASE_PATH, EXPORTS_DIR, STORAGE_FLUSH_INTERVAL_SEC
+from app.core.protocol import TelemetryData
+
+
+class StorageService:
+    def __init__(self):
+        self.db_path = DATABASE_PATH
+        self.active_run_id: Optional[str] = None
+        self._batch_queue: List[Dict[str, Any]] = []
+        self._lock = asyncio.Lock()
+        self._flush_task: Optional[asyncio.Task] = None
+        self._is_running = False
+
+    def init_database(self):
+        """Initializes tables and configures Write-Ahead Logging (WAL)."""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("PRAGMA journal_mode = WAL;")
+            conn.execute("PRAGMA synchronous = NORMAL;")
+            cursor = conn.cursor()
+
+            # Session Metadata Table
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS test_runs (
+                run_id TEXT PRIMARY KEY,
+                created_at TEXT NOT NULL,
+                name TEXT,
+                competition_class TEXT,
+                motor_model TEXT,
+                propeller_model TEXT,
+                battery_config TEXT,
+                notes TEXT
+            );
+            """)
+
+            # High-Frequency Telemetry Samples Table
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS telemetry_samples (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                run_id TEXT NOT NULL,
+                uptime_ms INTEGER,
+                thrust_g INTEGER,
+                torque_g INTEGER,
+                ch3_g INTEGER,
+                ch4_g INTEGER,
+                voltage_v REAL,
+                current_a REAL,
+                power_w REAL,
+                rpm INTEGER,
+                flags INTEGER,
+                FOREIGN KEY (run_id) REFERENCES test_runs (run_id)
+            );
+            """)
+            conn.commit()
+
+    async def start(self):
+        self._is_running = True
+        self.init_database()
+        self._flush_task = asyncio.create_task(self._periodic_flush())
+
+    async def stop(self):
+        self._is_running = False
+        if self._flush_task:
+            self._flush_task.cancel()
+        await self.flush()
+
+    def start_session(self, metadata: Dict[str, Any]) -> str:
+        """Starts a new test run record."""
+        run_id = str(uuid.uuid4())[:8]
+        created_at = datetime.utcnow().isoformat()
+
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("""
+            INSERT INTO test_runs (run_id, created_at, name, competition_class, motor_model, propeller_model, battery_config, notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                run_id,
+                created_at,
+                metadata.get("name", f"Run_{run_id}"),
+                metadata.get("competition_class", "MCR"),
+                metadata.get("motor_model", "Unknown"),
+                metadata.get("propeller_model", "Unknown"),
+                metadata.get("battery_config", "4S"),
+                metadata.get("notes", "")
+            ))
+            conn.commit()
+
+        self.active_run_id = run_id
+        return run_id
+
+    async def stop_session(self) -> Tuple[Optional[str], Optional[str]]:
+        """
+        Stops the current recording session, flushes all remaining samples to SQLite,
+        and automatically exports the run to a CSV file.
+        Returns (run_id, exported_csv_path).
+        """
+        if not self.active_run_id:
+            return None, None
+
+        last_id = self.active_run_id
+        self.active_run_id = None
+
+        # Flush any remaining samples in the batch queue immediately
+        await self.flush()
+
+        # Generate CSV export automatically
+        csv_path = self.export_csv(last_id)
+        return last_id, csv_path
+
+    async def record_sample(self, sample: TelemetryData):
+        """Buffers a sample if a recording session is actively running."""
+        if not self.active_run_id:
+            return
+
+        async with self._lock:
+            self._batch_queue.append({
+                "run_id": self.active_run_id,
+                "uptime_ms": sample.uptime_ms,
+                "thrust_g": sample.thrust_g,
+                "torque_g": sample.torque_g,
+                "ch3_g": sample.ch3_g,
+                "ch4_g": sample.ch4_g,
+                "voltage_v": sample.voltage_v,
+                "current_a": sample.current_a,
+                "power_w": sample.power_w,
+                "rpm": sample.rpm,
+                "flags": sample.flags
+            })
+
+    async def flush(self):
+        """Flushes the buffered batch of samples into SQLite inside a single transaction."""
+        async with self._lock:
+            if not self._batch_queue:
+                return
+            to_insert = self._batch_queue[:]
+            self._batch_queue.clear()
+
+        # Run disk write in thread pool to prevent event loop delay
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, self._write_batch_to_disk, to_insert)
+
+    def _write_batch_to_disk(self, samples: List[Dict[str, Any]]):
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.executemany("""
+            INSERT INTO telemetry_samples (
+                run_id, uptime_ms, thrust_g, torque_g, ch3_g, ch4_g,
+                voltage_v, current_a, power_w, rpm, flags
+            ) VALUES (
+                :run_id, :uptime_ms, :thrust_g, :torque_g, :ch3_g, :ch4_g,
+                :voltage_v, :current_a, :power_w, :rpm, :flags
+            )
+            """, samples)
+            conn.commit()
+
+    async def _periodic_flush(self):
+        while self._is_running:
+            await asyncio.sleep(STORAGE_FLUSH_INTERVAL_SEC)
+            try:
+                await self.flush()
+            except Exception as e:
+                print(f"[ERROR] Database flush failed: {e}")
+
+    def export_csv(self, run_id: str) -> Optional[str]:
+        """Exports a test session's telemetry points directly to a CSV file."""
+        output_file = EXPORTS_DIR / f"run_{run_id}.csv"
+
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+
+            cursor.execute("SELECT * FROM test_runs WHERE run_id = ?", (run_id,))
+            run_meta = cursor.fetchone()
+            if not run_meta:
+                return None
+
+            cursor.execute("""
+            SELECT uptime_ms, thrust_g, torque_g, ch3_g, ch4_g, voltage_v, current_a, power_w, rpm, flags
+            FROM telemetry_samples
+            WHERE run_id = ?
+            ORDER BY uptime_ms ASC
+            """, (run_id,))
+            rows = cursor.fetchall()
+
+        with open(output_file, mode="w", newline="") as f:
+            writer = csv.writer(f)
+            # Write session metadata headers
+            writer.writerow(["# Run ID", run_meta["run_id"]])
+            writer.writerow(["# Created At", run_meta["created_at"]])
+            writer.writerow(["# Name", run_meta["name"]])
+            writer.writerow(["# Class", run_meta["competition_class"]])
+            writer.writerow(["# Motor", run_meta["motor_model"]])
+            writer.writerow(["# Propeller", run_meta["propeller_model"]])
+            writer.writerow(["# Battery", run_meta["battery_config"]])
+            writer.writerow(["# Sample Count", len(rows)])
+            writer.writerow([])
+            # Write column names
+            writer.writerow([
+                "Uptime_ms", "Thrust_g", "Torque_g", "CH3_g", "CH4_g",
+                "Voltage_V", "Current_A", "Power_W", "RPM", "Flags"
+            ])
+            for r in rows:
+                writer.writerow([
+                    r["uptime_ms"], r["thrust_g"], r["torque_g"], r["ch3_g"], r["ch4_g"],
+                    r["voltage_v"], r["current_a"], r["power_w"], r["rpm"], hex(r["flags"])
+                ])
+
+        print(f"[STORAGE] Exported {len(rows)} samples to {output_file}")
+        return str(output_file)
+</file>
+
+<file path="backend/app/__init__.py">
+
+</file>
+
+<file path="backend/app/main.py">
+"""
+AeroThrust V3 - FastAPI Main Application Entrypoint
+"""
+
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.services.storage_service import StorageService
+from app.services.connection_manager import ConnectionManager
+from app.routers import control, telemetry, session
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup sequence
+    print("[INIT] Starting AeroThrust V3 Backend Services...")
+    storage = StorageService()
+    await storage.start()
+
+    connection_manager = ConnectionManager(storage)
+
+    # Attach instances to app state for global access inside routers
+    app.state.storage_service = storage
+    app.state.connection_manager = connection_manager
+
+    yield
+
+    # Shutdown sequence
+    print("[SHUTDOWN] Terminating AeroThrust V3 Backend Services...")
+    await connection_manager.disconnect()
+    await storage.stop()
+
+
+app = FastAPI(
+    title="AeroThrust V3 Backend",
+    description="Asynchronous Telemetry & Control Engine for UBC AeroDesign Thrust Stand",
+    version="3.0.0",
+    lifespan=lifespan
+)
+
+# Allow requests from local frontend (Vite / React / Tauri)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Register endpoints
+app.include_router(control.router)
+app.include_router(telemetry.router)
+app.include_router(session.router)
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "service": "AeroThrust-V3-Core"}
+</file>
+
+<file path="backend/README.md">
+# AeroThrust V3 — Backend Telemetry & Control Core
+
+The **AeroThrust V3 Backend** is an asynchronous daemon built with **FastAPI** and **Python 3.10+ AsyncIO**. It serves as the real-time communications bridge, safety watchdog, and data persistence engine for UBC AeroDesign’s next-generation propulsion test stand and wind tunnel instrumentation rig.
+
+---
+
+## 1. System Architecture & Telemetry Pipeline
+
+The backend operates on a single-threaded asynchronous event loop, eliminating Python Global Interpreter Lock (GIL) thread contention while sustaining non-blocking $50\text{ Hz}$ data ingestion, safety monitoring, and client streaming.
+
+```mermaid
+flowchart TD
+    classDef hw fill:#14532d,stroke:#22c55e,stroke-width:2px,color:#f8fafc;
+    classDef hal fill:#0f172a,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef core fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef store fill:#1e1e2e,stroke:#f59e0b,stroke-width:2px,color:#f8fafc;
+    classDef client fill:#3b0764,stroke:#c084fc,stroke-width:2px,color:#f8fafc;
+
+    subgraph Hardware_Simulation ["Hardware / Simulation Layer"]
+        STM32["Physical STM32 Controller<br/>(USB Virtual COM Port)"]:::hw
+        Sim["Virtual Stand Simulator<br/>(TCP Socket :8765)"]:::hw
+    end
+
+    subgraph HAL ["Hardware Abstraction Layer (HAL)"]
+        SerialHAL["SerialTransport<br/>(pyserial-asyncio @ 115200)"]:::hal
+        TcpHAL["TcpTransport<br/>(asyncio.open_connection)"]:::hal
+        Buffer["Persistent rx_buffer<br/>(0x00 Slicing & Extraction)"]:::hal
+    end
+
+    subgraph Binary_Engine ["Protocol & Safety Engine"]
+        COBS["COBS Frame Decoder"]:::core
+        CRC["CRC-16-CCITT Verification<br/>(Poly: 0x1021, Init: 0xFFFF)"]:::core
+        Unpack["Struct Unpacker<br/>(&lt;B I 4h 3H B H)"]:::core
+        Watchdog["SafetyWatchdog<br/>• 100ms Keep-Alive Heartbeat<br/>• Over-Current Cutoff (>55A)<br/>• Voltage Sag Protection"]:::core
+    end
+
+    subgraph Persistence ["Persistence Layer"]
+        MemQueue["In-Memory Sample Batch"]:::store
+        SQLite["SQLite (WAL Mode)<br/>data/aerothrust.db"]:::store
+        AutoCSV["Automatic CSV Exporter<br/>exports/run_&lt;id&gt;.csv"]:::store
+    end
+
+    subgraph Dispatch ["Client Dispatch Layer"]
+        WS["WebSocket Broadcaster<br/>ws://127.0.0.1:8000/ws/telemetry"]:::client
+        REST["REST API Routers<br/>/api/control &amp; /api/session"]:::client
+        UI["Tauri / React Frontend &amp; Scripts"]:::client
+    end
+
+    STM32 <== "Binary Packets" ==> SerialHAL
+    Sim <== "Binary Packets" ==> TcpHAL
+
+    SerialHAL --> Buffer
+    TcpHAL --> Buffer
+
+    Buffer --> COBS --> CRC --> Unpack
+
+    Unpack --> Watchdog
+    Unpack --> MemQueue
+    Unpack --> WS
+
+    MemQueue -->|Periodic Flush 200ms| SQLite
+    SQLite -->|On Session Stop| AutoCSV
+
+    WS ==> UI
+    UI <== "HTTP / JSON" ==> REST
+    REST --> Watchdog
+```
+
+---
+
+## 2. Directory Layout & Module Responsibilities
+
+```text
+backend/
+├── app/
+│   ├── core/
+│   │   ├── config.py         # System paths, safety thresholds, timing intervals
+│   │   └── protocol.py       # COBS codec, CRC-16 computation, binary struct packing
+│   ├── hal/
+│   │   ├── base.py           # Abstract BaseTransport interface
+│   │   ├── tcp_transport.py  # Asynchronous TCP client for the virtual simulator
+│   │   └── serial_transport.py # Asynchronous USB serial client for STM32
+│   ├── routers/
+│   │   ├── control.py        # REST endpoints: connect, disconnect, throttle, tare, estop
+│   │   ├── session.py        # REST endpoints: start, stop, and CSV export
+│   │   └── telemetry.py      # Real-time WebSocket streaming route
+│   ├── services/
+│   │   ├── connection_manager.py # Hardware state orchestration & client broadcasting
+│   │   ├── safety_watchdog.py    # Cyclic heartbeat pings and tripwire monitoring
+│   │   └── storage_service.py    # SQLite WAL batch writer and CSV generator
+│   ├── __init__.py
+│   └── main.py               # FastAPI application setup, CORS, and lifespan hooks
+├── requirements.txt          # Python dependencies
+└── run.py                    # Server launcher script
+```
+
+---
+
+## 3. Core Subsystems
+
+### A. Binary Framing & Error Detection (`app/core/protocol.py`)
+To prevent communication lockups caused by motor electromagnetic interference (EMI), the backend rejects unverified ASCII strings:
+* **Framing:** Uses **Consistent Overhead Byte Stuffing (COBS)** so the byte `0x00` exclusively marks the End-of-Packet (EOP).
+* **Integrity:** Every inbound and outbound frame is protected by a **CRC-16-CCITT** checksum ($x^{16} + x^{12} + x^5 + 1$). Packets failing the CRC check are dropped immediately.
+* **Telemetry Payload (22 bytes unencoded):**
+  ```text
+  Format: <B I 4h 3H B H
+  [0]    uint8   packet_id (0x01)
+  [1-4]  uint32  uptime_ms
+  [5-12] 4x int16 load_cells (Thrust, Torque, CH3, CH4 in grams)
+  [13-14] uint16 voltage_centi (10 mV scale)
+  [15-16] uint16 current_centi (10 mA scale)
+  [17-18] uint16 motor_rpm (D-Shot digital telemetry)
+  [19]   uint8   status_flags (Bit 0: Armed, Bit 1: E-Stop, Bit 2: D-Shot)
+  [20-21] uint16 crc16
+  ```
+
+### B. Hardware Abstraction Layer (HAL) (`app/hal/`)
+The backend is completely decoupled from the physical transport medium:
+* **`TcpTransport`:** Connects to `127.0.0.1:8765` to stream from the offline physics simulator (`sim/virtual_stand.py`).
+* **`SerialTransport`:** Uses `pyserial-asyncio` to interface with the STM32 via USB CDC at $115{,}200\text{ baud}$.
+* Both adapters implement `read_frame()` and `write_packet()`, enabling instant switching between physical hardware and virtual testing without restarting the application logic.
+
+### C. Safety Watchdog & Tripwires (`app/services/safety_watchdog.py`)
+Physical safety is enforced through multiple redundant mechanisms:
+1. **Cyclic Heartbeat:** The backend transmits a keep-alive packet (`0xAA`) every **100 ms**. If communication is lost and the stand misses pings for $>250\text{ ms}$, the hardware autonomously cuts throttle to 0%.
+2. **Over-Current Tripwire:** If measured current exceeds `DEFAULT_MAX_CURRENT_AMPS` ($55.0\text{ A}$), an immediate Emergency Stop packet is sent.
+3. **Low-Voltage Cutoff:** Alerts are raised if pack voltage sags below critical thresholds ($9.9\text{V}$ for 3S Micro, $13.2\text{V}$ for 4S Advanced).
+4. **Immediate E-Stop:** Firing the E-Stop (`POST /api/control/estop`) overrides any running test, drives the throttle command to 0%, and disarms the speed controller.
+
+### D. Persistence & Auto-Export (`app/services/storage_service.py`)
+* **Local Database:** Writes to `data/aerothrust.db` using **SQLite Write-Ahead Logging (WAL)** (`PRAGMA journal_mode = WAL;`). WAL allows concurrent reading and writing without database locks.
+* **Non-Blocking Batching:** Samples are accumulated in memory and written in bulk every **200 ms** inside an off-thread executor (`loop.run_in_executor`) to prevent disk writes from pausing the async loop.
+* **Auto-Export:** Calling `POST /api/session/stop` automatically flushes any remaining in-memory samples and writes a fully populated CSV file to `exports/run_<run_id>.csv`.
+
+---
+
+## 4. API Reference
+
+Interactive OpenAPI (Swagger) documentation is available at **`http://127.0.0.1:8000/docs`**.
+
+### Hardware & Throttle Control (`/api/control`)
+* **`POST /api/control/connect`**: Connect to hardware or simulator.
+  ```json
+  // Simulator:
+  {"mode": "simulator"}
+  // Physical USB:
+  {"mode": "serial", "port": "COM3", "baudrate": 115200}
+  ```
+* **`POST /api/control/disconnect`**: Closes connection and stops watchdog tasks.
+* **`POST /api/control/throttle`**: Commands motor speed (0% to 100%).
+  ```json
+  {"throttle_pct": 35.0, "mode": "dshot"}
+  ```
+* **`POST /api/control/tare`**: Zeroes load cell channels (default mask `0x0F` zeroes all 4 channels).
+* **`POST /api/control/estop`**: Triggers an immediate emergency stop.
+
+### Test Session Management (`/api/session`)
+* **`POST /api/session/start`**: Begins recording telemetry to SQLite.
+  ```json
+  {
+    "name": "Micro_Static_Sweep_01",
+    "competition_class": "MCR",
+    "motor_model": "Sunnysky 2216 1250KV",
+    "propeller_model": "APC 10x4.7 SF",
+    "battery_config": "3S 1000mAh",
+    "notes": "Testing static thrust baseline for 2027 Micro TDS"
+  }
+  ```
+* **`POST /api/session/stop`**: Flushes queue, concludes recording, and generates the CSV export.
+  ```json
+  // Returns:
+  {
+    "status": "stopped",
+    "run_id": "c60ac861",
+    "exported_csv": "C:\\...\\exports\\run_c60ac861.csv"
+  }
+  ```
+* **`GET /api/session/{run_id}/export`**: Download the exported CSV file directly.
+
+### Live Telemetry WebSocket (`/ws/telemetry`)
+* **Endpoint:** `ws://127.0.0.1:8000/ws/telemetry`
+* **Rate:** Broadcasts JSON payloads at $50\text{ Hz}$ to all connected clients:
+  ```json
+  {
+    "uptime_ms": 12450,
+    "thrust_g": 1420,
+    "torque_g": 128,
+    "ch3_g": 0,
+    "ch4_g": 0,
+    "voltage_v": 11.45,
+    "current_a": 28.30,
+    "power_w": 324.04,
+    "rpm": 8450,
+    "flags": 13,
+    "armed": true,
+    "estop": false
+  }
+  ```
+
+---
+
+## 5. Setup & Development Guide
+
+### Prerequisites
+* Python **3.10** or higher
+* `pip` package manager
+
+### Installation
+1. Navigate to the repository root and activate a virtual environment:
+   ```bash
+   python -m venv .venv
+   # Windows (PowerShell):
+   .venv\Scripts\Activate.ps1
+   # macOS/Linux:
+   source .venv/bin/activate
+   ```
+2. Install the backend dependencies:
+   ```bash
+   pip install -r backend/requirements.txt
+   ```
+
+### Running with the Virtual Simulator (Offline Testing)
+Open two terminal windows:
+
+**Terminal 1 — Launch Simulator:**
+```bash
+python sim/virtual_stand.py
+```
+
+**Terminal 2 — Launch Backend Daemon:**
+```bash
+python backend/run.py
+```
+The backend will launch at `http://127.0.0.1:8000` with hot-reload enabled.
+
+---
+
+## 6. End-to-End Verification Script
+
+You can verify the entire control and logging pipeline using standard `curl` commands in a third terminal:
+
+```bash
+# 1. Connect to virtual simulator
+curl -X POST http://127.0.0.1:8000/api/control/connect \
+     -H "Content-Type: application/json" \
+     -d '{"mode": "simulator"}'
+
+# 2. Start recorded session
+curl -X POST http://127.0.0.1:8000/api/session/start \
+     -H "Content-Type: application/json" \
+     -d '{"name":"Baseline_Test","competition_class":"MCR","motor_model":"TestMotor","propeller_model":"10x4.7","battery_config":"3S"}'
+
+# 3. Command 25% throttle (D-Shot)
+curl -X POST http://127.0.0.1:8000/api/control/throttle \
+     -H "Content-Type: application/json" \
+     -d '{"throttle_pct": 25.0, "mode": "dshot"}'
+
+# 4. Wait 3 seconds, then stop session (automatically exports CSV)
+sleep 3
+curl -X POST http://127.0.0.1:8000/api/session/stop
+```
+
+Verify that a newly populated file appears under `exports/run_<run_id>.csv` containing valid force and electrical data.
+
+---
+
+## 7. Common Troubleshooting
+
+| Issue | Root Cause | Solution |
+| :--- | :--- | :--- |
+| `[FATAL ERROR] Could not bind to 127.0.0.1:8765` | A zombie Python process is already using the port. | Windows: `Get-Process python* \| Stop-Process -Force`<br>Linux/macOS: `pkill -f python` |
+| `Failed to connect to simulator` | `virtual_stand.py` is not running. | Launch `python sim/virtual_stand.py` before issuing the connect call. |
+| `Cannot set throttle: E-Stop is active` | Safety tripwire or manual E-Stop was engaged. | Disconnect and reconnect via `/api/control/connect` to reset the software watchdog state. |
+| No serial ports found / permission denied | User lacks permissions on Linux, or COM port is held open by another app. | Linux: `sudo usermod -a -G dialout $USER`<br>Windows: Close Arduino IDE or other serial monitors holding the COM port. |
+| CSV export empty or 0 samples | Session stopped immediately before samples were received. | Ensure hardware is connected and streaming telemetry *before* calling `/api/session/start`. |
+</file>
+
+<file path="backend/requirements.txt">
+fastapi>=0.110.0
+uvicorn[standard]>=0.28.0
+websockets>=12.0
+pyserial-asyncio>=0.6
+</file>
+
+<file path="backend/run.py">
+"""
+AeroThrust V3 - Server Launcher Script
+"""
+
+import uvicorn
+from app.core.config import API_HOST, API_PORT
+
+if __name__ == "__main__":
+    uvicorn.run("app.main:app", host=API_HOST, port=API_PORT, reload=True)
+</file>
+
+<file path="sim/README.md">
+# Virtual Thrust Stand Hardware Simulator & Test Harness
+
+This directory contains the software emulation tools for **AeroThrust V3**. These tools allow developers to build, test, and validate the backend telemetry ingestion and frontend visualization layers **completely offline without physical microcontroller hardware**.
+
+---
+
+## 1. Overview of Included Tools
+
+* **`virtual_stand.py`:** An asynchronous Python server that emulates the STM32 test stand controller. It listens on a local TCP socket (`127.0.0.1:8765`), updates a real-time mathematical physics model of an electric motor and 4S LiPo battery, frames telemetry using **COBS** and **CRC-16-CCITT**, and enforces a **250 ms watchdog fail-safe**.
+* **`test_client.py`:** A sample verification client that connects to the virtual stand, decodes streaming telemetry at $50\text{ Hz}$, prints human-readable telemetry tables to stdout, and emits periodic heartbeat keep-alives and throttle commands.
+
+```mermaid
+flowchart LR
+    Stand["virtual_stand.py<br/>(TCP Server :8765)<br/>Physics + Watchdog Engine"] 
+    <== "COBS-Framed Packets + CRC-16" ==> 
+    Client["test_client.py OR FastAPI Backend<br/>(TCP Client)<br/>Sends Commands & Heartbeats"]
+```
+
+---
+
+## 2. Prerequisites
+
+* **Python 3.10+**
+* **No external third-party dependencies required.** The simulator and test client use only standard library modules (`socket`, `struct`, `time`, `math`, `random`, `select`).
+
+---
+
+## 3. Quickstart: Running a Test Session
+
+To observe the virtual hardware in action, open **two separate terminal windows**:
+
+### Terminal 1: Launch the Virtual Stand
+```bash
+python sim/virtual_stand.py
+```
+*Expected Output:*
+```text
+======================================================================
+ AeroThrust V3 - Virtual Stand Hardware Simulator
+ Listening on TCP Socket -> 127.0.0.1:8765
+ Press Ctrl+C to terminate.
+======================================================================
+
+Waiting for client connection from AeroThrust backend/GUI...
+```
+
+### Terminal 2: Run the Verification Client
+```bash
+python sim/test_client.py
+```
+*Expected Output:*
+```text
+Connecting to Virtual Stand at 127.0.0.1:8765...
+Connected successfully! Starting 5-second test routine.
+
+Time(ms) | Thrust(g) | Torque(g) | Voltage(V) | Current(A) | Power(W) | RPM   | Flags
+--------------------------------------------------------------------------------
+    20   |         0 |         0 |      16.78 |       0.81 |     13.6 |     0 | 0x0D
+   120   |        15 |         2 |      16.74 |       1.42 |     23.8 |   850 | 0x0D
+   220   |        84 |         8 |      16.68 |       3.15 |     52.5 |  2100 | 0x0D
+   ...
+```
+
+---
+
+## 4. Key Physics & Failure Modes Simulated
+
+You can use the simulator to verify that our ground station software handles real-world edge cases properly:
+
+1. **Watchdog Heartbeat Fail-Safe (Runaway Prevention):**
+   * *Behavior:* The virtual stand requires a valid command or heartbeat (`0xAA`) at least once every **250 ms**.
+   * *How to test:* Terminate `test_client.py` using `Ctrl+C` while the motor is spinning. Within 250 milliseconds, `virtual_stand.py` will log:
+     ```text
+     [FAILSAFE TRIGGERED] Watchdog heartbeat timed out (>250ms).
+     ```
+     The simulator immediately cuts target throttle to 0% and sets the `STATUS_ESTOP_ACTIVE` bit (`0x02`) in its telemetry flags.
+2. **Motor Inertia Lag:**
+   * Stepping throttle from 0% to 50% does not produce an instantaneous step in thrust. RPM and thrust ramp smoothly over ~300 ms, simulating physical rotor inertia.
+3. **Battery Voltage Sag & Depletion:**
+   * As current increases, bus voltage sags ($V = V_{\text{oc}} - I \cdot R_{\text{int}}$).
+   * Over extended runs, the virtual battery steadily depletes, lowering nominal voltage.
+4. **Sensor Commutation Noise:**
+   * Load cells include synthetic Gaussian noise ($\pm 3\text{ g}$) to simulate air turbulence and mechanical vibration.
+
+---
+
+## 5. Packet Reference
+
+All binary frames exchanged with the simulator adhere strictly to `docs/06_serial_protocol.md`:
+
+* **Inbound Telemetry (Stand $\to$ Client):** 22-byte unencoded payload (Uptime, 4x Load Cells, Voltage, Current, RPM, Flags, CRC-16) encoded with COBS and terminated with `0x00`.
+* **Outbound Command (Client $\to$ Stand):** 7-byte unencoded payload (Packet ID, Command, Value, Mode, CRC-16) encoded with COBS and terminated with `0x00`.
+</file>
+
+<file path="sim/test_client.py">
+"""
+
+AeroThrust V3 - Virtual Stand Test Verification Client
+
+Connects to the virtual stand over TCP, performs COBS decoding and CRC verification,
+prints live telemetry, and sends cyclic heartbeats and sample throttle sweeps.
+
+"""
+
+import socket
+import struct
+import time
+import sys
+
+# Import encoder/decoder functions directly from simulator
+from virtual_stand import (
+    compute_crc16, cobs_encode, cobs_decode,
+    PACKET_ID_COMMAND, CMD_SET_THROTTLE, CMD_HEARTBEAT, CMD_EMERGENCY_STOP
+)
+
+def send_command(sock: socket.socket, cmd: int, value: int = 0, mode: int = 0x01):
+    """Encodes and transmits an outbound command packet."""
+    payload = struct.pack("<B B H B", PACKET_ID_COMMAND, cmd, value, mode)
+    crc = compute_crc16(payload)
+    packet = cobs_encode(payload + struct.pack("<H", crc)) + b"\x00"
+    sock.sendall(packet)
+
+
+def main():
+    host = "127.0.0.1"
+    port = 8765
+
+    print(f"Connecting to Virtual Stand at {host}:{port}...")
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        sock.connect((host, port))
+    except ConnectionRefusedError:
+        print("[ERROR] Could not connect. Is 'python sim/virtual_stand.py' running in another terminal?")
+        sys.exit(1)
+
+    print("Connected successfully! Starting 5-second test routine.\n")
+    print("Time(ms) | Thrust(g) | Torque(g) | Voltage(V) | Current(A) | Power(W) | RPM   | Flags")
+    print("-" * 80)
+
+    rx_buffer = bytearray()
+    last_heartbeat = time.time()
+    last_print = time.time()
+    start_test = time.time()
+
+    # Command initial 25% throttle in D-Shot mode (25% of 2047 ≈ 512)
+    send_command(sock, CMD_SET_THROTTLE, value=512, mode=0x01)
+
+    try:
+        while True:
+            # Send periodic heartbeat every 100ms
+            now = time.time()
+            if now - last_heartbeat >= 0.100:
+                send_command(sock, CMD_HEARTBEAT)
+                last_heartbeat = now
+
+            # Throttle step at 3 seconds to 60% (60% of 2047 ≈ 1228)
+            if 3.0 <= (now - start_test) < 3.05:
+                send_command(sock, CMD_SET_THROTTLE, value=1228, mode=0x01)
+
+            # Read incoming telemetry
+            data = sock.recv(256)
+            if not data:
+                break
+            rx_buffer.extend(data)
+
+            while b"\x00" in rx_buffer:
+                delimiter_idx = rx_buffer.index(b"\x00")
+                frame = rx_buffer[:delimiter_idx]
+                del rx_buffer[:delimiter_idx + 1]
+
+                if len(frame) == 0:
+                    continue
+
+                decoded = cobs_decode(frame)
+                if len(decoded) == 22:
+                    # Unpack 22-byte telemetry packet
+                    pkt_id, uptime, t1, t2, ch3, ch4, v_centi, i_centi, rpm, flags, crc = struct.unpack(
+                        "<B I 4h 3H B H", decoded
+                    )
+                    calc_crc = compute_crc16(decoded[:20])
+
+                    if calc_crc == crc:
+                        voltage = v_centi / 100.0
+                        current = i_centi / 100.0
+                        power = voltage * current
+
+                        # Print to console every 100ms to avoid flooding stdout
+                        if now - last_print >= 0.100:
+                            print(f"{uptime:8d} | {t1:9d} | {t2:9d} | {voltage:10.2f} | {current:10.2f} | {power:8.1f} | {rpm:5d} | 0x{flags:02X}")
+                            last_print = now
+                    else:
+                        print("[ERROR] CRC mismatch on telemetry packet!")
+
+    except KeyboardInterrupt:
+        print("\nSending Emergency Stop before exit...")
+        send_command(sock, CMD_EMERGENCY_STOP)
+    finally:
+        sock.close()
+        print("Disconnected.")
+
+
+if __name__ == "__main__":
+    main()
+</file>
+
+<file path=".gitignore">
+# ==============================================================================
+# AeroThrust V3 - Project-Wide .gitignore
+# Covers: Python/FastAPI, Node/React, Rust/Tauri, PlatformIO/STM32, SQLite/Data
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Operating system artifacts
+# ------------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
+
+# ------------------------------------------------------------------------------
+# IDEs & Editors
+# ------------------------------------------------------------------------------
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.sublime-workspace
+*.sublime-project
+*.swp
+*.swo
+*~
+
+# ------------------------------------------------------------------------------
+# Python (Backend daemon & Simulation)
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ------------------------------------------------------------------------------
+# Node & Frontend (Tauri / React / Vite)
+# ------------------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+lerna-debug.log*
+.turbo
+.parcel-cache
+
+# Frontend build outputs
+frontend/dist/
+frontend/build/
+dist/
+
+# ------------------------------------------------------------------------------
+# Rust (Tauri Backend Desktop Core)
+# ------------------------------------------------------------------------------
+# Rust build artifacts
+target/
+src-tauri/target/
+**/*.rs.bk
+Cargo.lock
+
+# ------------------------------------------------------------------------------
+# Embedded Firmware (PlatformIO & STM32)
+# ------------------------------------------------------------------------------
+.pio/
+.pioenvs/
+.piolibdeps/
+.clangd/
+*.bin
+*.elf
+*.hex
+
+# ------------------------------------------------------------------------------
+# Local Databases & Telemetry Run Files (Offline Testing Data)
+# ------------------------------------------------------------------------------
+# Never commit active database files or high-frequency test dumps
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.parquet
+
+# Test run output directories (keep sample data directories if explicitly needed)
+runs/
+data/
+exports/*.csv
+!exports/.gitkeep
+</file>
+
+<file path="docs/02_old_repo_audit.md">
+# 02 — Legacy Codebase Audit (`thrust-stand-v2`)
+
+This document outlines the software architecture, data flow, and critical technical flaws identified in the legacy repository.
+
+---
+
+## 1. Component Review
+
+```mermaid
+flowchart TD
+    subgraph UI ["PyQt5 Frontend (ui/)"]
+        W[window.py: Navigation Frame]
+        C[connect.py: COM Port & Serial Terminal]
+        B[board.py: Zero/Tare Buttons]
+        T[test.py: pyqtgraph Real-Time Plots]
+    end
+
+    subgraph Core ["Python Core (board/ & autoTest/)"]
+        SR[board/read.py: SerialReader Regex Parser]
+        SW[board/command.py: QThread SerialWorker]
+        LarkEng[autoTest/reader.py: Lark DSL Runner]
+    end
+
+    subgraph Data ["Data Layer (nums/)"]
+        DS[nums/__init__.py: Pandas DataFrame wrapper]
+    end
+
+    subgraph Hardware ["Firmware (boardCode/)"]
+        INO[ardSketch.ino: Arduino Leonardo]
+    end
+
+    UI <--> Core
+    Core --> Data
+    Core <== USB Serial (9600 baud) ==> INO
+```
+
+* **Firmware (`boardCode/ardSketch/ardSketch.ino`):** Arduino Leonardo sketch reading 2x HX711 load cells, averaging analog $V$ and $I$ on pins 10/11, and generating standard RC servo PWM pulses on pin 17 via `Servo.h`.
+* **Serial Interface (`board/`):** Reads serial data on a background `QThread` and uses regular expressions to parse text lines like `lc1(1200)` and `cur(14.5)`.
+* **Automation Engine (`autoTest/`):** Uses the **Lark** parser library with `grammar.lark` to execute text scripts (e.g., `SET_THROTTLE 50`, `WAIT 2000`, `ADD_POINT`).
+* **Data Storage (`nums/__init__.py`):** Collects data points into a Python list and writes them into a `pandas.DataFrame`.
+
+---
+
+## 2. Identified Bugs & Critical Anti-Patterns
+
+### 1. Inverted Firmware Telemetry Flags (Functional Bug)
+In `boardCode/ardSketch/ardSketch.ino`:
+```cpp
+if (vtg) {
+  Serial.print("cur(");
+  Serial.print(current);
+  Serial.println(")");
+}
+if (cur) {
+  Serial.print("vtg(");
+  Serial.print(voltage);
+  Serial.println(")");
+}
+```
+* **Impact:** The code sends `cur(...)` when the voltage flag `vtg` is enabled and `vtg(...)` when the current flag `cur` is enabled.
+
+### 2. Missing Emergency Stop Logic (Safety Hazard)
+In `ardSketch.ino`, the command `stp` calls:
+```cpp
+void emergencyStop() {
+    // Completely empty!
+}
+```
+* **Impact:** Sending an emergency stop command does not alter PWM output or cut throttle.
+
+### 3. Missing Hardware Watchdog / Heartbeat (Runaway Motor Risk)
+* The Arduino does not check whether the computer is still alive. If the Python app crashes or the USB cable is disconnected while running at 100% throttle, **the motor will continue to spin indefinitely**.
+
+### 4. Memory Allocation Bottleneck in Data Logging
+In `nums/__init__.py`:
+```python
+newRow = pd.DataFrame(data, index=[0])
+self.dataframe = pd.concat([self.dataframe, newRow], ignore_index=True)
+```
+* **Impact:** `pd.concat` creates a full copy of the dataframe in memory every time a row is added ($O(N^2)$ memory overhead). This causes cumulative UI stutter during high-frequency tests.
+
+### 5. Inefficient Serial Parsing
+* Transmitting raw ASCII strings (e.g., `lc1(1234)\n`) over 9600 baud requires heavy string formatting on the microcontroller and regex parsing (`re.match`) in Python, limiting the sampling rate to ~4 Hz.
+</file>
+
+<file path="docs/05_safety_spec.md">
+# 05 — Safety & Fail-Safe Specifications
+
+Operating brushless motors spinning large propellers on a bench test stand presents immediate physical hazards. Safety is enforced through hardware watchdogs, firmware interlocks, and software tripwires.
+
+---
+
+## 1. Safety State Machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> Standby: Power On & Disarmed
+
+    Standby --> Armed_Manual: Arm Manual Mode (Confirm Dialog)
+    Armed_Manual --> Standby: Disarm / Slider 0%
+
+    Standby --> Running_Sequence: Load & Start Test Script
+    Running_Sequence --> Standby: Sequence Complete
+
+    Armed_Manual --> EMERGENCY_STOP: Spacebar Hit / Limit Breached / Disconnect
+    Running_Sequence --> EMERGENCY_STOP: Spacebar Hit / Limit Breached / Disconnect
+
+    EMERGENCY_STOP --> Standby: Operator Physical Acknowledge & Reset
+```
+
+---
+
+## 2. Multi-Layer Safety Protections
+
+### Layer 1: Hardware-Enforced Dead-Man Watchdog
+* The software backend emits a heartbeat ping (`0xAA`) to the Arduino every **100 ms**.
+* The Arduino firmware runs a non-blocking timer:
+  ```cpp
+  if (millis() - lastHeartbeatTime > 250) {
+      triggerFailsafe(); // Cuts PWM to 1000us immediately
+  }
+  ```
+* **Effect:** If the desktop application crashes, the USB cable is severed, or the operating system hangs, the motor cuts throttle within **250 ms**.
+
+### Layer 2: Instant Software Emergency Stop (E-Stop)
+* A dedicated full-width **Emergency Stop Button** is permanently pinned in the UI and hotkeyed globally to the **Spacebar** and **Escape** keys.
+* Triggering the E-Stop immediately sends an interrupt packet overriding all test scripts, driving throttle to 0%, and detaching the PWM pin.
+
+### Layer 3: Software Tripwires (Configurable Bounds)
+The software automatically aborts tests if incoming sensor readings exceed safe thresholds:
+* **Over-Current Tripwire:** If current exceeds the preset ESC rating (e.g., $45\text{ A}$ on a $50\text{ A}$ ESC) for $>100\text{ ms}$, abort.
+* **Low-Voltage Cutoff:** If cell voltage drops below $3.3\text{ V/cell}$ ($9.9\text{ V}$ for 3S Micro, $13.2\text{ V}$ for 4S Advanced), raise an alert to prevent permanent LiPo battery damage.
+* **Vibration / Load Cell Runaway:** If load cell readings register large negative forces or high-frequency oscillations indicative of structural failure, abort immediately.
+</file>
+
+<file path="README.md">
+# thrust-stand-v3
+or aerothrust-v3. Next-gen propulsion test stand with architecture to facilitate future integration into other ground systems.
+</file>
+
+<file path="docs/01_system_overview.md">
+# 01 — System Overview & Test Rig Architecture
+
+## 1. System Definition & Purpose
+AeroThrust V3 is the ground control software for UBC AeroDesign's next-generation **Thrust Stand and Wind Tunnel Controller**. 
+
+The hardware controller is designed around an **STM32 32-bit ARM microcontroller** and serves a dual role across the aerodynamics, propulsion, and flight mechanics sub-teams:
+1. **Propulsion Thrust Stand Mode:** Characterizes electric motors, Electronic Speed Controllers (ESCs), and propellers under static bench loading.
+2. **Wind Tunnel Strain Gauge Mode:** Functions as a 4-channel strain-gauge data acquisition amplifier to record aerodynamic forces (Lift, Drag, Side Force, and Moments) during wind tunnel testing.
+
+```mermaid
+flowchart LR
+    Battery[4S-6S LiPo Battery 16.8V-25.2V] --> Buck[Onboard 5V Buck + LDO]
+    Battery -->|Power Rail| CurrentSens[Current Sensor]
+    CurrentSens --> ESC[D-Shot Compatible ESC]
+    ESC --> Motor[Brushless Motor]
+    Motor --> Prop[Propeller]
+
+    Motor -.->|Forces & Moments| LC[4x Load Cell Inputs JST-XH]
+    LC --> HX[Strain Gauge Amplifiers / ADCs]
+    HX --> MCU[STM32 Microcontroller]
+
+    ESC <== "Bidirectional D-Shot (Throttle & RPM)" ==> MCU
+    Buck --> MCU
+    MCU --> SD[Onboard MicroSD Blackbox]
+    
+    MCU <== "USB Serial (115200 baud)" ==> Host[Testing Laptop / Desktop App]
+    MCU <== "Wireless Bluetooth LE" ==> Host
+```
+
+---
+
+## 2. Key Telemetry & Physical Metrics
+
+| Metric | Source / Protocol | Units | Purpose in Aircraft Design |
+| :--- | :--- | :--- | :--- |
+| **Thrust / Normal Force** | Load Cell Channel 1 | grams ($g$) or Newtons ($N$) | Validates takeoff and climb capability. ($1\text{ N} \approx 101.97\text{ g}$) |
+| **Reaction Torque** | Load Cell Channel 2 | $g\cdot cm$ or $N\cdot m$ | Evaluates motor torque resistance and rotational drag. |
+| **Channels 3 & 4 Forces** | Load Cell Channels 3 & 4 | grams ($g$) or Newtons ($N$) | In Wind Tunnel mode: measures multi-axis forces (Lift, Drag, Pitching Moment). |
+| **Rotational Speed (RPM)** | **Bidirectional D-Shot Telemetry** | Revolutions Per Minute (RPM) | Captured digitally from ESC without external optical sensors. Critical for aerodynamic validation. |
+| **Bus Voltage ($V$)** | Dedicated Voltage Divider | Volts ($V$) | Monitors battery pack voltage and evaluates **voltage sag** under load across 4S to 6S packs. |
+| **Current ($I$)** | Dedicated Current Sensor | Amperes ($A$) | Tracks electrical draw; prevents overloading ESCs or exceeding battery discharge C-ratings. |
+| **Input Power ($P_{\text{in}}$)** | Computed ($V \times I$) | Watts ($W$) | Quantifies total electrical energy drawn from the battery. |
+| **Mechanical Power ($P_{\text{mech}}$)** | Computed ($\tau \times \omega$) | Watts ($W$) | True shaft power calculated directly from torque and D-Shot RPM ($\omega = \text{RPM} \times \frac{2\pi}{60}$). |
+| **Propulsion Efficiency** | Computed ($\text{Thrust} / P_{\text{in}}$) | grams per Watt ($g/W$) | Measures battery conversion efficiency; vital under the 2027 power limiter removal. |
+| **Energy Consumed** | Numerical integration ($\int I \, dt$) | $mAh$ and $Watt\text{-}hours$ | Simulates battery depletion against the 1000 mAh (Micro) and 3000 mAh (Advanced) caps. |
+
+---
+
+## 3. Power Architecture & Electrical Safety
+* **Wide Voltage Range:** Designed to accept **4S (14.8V nominal) to 6S (22.2V nominal)** LiPo batteries (up to 25.2V fully charged).
+* **Isolated Laptop Protection:** The board features an onboard step-down buck converter (stepping battery voltage down to 5V and 3.3V) with high-side OR-ing isolation. This prevents the stand from drawing motor current through the laptop's USB port or back-feeding voltage into the host computer.
+* **Dual Operation Modes:** The controller can run fully tethered via USB-C or completely standalone on battery power using Bluetooth Low Energy (BLE).
+
+---
+
+## 4. Physical Calibration (Multi-Channel Tare)
+Because mechanical fixtures exert baseline resting forces on the load cells, the software supports individual channel taring as well as a master **"Tare All"** command:
+
+$$\text{Net Force}_i = \text{Raw Sensor Reading}_i - \text{Tare Offset}_i \quad (i \in \{1, 2, 3, 4\})$$
+</file>
+
+<file path="docs/03_sae_2027_rules.md">
+# 03 — 2027 SAE Aero Design Rules Alignment
+
+The 2027 SAE Aero Design rules introduce fundamental changes to electric propulsion requirements. This document outlines how AeroThrust V3 directly supports UBC AeroDesign’s **Micro Class (MCR)** and **Advanced Class (ADV)** teams.
+
+---
+
+## 1. Universal Rule Changes Across All Classes
+
+* **Power Limiters Are Removed (Sections 2.21, 7.3, 8.2, 9.2):**
+  * *Previous Years:* An inline hardware circuit breaker automatically cut or throttled motors drawing $>1000\text{ W}$.
+  * *2027 Rule:* Power limiters are **no longer required in any class**.
+  * *Design Impact:* Motor power is now constrained strictly by **battery capacity and thermal dissipation**. The thrust stand must accurately track $mAh$ and $Wh$ energy consumption over simulated mission timelines.
+* **Propulsion System Red Arming Plug (Section 2.22):** Must be placed on the positive (red) wire between battery and ESC, located $\ge 9\text{ inches}$ from any propeller rotational plane.
+* **Radio Fail-Safe Requirement (Section 2.8):** All systems must immediately cut throttle to zero upon loss of control signal.
+
+---
+
+## 2. Micro Class (MCR) Specifications
+
+```mermaid
+flowchart LR
+    subgraph Micro_Constraints ["Micro Class Powertrain Limits"]
+        M1["Single Electric Motor"]
+        P1["Single Propeller <= 12 in"]
+        B1["3S LiPo Battery <= 1000 mAh"]
+    end
+
+    subgraph Mission_Drag ["Mission Payload: Extreme Drag"]
+        D1["Up to 3 External 3D-Printed Articles<br/>Chicken, Banana, Pig, etc."]
+        D2["High Aerodynamic Drag Profile"]
+    end
+
+    Micro_Constraints --> MCR_Plane["Micro Airframe"]
+    Mission_Drag --> MCR_Plane
+```
+
+* **Powertrain Limits (Section 9.2):** Exactly 1 motor, exactly 1 propeller ($\le 12''$), and a **3S LiPo pack (max 1000 mAh)**.
+* **Mission Challenge:** The aircraft must overcome massive aerodynamic drag created by up to three externally attached 3D-printed articles (Section 9.3).
+* **Mandatory TDS Report Graph (Section 4.7):**
+  * Teams must submit a chart showing **Power Available ($P_{\text{avail}}$) vs. Power Required ($P_{\text{req}}$)** across flight speeds.
+  * *Thrust Stand Role:* The aerodynamics team calculates theoretical airframe drag ($P_{\text{req}}$), but requires the thrust stand to provide real, empirical static and stepped thrust curves to determine true $P_{\text{avail}}$.
+
+---
+
+## 3. Advanced Class (ADV) Specifications
+
+* **Powertrain Limits (Section 8.2):** Up to 3 electric motors and 3 propellers powered by a **4S LiPo pack (max 3000 mAh)**.
+* **Airframe Weight Limit (Section 8.1):** Aircraft empty weight must not exceed **3.50 lbs**.
+* **Mission Challenge (Section 8.4):** Autonomous takeoff, payload delivery to an $8 \times 8\text{ ft}$ Designated Landing Zone (DLZ), payload capture, and Return to Base (RTB) within a 4-minute mission window.
+* *Thrust Stand Role:* ADV requires precise thrust-to-weight optimization to lift maximum payload within the strict 3.50 lb weight cap, along with multi-motor matching tests to balance multi-engine thrust.
+</file>
+
+<file path="docs/04_architecture.md">
+# 04 — System Architecture & Implementation
+
+AeroThrust V3 uses a decoupled, event-driven desktop architecture designed for high-rate telemetry, safety watchdogs, and future ground station unification.
+
+---
+
+## 1. Architecture Flowchart
+
+```mermaid
+flowchart TD
+    classDef ui fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef backend fill:#0f172a,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef storage fill:#1e1e2e,stroke:#f59e0b,stroke-width:2px,color:#f8fafc;
+    classDef hw fill:#14532d,stroke:#22c55e,stroke-width:2px,color:#f8fafc;
+
+    subgraph UI_Layer ["DESKTOP FRONTEND (Tauri / React + TypeScript)"]
+        UI_Dash["Dashboard View<br/>• Mode: Thrust Stand vs. Wind Tunnel<br/>• uPlot 60 FPS Canvas Plots<br/>• RPM Gauge & Throttle Sequencer<br/>• Global E-Stop Hotkey (Spacebar)"]:::ui
+        UI_Comm["Transport Selector<br/>(USB Serial COM vs. Bluetooth LE)"]:::ui
+    end
+
+    subgraph Backend_Layer ["LOCAL BACKEND DAEMON (FastAPI / Python AsyncIO)"]
+        WS_Router["WebSocket & REST Event Dispatcher"]:::backend
+        Watchdog["Safety Watchdog Service (250ms Heartbeat)"]:::backend
+        Seq_Engine["Automated Sweep & Test Sequencer"]:::backend
+        HAL_Serial["Async Serial Transport (115200 baud)"]:::backend
+        HAL_BLE["BLE Transport Manager (Bleak Client)"]:::backend
+    end
+
+    subgraph Storage_Layer ["OFFLINE LOCAL STORAGE (Laptop Hard Drive)"]
+        SQLite[(SQLite DB with WAL Mode)]:::storage
+        Parquet[(Parquet Time-Series Cache)]:::storage
+        CSV_Export[1-Click CSV Exporter]:::storage
+    end
+
+    subgraph HW_Layer ["TEST STAND HARDWARE (STM32 Controller)"]
+        STM["STM32 Microcontroller (32-bit Arm)"]:::hw
+        BLE_Mod["External BLE Module (UART Bridge)"]:::hw
+        SD_Card["Onboard MicroSD Card (Blackbox Log)"]:::hw
+        ESC["D-Shot ESC + Brushless Motor"]:::hw
+        Sensors["4x Load Cell Channels<br/>Voltage & Current Sensors"]:::hw
+    end
+
+    UI_Dash <== "Local WebSocket (JSON Telemetry Stream)" ==> WS_Router
+    UI_Comm --> WS_Router
+
+    WS_Router --> Watchdog
+    WS_Router --> Seq_Engine
+
+    Watchdog --> HAL_Serial
+    Watchdog --> HAL_BLE
+    Seq_Engine --> HAL_Serial
+    Seq_Engine --> HAL_BLE
+
+    HAL_Serial <== "USB Serial (COBS Framed Binary)" ==> STM
+    HAL_BLE <== "Wireless Bluetooth LE" ==> BLE_Mod
+    BLE_Mod <--> STM
+
+    STM <== "Bidirectional D-Shot (PWM + Telemetry)" ==> ESC
+    Sensors --> STM
+    STM --> SD_Card
+
+    HAL_Serial --> SQLite
+    HAL_BLE --> SQLite
+    SQLite --> Parquet
+    SQLite --> CSV_Export
+```
+
+---
+
+## 2. Key Architecture Components
+
+### A. Dual Hardware Abstraction Layer (HAL)
+The backend abstracts the physical communication link behind an abstract transport interface:
+* **USB Serial Driver:** Uses asynchronous non-blocking serial polling (`pyserial-asyncio`) at **115,200 baud**.
+* **Bluetooth Low Energy (BLE) Driver:** Uses Python's asynchronous `bleak` library to connect to the external BLE UART service.
+* Both transports feed identically framed binary packets into the parser, meaning the UI and database pipelines remain completely agnostic to whether the test is wired or wireless.
+
+### B. High-Speed Local Storage Engine
+* **Offline-First SQLite (WAL Mode):** Operates serverless on the local testing laptop. Write-Ahead Logging (WAL) allows $50\text{ Hz}$ telemetry ingestion without locking queries or causing UI micro-stutters.
+* **Onboard SD Card Blackbox Synchronization:** The STM32 hardware logs raw data to an onboard microSD card. If a Bluetooth connection experiences wireless packet drops during a test, the desktop application provides a **"Sync SD Blackbox"** utility to backfill any missing data points into SQLite.
+* **Analysis-Ready Exports:** Standardized exports to `.csv` and `.parquet` enable immediate handoff to the aerodynamics sub-team for report generation.
+
+### C. Mode Switching: Thrust Stand vs. Wind Tunnel
+The system supports two operating contexts selectable in the header:
+* **Thrust Stand Mode:** Visualizes Channels 1 & 2 as Thrust and Torque, displays motor RPM, and exposes throttle control sliders.
+* **Wind Tunnel Mode:** Disables motor throttle controls and visualizes all 4 load cell channels simultaneously (configured for Lift, Drag, Side Force, and Moments) with multi-channel taring.
+</file>
+
+<file path="docs/06_serial_protocol.md">
+# 06 — Serial Communication Protocol
+
+AeroThrust V3 replaces legacy ASCII string parsing (`lc1(120)\n`) with a packed, CRC-verified binary protocol operating at **115,200 baud** over USB or BLE UART.
+
+---
+
+## 1. Packet Framing: COBS & Integrity
+* **COBS Encoding:** All packets are framed using **Consistent Overhead Byte Stuffing (COBS)**. This ensures that the delimiter byte `0x00` never appears inside the packet payload.
+* **Packet Delimiter:** A single `0x00` byte denotes the **End-of-Packet (EOP)**.
+* **Error Detection:** Every packet includes a 16-bit **CRC-16-CCITT** checksum calculated over all preceding bytes in the frame. Damaged packets caused by motor electrical noise are discarded.
+
+---
+
+## 2. Inbound Telemetry Packet (STM32 $\to$ Computer @ 50 Hz)
+*Base Payload Size:* 22 bytes (prior to COBS encoding)
+
+| Byte Offset | Field Name | Data Type | Units / Scale | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| 0 | `packet_id` | `uint8` | — | Constant identifier (`0x01`) |
+| 1–4 | `timestamp_ms` | `uint32` | Milliseconds | Firmware uptime counter |
+| 5–6 | `load_cell_1` | `int16` | Grams-force | Channel 1: Static Thrust / Normal Force |
+| 7–8 | `load_cell_2` | `int16` | Grams-force | Channel 2: Motor Reaction Torque |
+| 9–10 | `load_cell_3` | `int16` | Grams-force | Channel 3: Secondary Force / Wind Tunnel |
+| 11–12 | `load_cell_4` | `int16` | Grams-force | Channel 4: Secondary Force / Wind Tunnel |
+| 13–14 | `voltage_centi` | `uint16` | Centivolts ($10\text{ mV}$) | Bus Voltage ($2220 = 22.20\text{ V}$, up to 6S LiPo) |
+| 15–16 | `current_centi` | `uint16` | Centiamps ($10\text{ mA}$) | Main Bus Current ($3450 = 34.50\text{ A}$) |
+| 17–18 | `motor_rpm` | `uint16` | RPM | **D-Shot digital telemetry RPM** ($0\text{--}65{,}535\text{ RPM}$) |
+| 19 | `status_flags` | `uint8` | Bitfield | System state flags (see bitfield definition below) |
+| 20–21 | `crc16` | `uint16` | Checksum | CRC-16-CCITT across bytes 0–19 |
+
+### Status Flags Bitfield (`status_flags`)
+* **Bit 0:** `ARMED` (1 = Motor armed, 0 = Disarmed)
+* **Bit 1:** `ESTOP_ACTIVE` (1 = Emergency stop engaged)
+* **Bit 2:** `DSHOT_ENABLED` (1 = D-Shot mode active, 0 = Standard PWM mode)
+* **Bit 3:** `SD_LOGGING` (1 = Onboard microSD blackbox writing OK)
+* **Bit 4:** `TRANSPORT_BLE` (1 = Running via Bluetooth, 0 = Wired USB)
+* **Bits 5–7:** *Reserved for future expansion*
+
+---
+
+## 3. Outbound Command Packet (Computer $\to$ STM32)
+*Base Payload Size:* 7 bytes (prior to COBS encoding)
+
+| Byte Offset | Field Name | Data Type | Value / Range | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| 0 | `packet_id` | `uint8` | — | Constant identifier (`0x02`) |
+| 1 | `command` | `uint8` | Enum | Command type identifier (see table below) |
+| 2–3 | `value` | `uint16` | Variable | Throttle target, pulse width, or channel mask |
+| 4 | `protocol_mode` | `uint8` | `0x00` or `0x01` | `0x00` = Standard Servo PWM, `0x01` = D-Shot |
+| 5–6 | `crc16` | `uint16` | Checksum | CRC-16-CCITT across bytes 0–4 |
+
+### Command Enumeration (`command`)
+* **`0x01` — SET_THROTTLE:** Sets target throttle. If `protocol_mode == 0x00`, value is PWM in microseconds ($1000\text{--}2000\,\mu\text{s}$). If `protocol_mode == 0x01`, value is D-Shot value ($0\text{--}2047$).
+* **`0x02` — EMERGENCY_STOP:** Instantly forces motor output to idle/off and detaches the drive pin.
+* **`0x03` — TARE_CHANNELS:** Bitmask in `value` indicating which load cell channels to zero.
+* **`0xAA` — WATCHDOG_HEARTBEAT:** Cyclic keep-alive ping emitted by the software every 100 ms. If the STM32 misses heartbeats for $>250\text{ ms}$, it immediately triggers a failsafe motor shutdown.
+</file>
+
+<file path="sim/virtual_stand.py">
+"""
+
+AeroThrust V3 - Virtual Hardware Simulator
+
+Emulates the STM32-based thrust stand controller over a local TCP socket.
+Simulates non-blocking COBS binary packet framing, CRC-16 verification, 
+motor inertia, aerodynamic load scaling, voltage sag, and the 250ms watchdog.
+
+"""
+
+import socket
+import struct
+import time
+import math
+import random
+import select
+import sys
+
+# Protocol constants
+PACKET_ID_TELEMETRY = 0x01
+PACKET_ID_COMMAND = 0x02
+
+CMD_SET_THROTTLE = 0x01
+CMD_EMERGENCY_STOP = 0x02
+CMD_TARE_CHANNELS = 0x03
+CMD_HEARTBEAT = 0xAA
+
+STATUS_ARMED = 1 << 0
+STATUS_ESTOP_ACTIVE = 1 << 1
+STATUS_DSHOT_ENABLED = 1 << 2
+STATUS_SD_LOGGING = 1 << 3
+STATUS_TRANSPORT_BLE = 1 << 4
+
+CRC16_POLYNOMIAL = 0x1021
+CRC16_INITIAL = 0xFFFF
+
+
+# Low-level protocol utils
+def compute_crc16(data: bytes) -> int:
+    """
+    Computes a 16-bit CRC-CCITT checksum over the provided byte sequence.
+    Polynomial: 0x1021 (x^16 + x^12 + x^5 + 1), Initial: 0xFFFF.
+    """
+    crc = CRC16_INITIAL
+    for byte in data:
+        crc ^= (byte << 8)
+        for _ in range(8):
+            if crc & 0x8000:
+                crc = ((crc << 1) ^ CRC16_POLYNOMIAL) & 0xFFFF
+            else:
+                crc = (crc << 1) & 0xFFFF
+    return crc
+
+
+def cobs_encode(data: bytes) -> bytes:
+    """
+    Encodes an arbitrary byte sequence using COBS.
+    Guarantees that the delimiter byte (0x00) doesn't appear in the output.
+    """
+    out = bytearray()
+    code_idx = 0
+    code = 1
+    out.append(0) # Reserve space for the first code pointer
+
+    for byte in data:
+        if byte == 0:
+            out[code_idx] = code
+            code_idx = len(out)
+            out.append(0)
+            code = 1
+        else:
+            out.append(byte)
+            code += 1
+            if code == 0xFF:
+                out[code_idx] = code
+                code_idx = len(out)
+                out.append(0)
+                code = 1
+
+    out[code_idx] = code
+    return bytes(out)
+
+
+def cobs_decode(data: bytes) -> bytes:
+    """
+    Decodes a COBS-encoded byte sequence.
+    Raises ValueError if the packet format is corrupted or contains illegal zeroes.
+    """
+    out = bytearray()
+    idx = 0
+    length = len(data)
+
+    while idx < length:
+        code = data[idx]
+        if code == 0:
+            raise ValueError("Zero byte encountered inside COBS block.")
+        idx += 1
+        for _ in range(code - 1):
+            if idx >= length:
+                raise ValueError("Incomplete COBS block (pointer out of bounds).")
+            out.append(data[idx])
+            idx += 1
+        if code < 0xFF and idx < length:
+            out.append(0)
+
+    return bytes(out)
+
+
+# Virtual physics & stand sim engine
+class VirtualThrustStand:
+    def __init__(self):
+        # Operational states
+        self.armed = False
+        self.estop = False
+        self.dshot_mode = True
+        self.sd_logging = True
+        self.tare_offsets = [0.0, 0.0, 0.0, 0.0]
+
+        # Motor dynamics
+        self.throttle_command_pct = 0.0
+        self.current_throttle_pct = 0.0
+        self.max_rpm = 16500.0
+
+        # Battery model (4S LiPo: 16.8V max, 0.025 Ohm internal resistance)
+        self.battery_v_open_circuit = 16.8
+        self.battery_internal_r = 0.028
+        self.consumed_mah = 0.0
+
+        # Safety & watchdog
+        self.last_heartbeat_time = time.time()
+        self.watchdog_timeout_sec = 0.250 # 250ms hardware fail-safe cutoff
+
+        # Sim clock
+        self.start_time = time.time()
+        self.last_update_time = time.time()
+
+    def update_physics(self):
+        """Advances physical based on elapsed time."""
+        now = time.time()
+        dt = now - self.last_update_time
+        self.last_update_time = now
+
+        # Watchdog verification
+        if self.armed and (now - self.last_heartbeat_time > self.watchdog_timeout_sec):
+            self.trigger_failsafe("Watchdog heartbeat timed out (>250ms).")
+
+        # Motor inertia
+        effective_target = self.throttle_command_pct if (self.armed and not self.estop) else 0.0
+        alpha = min(1.0, dt * 10.0)
+        self.current_throttle_pct += alpha * (effective_target - self.current_throttle_pct)
+
+        # Aerodynamics
+        rpm_ratio = self.current_throttle_pct / 100.0
+        current_rpm = rpm_ratio * self.max_rpm
+        if current_rpm > 50:
+            current_rpm += random.gauss(0, 15)
+        current_rpm = max(0.0, current_rpm)
+
+        base_thrust = (rpm_ratio ** 2) * 2400.0
+        thrust_noise = random.gauss(0, 3.0) if current_rpm > 100 else random.gauss(0, 0.4)
+        raw_thrust = base_thrust + thrust_noise
+        raw_torque = (rpm_ratio ** 2) * 180.0 + random.gauss(0, 0.8)
+
+        raw_ch3 = random.gauss(0, 1.2)
+        raw_ch4 = random.gauss(0, 1.2)
+
+        # Electrical load
+        base_current = 0.8 + (rpm_ratio ** 2.2) * 37.2 + random.gauss(0, 0.15)
+        bus_current = max(0.0, base_current)
+        self.consumed_mah += (bus_current * (dt / 3600.0)) * 1000.0 # Accumulate consumed capacity
+
+        # Voltage sag
+        discharge_sag = (self.consumed_mah / 2200.0) * 1.5
+        bus_voltage = self.battery_v_open_circuit - (bus_current * self.battery_internal_r) - discharge_sag
+        bus_voltage = max(10.0, bus_voltage)
+
+        # Store outputs for packet serialization
+        self.telemetry = {
+            "uptime_ms": int((now - self.start_time) * 1000) & 0xFFFFFFFF,
+            "thrust_g": int(round(raw_thrust - self.tare_offsets[0])),
+            "torque_g": int(round(raw_torque - self.tare_offsets[1])),
+            "ch3_g": int(round(raw_ch3 - self.tare_offsets[2])),
+            "ch4_g": int(round(raw_ch4 - self.tare_offsets[3])),
+            "voltage_centi": int(round(bus_voltage * 100)),
+            "current_centi": int(round(bus_current * 100)),
+            "motor_rpm": int(round(current_rpm)),
+            "flags": self._build_status_flags()
+        }
+
+    def _build_status_flags(self) -> int:
+        flags = 0
+        if self.armed:
+            flags |= STATUS_ARMED
+        if self.estop:
+            flags |= STATUS_ESTOP_ACTIVE
+        if self.dshot_mode:
+            flags |= STATUS_DSHOT_ENABLED
+        if self.sd_logging:
+            flags |= STATUS_SD_LOGGING
+        return flags
+
+    def trigger_failsafe(self, reason: str):
+        """Immediately engages the fail-safe emergency stop."""
+        if not self.estop or self.armed:
+            print(f"[FAILSAFE TRIGGERED] {reason}", flush=True)
+        self.armed = False
+        self.estop = True
+        self.throttle_command_pct = 0.0
+
+    def handle_command(self, cmd_id: int, value: int, protocol_mode: int):
+        """Executes incoming commands received from the host computer."""
+        self.last_heartbeat_time = time.time() # Reset watchdog on any valid command
+
+        if cmd_id == CMD_HEARTBEAT:
+            # Heartbeat keep-alive; timer reset handled above
+            pass
+        elif cmd_id == CMD_SET_THROTTLE:
+            if not self.estop:
+                self.armed = True
+                if protocol_mode == 0x01:
+                    # D-Shot mode: range is 0 to 2047 (0 to 100%)
+                    self.throttle_command_pct = max(0.0, min(100.0, (value / 2047.0) * 100.0))
+                else:
+                    # Standard Servo PWM: range is 1000 to 2000 microseconds
+                    clamped_pwm = max(1000, min(2000, value))
+                    self.throttle_command_pct = ((clamped_pwm - 1000) / 1000.0) * 100.0
+                print(f"[CMD] Set Throttle: {self.throttle_command_pct:.1f}%", flush=True)
+
+        elif cmd_id == CMD_EMERGENCY_STOP:
+            self.trigger_failsafe("Manual E-Stop requested by host.")
+
+        elif cmd_id == CMD_TARE_CHANNELS:
+            # Value is treated as a bitmask for channels 1 to 4
+            if value & (1 << 0):
+                self.tare_offsets[0] += self.telemetry["thrust_g"]
+            if value & (1 << 1):
+                self.tare_offsets[1] += self.telemetry["torque_g"]
+            if value & (1 << 2):
+                self.tare_offsets[2] += self.telemetry["ch3_g"]
+            if value & (1 << 3):
+                self.tare_offsets[3] += self.telemetry["ch4_g"]
+            print(f"[CMD] Tared channels with mask 0x{value:02X}", flush=True)
+
+    def serialize_telemetry_packet(self) -> bytes:
+        """
+        Packs the 22-byte telemetry structure (Little-Endian),
+        computes CRC16, encodes with COBS, and appends the 0x00 delimiter.
+        """
+        # Pack unencoded payload (bytes 0 to 19 = 20 bytes)
+        payload = struct.pack(
+            "<B I 4h 3H B",
+            PACKET_ID_TELEMETRY,
+            self.telemetry["uptime_ms"],
+            self.telemetry["thrust_g"],
+            self.telemetry["torque_g"],
+            self.telemetry["ch3_g"],
+            self.telemetry["ch4_g"],
+            self.telemetry["voltage_centi"],
+            self.telemetry["current_centi"],
+            self.telemetry["motor_rpm"],
+            self.telemetry["flags"]
+        )
+        crc = compute_crc16(payload)
+        packet_with_crc = payload + struct.pack("<H", crc)
+        return cobs_encode(packet_with_crc) + b"\x00"
+
+
+# Server socket loop
+def run_simulator(host: str = "127.0.0.1", port: int = 8765):
+    stand = VirtualThrustStand()
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    
+    # Only set SO_REUSEADDR on non-Windows platforms to prevent silent port hijacking on Windows
+    if sys.platform != "win32":
+        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+    try:
+        server.bind((host, port))
+    except OSError as e:
+        print(f"\n[FATAL ERROR] Could not bind to {host}:{port}.")
+        print(f"Details: {e}")
+        print("A zombie Python process is already using this port.")
+        print("Run 'Get-Process python* | Stop-Process -Force' in PowerShell to clear it.\n")
+        sys.exit(1)
+
+    server.listen(1)
+    # Set timeout on accept() so the loop wakes up to check for Ctrl+C on Windows
+    server.settimeout(0.5)
+
+    print("=" * 70, flush=True)
+    print(f" AeroThrust V3 - Virtual Stand Hardware Simulator", flush=True)
+    print(f" Listening on TCP Socket -> {host}:{port}", flush=True)
+    print(f" Press Ctrl+C to terminate.", flush=True)
+    print("=" * 70, flush=True)
+
+    try:
+        while True:
+            print("\nWaiting for client connection from AeroThrust backend/GUI...", flush=True)
+            conn = None
+            while conn is None:
+                try:
+                    conn, addr = server.accept()
+                except socket.timeout:
+                    # Timeout periodically allows Python to handle Ctrl+C on Windows!
+                    continue
+
+            conn.setblocking(False)
+            print(f"Connected to client: {addr}", flush=True)
+
+            rx_buffer = bytearray()
+            last_telemetry_time = time.time()
+            stand.armed = False
+            stand.estop = False
+            stand.last_heartbeat_time = time.time()
+
+            while True:
+                readable, _, _ = select.select([conn], [], [], 0.005)
+                if readable:
+                    try:
+                        chunk = conn.recv(256)
+                        if not chunk:
+                            if stand.armed and not stand.estop:
+                                stand.trigger_failsafe("Connection severed while motor was ARMED!")
+                            print("Client disconnected.", flush=True)
+                            break
+                        rx_buffer.extend(chunk)
+
+                        while b"\x00" in rx_buffer:
+                            delimiter_idx = rx_buffer.index(b"\x00")
+                            frame = rx_buffer[:delimiter_idx]
+                            del rx_buffer[:delimiter_idx + 1]
+
+                            if len(frame) == 0:
+                                continue
+
+                            try:
+                                decoded = cobs_decode(frame)
+                                if len(decoded) == 7:
+                                    packet_id, cmd, val, mode, rx_crc = struct.unpack("<B B H B H", decoded)
+                                    calc_crc = compute_crc16(decoded[:5])
+                                    if calc_crc == rx_crc and packet_id == PACKET_ID_COMMAND:
+                                        stand.handle_command(cmd, val, mode)
+                                    else:
+                                        print("[ERROR] Corrupted command packet: CRC mismatch.", flush=True)
+                            except ValueError as e:
+                                print(f"[ERROR] COBS decode failed: {e}", flush=True)
+
+                    except ConnectionResetError:
+                        if stand.armed and not stand.estop:
+                            stand.trigger_failsafe("Connection abruptly reset by client!")
+                        print("Connection forcefully closed by client.", flush=True)
+                        break
+
+                stand.update_physics()
+
+                now = time.time()
+                if now - last_telemetry_time >= 0.020:
+                    last_telemetry_time = now
+                    packet = stand.serialize_telemetry_packet()
+                    try:
+                        conn.sendall(packet)
+                    except (BrokenPipeError, ConnectionResetError):
+                        if stand.armed and not stand.estop:
+                            stand.trigger_failsafe("Broken pipe while writing telemetry!")
+                        print("Client disconnected while writing telemetry.", flush=True)
+                        break
+
+    except KeyboardInterrupt:
+        print("\nTerminating simulator server.", flush=True)
+    finally:
+        server.close()
+
+
+if __name__ == "__main__":
+    run_simulator()
+</file>
+
+</files>

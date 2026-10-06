@@ -1,0 +1,46 @@
+:root {
+  /* AeroDesign Brand & Backgrounds */
+  --bg-base: #0f172a;
+  --bg-surface: #1e293b;
+  --bg-surface-highlight: #334155;
+  
+  /* Typography */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-accent: #38bdf8;
+  
+  /* Safety & Status Colors */
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  
+  /* Borders & Shadows */
+  --border-subtle: 1px solid #334155;
+  --shadow-panel: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  
+  /* Layout constraints */
+  --header-height: 60px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden; /* Prevent desktop window scrolling */
+  user-select: none; /* Prevent accidental text selection during frantic clicks */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.glass-panel {
+  background-color: var(--bg-surface);
+  border: var(--border-subtle);
+  border-radius: 8px;
+  box-shadow: var(--shadow-panel);
+  padding: 16px;
+}
