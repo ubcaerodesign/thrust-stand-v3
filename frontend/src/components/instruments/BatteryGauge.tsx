@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 
 interface BatteryGaugeProps {
-  maxMah?: number; // 1000 for Micro, 3000 for Advanced
+  maxMah?: number;
   getVoltage: () => number;
   getCurrent: () => number;
 }
 
-export const BatteryGauge: React.FC<BatteryGaugeProps> = ({ maxMah = 1000, getVoltage, getCurrent }) => {
+export const BatteryGauge: React.FC<BatteryGaugeProps> = ({ maxMah = 1000, getCurrent }) => {
   const mahRef = useRef<number>(0);
   const textRef = useRef<HTMLSpanElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
@@ -21,7 +21,6 @@ export const BatteryGauge: React.FC<BatteryGaugeProps> = ({ maxMah = 1000, getVo
 
       const currentA = getCurrent();
       if (currentA > 0) {
-        // mAh = Amps * (hours) * 1000
         mahRef.current += currentA * (dt / 3600) * 1000;
       }
 
@@ -34,7 +33,7 @@ export const BatteryGauge: React.FC<BatteryGaugeProps> = ({ maxMah = 1000, getVo
 
       if (barRef.current) {
         barRef.current.style.width = `${pct}%`;
-        barRef.current.style.backgroundColor = pct > 80 ? '#ef4444' : pct > 50 ? '#f59e0b' : '#22c55e';
+        barRef.current.style.backgroundColor = pct > 80 ? 'var(--color-danger)' : pct > 50 ? 'var(--brand-yellow)' : 'var(--color-success)';
       }
 
       animId = requestAnimationFrame(loop);
@@ -45,18 +44,18 @@ export const BatteryGauge: React.FC<BatteryGaugeProps> = ({ maxMah = 1000, getVo
   }, [maxMah, getCurrent]);
 
   return (
-    <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '6px', padding: '12px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-          Battery Capacity Used
+        <span style={{ fontSize: '11px', color: 'var(--brand-ice)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 700 }}>
+          Battery Used
         </span>
-        <span ref={textRef} style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-accent)', fontVariantNumeric: 'tabular-nums' }}>
+        <span ref={textRef} style={{ fontSize: '11px', fontWeight: 700, color: '#FFFFFF', fontVariantNumeric: 'tabular-nums' }}>
           0.0 / {maxMah} mAh (0%)
         </span>
       </div>
 
-      <div style={{ height: '8px', width: '100%', backgroundColor: '#0f172a', borderRadius: '4px', overflow: 'hidden' }}>
-        <div ref={barRef} style={{ height: '100%', width: '0%', backgroundColor: '#22c55e', transition: 'width 0.1s linear' }} />
+      <div style={{ height: '6px', width: '100%', backgroundColor: 'var(--bg-base)', borderRadius: '3px', overflow: 'hidden' }}>
+        <div ref={barRef} style={{ height: '100%', width: '0%', backgroundColor: 'var(--color-success)', transition: 'width 0.1s linear' }} />
       </div>
     </div>
   );

@@ -10,8 +10,8 @@ interface PlotControlsProps {
 
 export const PlotControls: React.FC<PlotControlsProps> = ({ activeTab, onTabChange, onClear }) => {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-      <div style={{ display: 'flex', gap: '8px' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+      <div style={{ display: 'flex', gap: '6px' }}>
         <button
           onClick={() => onTabChange('thrust_time')}
           style={tabStyle(activeTab === 'thrust_time')}
@@ -35,11 +35,11 @@ export const PlotControls: React.FC<PlotControlsProps> = ({ activeTab, onTabChan
       <button
         onClick={onClear}
         style={{
-          background: 'none',
-          border: '1px solid #334155',
-          color: 'var(--text-secondary)',
+          background: 'transparent',
+          border: '1px solid rgba(201, 214, 234, 0.2)',
+          color: 'var(--brand-ice)',
           borderRadius: '4px',
-          padding: '4px 10px',
+          padding: '3px 8px',
           fontSize: '11px',
           cursor: 'pointer',
         }}
@@ -51,13 +51,13 @@ export const PlotControls: React.FC<PlotControlsProps> = ({ activeTab, onTabChan
 };
 
 const tabStyle = (isActive: boolean): React.CSSProperties => ({
-  backgroundColor: isActive ? '#0284c7' : '#1e293b',
-  color: isActive ? '#ffffff' : '#94a3b8',
-  border: '1px solid #334155',
-  borderRadius: '6px',
-  padding: '6px 14px',
-  fontSize: '12px',
-  fontWeight: 600,
+  backgroundColor: isActive ? 'var(--brand-blue)' : 'transparent',
+  color: isActive ? '#FFFFFF' : 'var(--brand-ice)',
+  border: isActive ? '1px solid var(--brand-ice)' : '1px solid rgba(201, 214, 234, 0.2)',
+  borderRadius: '4px',
+  padding: '5px 12px',
+  fontSize: '11px',
+  fontWeight: 700,
   cursor: 'pointer',
   transition: 'all 0.15s ease',
 });

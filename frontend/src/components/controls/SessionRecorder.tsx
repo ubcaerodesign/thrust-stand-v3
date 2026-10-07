@@ -4,17 +4,16 @@ import { Modal } from '../common/Modal';
 import { StartSessionPayload, CompetitionClass } from '../../types/session';
 
 interface SessionRecorderProps {
-  isConnected: boolean;
+  isHardwareStreaming: boolean;
 }
 
-export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isConnected }) => {
+export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isHardwareStreaming }) => {
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
   const [elapsedSec, setElapsedSec] = useState<number>(0);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [lastExportUrl, setLastExportUrl] = useState<string | null>(null);
 
-  // Form State
   const [form, setForm] = useState<StartSessionPayload>({
     name: 'Static_Thrust_Test',
     competition_class: 'MCR',
@@ -24,7 +23,6 @@ export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isConnected })
     notes: '',
   });
 
-  // Timer
   useEffect(() => {
     let interval: number;
     if (isRecording) {
@@ -67,23 +65,23 @@ export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isConnected })
   };
 
   return (
-    <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>RECORDING:</span>
+    <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '8px 16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--brand-ice)' }}>DATA SESSION:</span>
 
         {isRecording ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ color: '#ef4444', fontWeight: 'bold', fontSize: '14px' }}>● REC [{activeRunId}]</span>
-            <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, fontSize: '16px', color: 'var(--text-accent)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ color: 'var(--color-danger)', fontWeight: 700, fontSize: '13px' }}>● REC [{activeRunId}]</span>
+            <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 700, fontSize: '15px', color: 'var(--brand-yellow)' }}>
               {formatTime(elapsedSec)}
             </span>
           </div>
         ) : (
-          <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>IDLE</span>
+          <span style={{ fontSize: '12px', color: 'rgba(201, 214, 234, 0.5)' }}>STANDBY</span>
         )}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         {lastExportUrl && (
           <a
             href={lastExportUrl}
@@ -91,11 +89,11 @@ export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isConnected })
             rel="noreferrer"
             style={{
               backgroundColor: '#059669',
-              color: '#ffffff',
-              padding: '6px 12px',
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: 600,
+              color: '#FFFFFF',
+              padding: '5px 12px',
+              borderRadius: '4px',
+              fontSize: '11px',
+              fontWeight: 700,
               textDecoration: 'none',
             }}
           >
@@ -106,23 +104,24 @@ export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isConnected })
         {isRecording ? (
           <button
             onClick={handleStop}
-            style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', padding: '7px 18px', fontWeight: 'bold', cursor: 'pointer' }}
+            style={{ backgroundColor: 'var(--color-danger)', color: '#FFFFFF', border: 'none', borderRadius: '4px', padding: '6px 16px', fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}
           >
-            STOP RUN
+            STOP & EXPORT
           </button>
         ) : (
           <button
             onClick={() => setIsModalOpen(true)}
-            disabled={!isConnected}
+            disabled={!isHardwareStreaming}
             style={{
-              backgroundColor: '#0284c7',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '6px',
-              padding: '7px 18px',
-              fontWeight: 'bold',
-              cursor: isConnected ? 'pointer' : 'not-allowed',
-              opacity: isConnected ? 1 : 0.5,
+              backgroundColor: 'var(--brand-blue)',
+              color: '#FFFFFF',
+              border: '1px solid var(--brand-ice)',
+              borderRadius: '4px',
+              padding: '6px 16px',
+              fontWeight: 700,
+              fontSize: '12px',
+              cursor: isHardwareStreaming ? 'pointer' : 'not-allowed',
+              opacity: isHardwareStreaming ? 1 : 0.4,
             }}
           >
             NEW TEST RUN
@@ -130,8 +129,7 @@ export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isConnected })
         )}
       </div>
 
-      {/* Metadata Configuration Modal */}
-      <Modal isOpen={isModalOpen} title="Configure Test Run Metadata" onClose={() => setIsModalOpen(false)}>
+      <Modal isOpen={isModalOpen} title="Test Run Configuration" onClose={() => setIsModalOpen(false)}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div>
             <label style={labelStyle}>Run Name</label>
@@ -145,7 +143,7 @@ export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isConnected })
 
           <div style={{ display: 'flex', gap: '12px' }}>
             <div style={{ flex: 1 }}>
-              <label style={labelStyle}>Class</label>
+              <label style={labelStyle}>Competition Class</label>
               <select
                 value={form.competition_class}
                 onChange={(e) => setForm({ ...form, competition_class: e.target.value as CompetitionClass })}
@@ -161,7 +159,6 @@ export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isConnected })
                 type="text"
                 value={form.battery_config}
                 onChange={(e) => setForm({ ...form, battery_config: e.target.value })}
-                placeholder="e.g. 3S 1000mAh"
                 style={inputStyle}
               />
             </div>
@@ -178,7 +175,7 @@ export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isConnected })
           </div>
 
           <div>
-            <label style={labelStyle}>Propeller Geometry</label>
+            <label style={labelStyle}>Propeller Spec</label>
             <input
               type="text"
               value={form.propeller_model}
@@ -197,11 +194,11 @@ export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isConnected })
             />
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '10px' }}>
             <button onClick={() => setIsModalOpen(false)} style={{ ...btnStyle, backgroundColor: '#334155' }}>
               Cancel
             </button>
-            <button onClick={handleStart} style={{ ...btnStyle, backgroundColor: '#0284c7' }}>
+            <button onClick={handleStart} style={{ ...btnStyle, backgroundColor: 'var(--brand-blue)', border: '1px solid var(--brand-ice)' }}>
               Start Recording
             </button>
           </div>
@@ -213,29 +210,29 @@ export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isConnected })
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
-  fontSize: '12px',
-  color: 'var(--text-secondary)',
+  fontSize: '11px',
+  color: 'var(--brand-ice)',
   marginBottom: '4px',
   textTransform: 'uppercase',
-  fontWeight: 600,
+  fontWeight: 700,
 };
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
-  backgroundColor: '#0f172a',
-  color: '#f8fafc',
-  border: '1px solid #334155',
-  borderRadius: '6px',
-  padding: '8px 10px',
-  fontSize: '13px',
+  backgroundColor: 'var(--bg-base)',
+  color: '#FFFFFF',
+  border: '1px solid rgba(201, 214, 234, 0.25)',
+  borderRadius: '4px',
+  padding: '6px 8px',
+  fontSize: '12px',
 };
 
 const btnStyle: React.CSSProperties = {
   border: 'none',
-  borderRadius: '6px',
-  padding: '8px 16px',
-  fontSize: '13px',
-  fontWeight: 600,
-  color: '#ffffff',
+  borderRadius: '4px',
+  padding: '6px 14px',
+  fontSize: '12px',
+  fontWeight: 700,
+  color: '#FFFFFF',
   cursor: 'pointer',
 };

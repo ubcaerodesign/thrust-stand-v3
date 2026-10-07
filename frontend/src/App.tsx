@@ -16,7 +16,7 @@ import { TelemetryPlot } from './components/plots/TelemetryPlot';
 import { PlotControls, ActivePlotTab } from './components/plots/PlotControls';
 
 export default function App() {
-  const { isConnected, latestPacket } = useTelemetryStream();
+  const { isWsConnected, isHardwareStreaming, isEstop, latestPacket } = useTelemetryStream();
   const { triggerEStop } = useKeyboardEStop();
 
   const [plotTab, setPlotTab] = useState<ActivePlotTab>('thrust_time');
@@ -30,12 +30,11 @@ export default function App() {
     }
   };
 
-  const isEstop = latestPacket.current?.estop ?? false;
   const voltage = latestPacket.current?.voltage_v ?? 0;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: 'var(--bg-base)' }}>
-      {/* Top Header */}
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', backgroundColor: 'var(--bg-base)' }}>
+      {/* Brand Header */}
       <header
         style={{
           height: 'var(--header-height)',
@@ -44,32 +43,72 @@ export default function App() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 24px',
+          padding: '0 20px',
+          flexShrink: 0,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <img src="/src/assets/logo-primary.png" alt="UBC AeroDesign" style={{ height: '36px', width: '36px' }} />
+          {/* Brand Logo with compliant padding */}
+          <img
+            src="/src/assets/logo_white_horizontal.svg"
+            alt="UBC AeroDesign"
+            style={{ height: '36px', maxWidth: '160px', objectFit: 'contain' }}
+          />
+          <div style={{ height: '24px', width: '1px', backgroundColor: 'rgba(201, 214, 234, 0.2)' }} />
           <div>
-            <h2 style={{ margin: 0, fontSize: '18px', letterSpacing: '1px' }}>AEROTHRUST V3</h2>
-            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>UBC AeroDesign Ground Station</span>
+            <h2 style={{ margin: 0, fontSize: '16px', letterSpacing: '1px', color: '#FFFFFF' }}>AEROTHRUST V3</h2>
+            <span style={{ fontSize: '10px', color: 'var(--brand-ice)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Ground Propulsion Testing Core
+            </span>
           </div>
         </div>
 
-        <EStopButton onTrigger={triggerEStop} isEstopActive={isEstop} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div
+            style={{
+              padding: '4px 10px',
+              borderRadius: '4px',
+              fontSize: '11px',
+              fontWeight: 700,
+              backgroundColor: isHardwareStreaming ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+              color: isHardwareStreaming ? 'var(--color-success)' : 'var(--color-danger)',
+              border: isHardwareStreaming ? '1px solid var(--color-success)' : '1px solid var(--color-danger)',
+            }}
+          >
+            {isHardwareStreaming ? 'STREAMING ACTIVE' : 'OFFLINE'}
+          </div>
+
+          <EStopButton onTrigger={triggerEStop} isEstopActive={isEstop} />
+        </div>
       </header>
 
       {/* Safety Alert Banner */}
-      <SafetyBanner isEstop={isEstop} isConnected={isConnected} voltage={voltage} />
+      <SafetyBanner
+        isEstop={isEstop}
+        isWsConnected={isWsConnected}
+        isHardwareStreaming={isHardwareStreaming}
+        voltage={voltage}
+      />
 
-      {/* Connection & Setup Toolbar */}
-      <div style={{ padding: '12px 24px 0 24px' }}>
-        <ConnectionBar isConnected={isConnected} onTare={handleTare} />
+      {/* Hardware Transport Toolbar */}
+      <div style={{ padding: '8px 16px 0 16px', flexShrink: 0 }}>
+        <ConnectionBar isHardwareStreaming={isHardwareStreaming} onTare={handleTare} />
       </div>
 
-      {/* Main Ground Station Dashboard */}
-      <main style={{ flex: 1, padding: '16px 24px', display: 'flex', gap: '20px', overflow: 'hidden' }}>
-        {/* Left Column: Primary Telemetry Gauges */}
-        <section style={{ width: '280px', display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto' }}>
+      {/* Main Responsive Grid Layout */}
+      <main style={{ flex: 1, padding: '12px 16px', display: 'flex', gap: '16px', minHeight: 0, overflow: 'hidden' }}>
+        {/* Left Column: Primary Telemetry Cluster */}
+        <section
+          style={{
+            width: '260px',
+            flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            overflowY: 'auto',
+            paddingRight: '4px',
+          }}
+        >
           <NumericCard
             title="Axial Thrust"
             unit="g"
@@ -89,7 +128,7 @@ export default function App() {
             precision={0}
           />
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             <NumericCard
               title="Bus Voltage"
               unit="V"
@@ -104,9 +143,9 @@ export default function App() {
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             <NumericCard
-              title="Electric Power"
+              title="Power"
               unit="W"
               getValue={() => latestPacket.current?.power_w ?? 0}
               precision={1}
@@ -130,16 +169,25 @@ export default function App() {
           />
         </section>
 
-        {/* Center/Right Column: Plots & Actuation Controls */}
-        <section style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          {/* Canvas Plot Container */}
-          <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        {/* Center/Right Column: Fluid Resizing Visualizer & Controls */}
+        <section
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            minWidth: 0,
+            minHeight: 0,
+          }}
+        >
+          {/* Dynamic Resizing Canvas Container */}
+          <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '260px' }}>
             <PlotControls
               activeTab={plotTab}
               onTabChange={setPlotTab}
               onClear={() => setClearTrigger((prev) => prev + 1)}
             />
-            <div style={{ flex: 1, position: 'relative' }}>
+            <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
               <TelemetryPlot
                 activeTab={plotTab}
                 getLatestPacket={() => latestPacket.current}
@@ -148,11 +196,15 @@ export default function App() {
             </div>
           </div>
 
-          {/* Test Session Recorder */}
-          <SessionRecorder isConnected={isConnected} />
+          {/* Test Session Recording Bar */}
+          <div style={{ flexShrink: 0 }}>
+            <SessionRecorder isHardwareStreaming={isHardwareStreaming} />
+          </div>
 
-          {/* Throttle Actuation Bar */}
-          <ThrottleSlider isConnected={isConnected} isEstop={isEstop} />
+          {/* Throttle Actuation Interface */}
+          <div style={{ flexShrink: 0 }}>
+            <ThrottleSlider isHardwareStreaming={isHardwareStreaming} isEstop={isEstop} />
+          </div>
         </section>
       </main>
     </div>

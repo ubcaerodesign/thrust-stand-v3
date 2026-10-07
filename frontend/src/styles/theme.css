@@ -1,26 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Titillium+Web:wght@600;700&display=swap');
+
 :root {
-  /* AeroDesign Brand & Backgrounds */
-  --bg-base: #0f172a;
-  --bg-surface: #1e293b;
-  --bg-surface-highlight: #334155;
+  /* UBC AeroDesign Brand Palette (Brand Identity 2023) */
+  --bg-base: #0a141f;                  /* Deep aerospace dark */
+  --bg-surface: #11273B;               /* Primary Dark Navy */
+  --bg-surface-elevated: #16324a;      /* Lighter Navy for cards */
+  --brand-blue: #003565;               /* Official UBC AeroDesign Blue */
+  --brand-ice: #C9D6EA;                /* Ice Blue (Secondary / Accents) */
+  --brand-yellow: #ECEB2A;             /* Emphasis / Safety Yellow */
   
   /* Typography */
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-accent: #38bdf8;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C9D6EA;
+  --text-accent: #ECEB2A;
   
-  /* Safety & Status Colors */
+  /* Status Colors */
   --color-danger: #ef4444;
-  --color-danger-hover: #dc2626;
+  --color-danger-glow: rgba(239, 68, 68, 0.4);
   --color-success: #22c55e;
-  --color-warning: #f59e0b;
-  
-  /* Borders & Shadows */
-  --border-subtle: 1px solid #334155;
-  --shadow-panel: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-  
-  /* Layout constraints */
-  --header-height: 60px;
+  --color-warning: #ECEB2A;
+
+  /* Typography Families */
+  --font-heading: 'Titillium Web', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Layout */
+  --header-height: 64px;
+  --border-subtle: 1px solid rgba(201, 214, 234, 0.15);
 }
 
 body {
@@ -28,9 +34,15 @@ body {
   padding: 0;
   background-color: var(--bg-base);
   color: var(--text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  overflow: hidden; /* Prevent desktop window scrolling */
-  user-select: none; /* Prevent accidental text selection during frantic clicks */
+  font-family: var(--font-body);
+  overflow: hidden;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: 0.5px;
 }
 
 * {
@@ -41,6 +53,22 @@ body {
   background-color: var(--bg-surface);
   border: var(--border-subtle);
   border-radius: 8px;
-  box-shadow: var(--shadow-panel);
-  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  padding: 14px;
+}
+
+/* Custom scrollbars for responsive panels */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(201, 214, 234, 0.2);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 214, 234, 0.4);
 }

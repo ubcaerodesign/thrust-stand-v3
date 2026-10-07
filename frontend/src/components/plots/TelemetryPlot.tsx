@@ -17,14 +17,32 @@ interface PlotSample {
 }
 
 export const TelemetryPlot: React.FC<TelemetryPlotProps> = ({ activeTab, getLatestPacket, clearTrigger }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const bufferRef = useRef<PlotSample[]>([]);
-  const MAX_SAMPLES = 300; // 300 samples at 50Hz = 6 seconds of rolling history
+  const MAX_SAMPLES = 300; // 6 seconds of rolling history at 50Hz
 
-  // Clear buffer when requested
   useEffect(() => {
     bufferRef.current = [];
   }, [clearTrigger]);
+
+  // Handle dynamic canvas resizing via ResizeObserver
+  useEffect(() => {
+    const container = containerRef.current;
+    const canvas = canvasRef.current;
+    if (!container || !canvas) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        canvas.width = Math.floor(width);
+        canvas.height = Math.floor(height);
+      }
+    });
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     let animId: number;
@@ -45,7 +63,7 @@ export const TelemetryPlot: React.FC<TelemetryPlotProps> = ({ activeTab, getLate
       }
 
       const canvas = canvasRef.current;
-      if (canvas) {
+      if (canvas && canvas.width > 0 && canvas.height > 0) {
         const ctx = canvas.getContext('2d');
         if (ctx) {
           drawPlot(ctx, canvas.width, canvas.height, bufferRef.current, activeTab);
@@ -60,12 +78,10 @@ export const TelemetryPlot: React.FC<TelemetryPlotProps> = ({ activeTab, getLate
   }, [getLatestPacket, activeTab]);
 
   return (
-    <div style={{ width: '100%', height: '100%', minHeight: '320px', position: 'relative' }}>
+    <div ref={containerRef} style={{ width: '100%', height: '100%', minHeight: '260px', position: 'relative' }}>
       <canvas
         ref={canvasRef}
-        width={800}
-        height={360}
-        style={{ width: '100%', height: '100%', borderRadius: '6px', backgroundColor: '#0b1120' }}
+        style={{ width: '100%', height: '100%', borderRadius: '4px', backgroundColor: '#0a141f', display: 'block' }}
       />
     </div>
   );
@@ -80,19 +96,18 @@ function drawPlot(
 ) {
   ctx.clearRect(0, 0, width, height);
 
-  // Margins
-  const padLeft = 60;
-  const padRight = 60;
-  const padTop = 30;
-  const padBottom = 40;
-  const plotW = width - padLeft - padRight;
-  const plotH = height - padTop - padBottom;
+  const padLeft = 55;
+  const padRight = 55;
+  const padTop = 25;
+  const padBottom = 30;
+  const plotW = Math.max(10, width - padLeft - padRight);
+  const plotH = Math.max(10, height - padTop - padBottom);
 
-  // Grid background
-  ctx.strokeStyle = '#1e293b';
+  // Background grid
+  ctx.strokeStyle = 'rgba(201, 214, 234, 0.08)';
   ctx.lineWidth = 1;
-  for (let i = 0; i <= 5; i++) {
-    const y = padTop + (plotH / 5) * i;
+  for (let i = 0; i <= 4; i++) {
+    const y = padTop + (plotH / 4) * i;
     ctx.beginPath();
     ctx.moveTo(padLeft, y);
     ctx.lineTo(width - padRight, y);
@@ -100,50 +115,38 @@ function drawPlot(
   }
 
   if (data.length < 2) {
-    ctx.fillStyle = '#64748b';
-    ctx.font = '13px sans-serif';
+    ctx.fillStyle = 'var(--brand-ice)';
+    ctx.font = '12px var(--font-body)';
     ctx.textAlign = 'center';
-    ctx.fillText('Awaiting live telemetry packets...', width / 2, height / 2);
+    ctx.fillText('Awaiting hardware telemetry stream...', width / 2, height / 2);
     return;
   }
 
   if (tab === 'thrust_time') {
-    // Left Y Axis: Thrust (0 to 3000g)
-    // Right Y Axis: RPM (0 to 18000 RPM)
     const maxThrust = Math.max(500, ...data.map((d) => d.thrust));
     const maxRPM = Math.max(2000, ...data.map((d) => d.rpm));
 
-    // Plot Thrust (Cyan)
-    drawLineSeries(ctx, data, (d) => d.thrust, 0, maxThrust, padLeft, padTop, plotW, plotH, '#38bdf8', 'Thrust (g)');
-    // Plot RPM (Yellow)
-    drawLineSeries(ctx, data, (d) => d.rpm, 0, maxRPM, padLeft, padTop, plotW, plotH, '#facc15', 'RPM');
+    drawLineSeries(ctx, data, (d) => d.thrust, 0, maxThrust, padLeft, padTop, plotW, plotH, '#ECEB2A'); // Thrust in Brand Yellow
+    drawLineSeries(ctx, data, (d) => d.rpm, 0, maxRPM, padLeft, padTop, plotW, plotH, '#38bdf8');     // RPM in Sky Blue
 
-    // Axes Labels
-    drawAxisLabel(ctx, `${maxThrust.toFixed(0)} g`, padLeft - 10, padTop, '#38bdf8', 'right');
-    drawAxisLabel(ctx, '0 g', padLeft - 10, padTop + plotH, '#38bdf8', 'right');
-    drawAxisLabel(ctx, `${maxRPM.toFixed(0)} RPM`, width - padRight + 10, padTop, '#facc15', 'left');
-    drawAxisLabel(ctx, '0 RPM', width - padRight + 10, padTop + plotH, '#facc15', 'left');
+    drawAxisLabel(ctx, `${maxThrust.toFixed(0)} g`, padLeft - 8, padTop, '#ECEB2A', 'right');
+    drawAxisLabel(ctx, '0 g', padLeft - 8, padTop + plotH, '#ECEB2A', 'right');
+    drawAxisLabel(ctx, `${maxRPM.toFixed(0)} RPM`, width - padRight + 8, padTop, '#38bdf8', 'left');
+    drawAxisLabel(ctx, '0 RPM', width - padRight + 8, padTop + plotH, '#38bdf8', 'left');
   } else if (tab === 'electrical_time') {
-    // Left Y: Current (0 to 60A), Right Y: Voltage (0 to 25V)
     const maxCurrent = Math.max(10, ...data.map((d) => d.current));
     const maxVolts = Math.max(18, ...data.map((d) => d.voltage));
 
-    drawLineSeries(ctx, data, (d) => d.current, 0, maxCurrent, padLeft, padTop, plotW, plotH, '#ef4444', 'Current (A)');
-    drawLineSeries(ctx, data, (d) => d.voltage, 0, maxVolts, padLeft, padTop, plotW, plotH, '#22c55e', 'Voltage (V)');
+    drawLineSeries(ctx, data, (d) => d.current, 0, maxCurrent, padLeft, padTop, plotW, plotH, '#ef4444');
+    drawLineSeries(ctx, data, (d) => d.voltage, 0, maxVolts, padLeft, padTop, plotW, plotH, '#22c55e');
 
-    drawAxisLabel(ctx, `${maxCurrent.toFixed(1)} A`, padLeft - 10, padTop, '#ef4444', 'right');
-    drawAxisLabel(ctx, '0 A', padLeft - 10, padTop + plotH, '#ef4444', 'right');
-    drawAxisLabel(ctx, `${maxVolts.toFixed(1)} V`, width - padRight + 10, padTop, '#22c55e', 'left');
-    drawAxisLabel(ctx, '0 V', width - padRight + 10, padTop + plotH, '#22c55e', 'left');
+    drawAxisLabel(ctx, `${maxCurrent.toFixed(1)} A`, padLeft - 8, padTop, '#ef4444', 'right');
+    drawAxisLabel(ctx, '0 A', padLeft - 8, padTop + plotH, '#ef4444', 'right');
+    drawAxisLabel(ctx, `${maxVolts.toFixed(1)} V`, width - padRight + 8, padTop, '#22c55e', 'left');
+    drawAxisLabel(ctx, '0 V', width - padRight + 8, padTop + plotH, '#22c55e', 'left');
   } else if (tab === 'thrust_throttle') {
-    // Cross-plot
-    ctx.fillStyle = '#64748b';
-    ctx.font = '13px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Thrust vs. Throttle Curve', width / 2, padTop - 10);
-    // Draw cross points
     const maxThrust = Math.max(500, ...data.map((d) => d.thrust));
-    ctx.fillStyle = '#38bdf8';
+    ctx.fillStyle = '#ECEB2A';
     data.forEach((d, i) => {
       const x = padLeft + (i / data.length) * plotW;
       const y = padTop + plotH - (d.thrust / maxThrust) * plotH;
@@ -164,8 +167,7 @@ function drawLineSeries(
   top: number,
   w: number,
   h: number,
-  color: string,
-  legend: string
+  color: string
 ) {
   ctx.strokeStyle = color;
   ctx.lineWidth = 2;
@@ -192,7 +194,7 @@ function drawAxisLabel(
   align: CanvasTextAlign
 ) {
   ctx.fillStyle = color;
-  ctx.font = '11px monospace';
+  ctx.font = '10px var(--font-body)';
   ctx.textAlign = align;
-  ctx.fillText(text, x, y + 4);
+  ctx.fillText(text, x, y + 3);
 }

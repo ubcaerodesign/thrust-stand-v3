@@ -3,19 +3,19 @@ import { api } from '../../services/api';
 import { TransportMode } from '../../types/session';
 
 interface ConnectionBarProps {
-  isConnected: boolean;
+  isHardwareStreaming: boolean;
   onTare: () => void;
 }
 
-export const ConnectionBar: React.FC<ConnectionBarProps> = ({ isConnected, onTare }) => {
+export const ConnectionBar: React.FC<ConnectionBarProps> = ({ isHardwareStreaming, onTare }) => {
   const [mode, setMode] = useState<TransportMode>('simulator');
   const [port, setPort] = useState<string>('COM3');
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleConnect = async () => {
+  const handleToggleConnect = async () => {
     setIsLoading(true);
     try {
-      if (isConnected) {
+      if (isHardwareStreaming) {
         await api.disconnect();
       } else {
         await api.connect({
@@ -25,31 +25,34 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({ isConnected, onTar
         });
       }
     } catch (err) {
-      alert(`Connection failed: ${(err as Error).message}`);
+      alert(`Connection Error: ${(err as Error).message}`);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', padding: '10px 16px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>TRANSPORT:</span>
+    <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', padding: '8px 16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+        <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--brand-ice)', letterSpacing: '0.5px' }}>
+          HARDWARE TRANSPORT:
+        </span>
         <select
           value={mode}
           onChange={(e) => setMode(e.target.value as TransportMode)}
-          disabled={isConnected || isLoading}
+          disabled={isHardwareStreaming || isLoading}
           style={{
-            backgroundColor: '#0f172a',
+            backgroundColor: 'var(--bg-base)',
             color: 'var(--text-primary)',
-            border: '1px solid #334155',
-            borderRadius: '6px',
-            padding: '6px 12px',
-            fontSize: '13px',
+            border: '1px solid rgba(201, 214, 234, 0.3)',
+            borderRadius: '4px',
+            padding: '5px 10px',
+            fontSize: '12px',
+            fontFamily: 'var(--font-body)',
           }}
         >
           <option value="simulator">Virtual Simulator (TCP :8765)</option>
-          <option value="serial">Physical USB Serial (STM32)</option>
+          <option value="serial">Physical USB Serial (STM32 Controller)</option>
         </select>
 
         {mode === 'serial' && (
@@ -57,55 +60,56 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({ isConnected, onTar
             type="text"
             value={port}
             onChange={(e) => setPort(e.target.value)}
-            placeholder="e.g. COM3 or /dev/ttyUSB0"
-            disabled={isConnected || isLoading}
+            placeholder="COM3 or /dev/ttyACM0"
+            disabled={isHardwareStreaming || isLoading}
             style={{
-              backgroundColor: '#0f172a',
+              backgroundColor: 'var(--bg-base)',
               color: 'var(--text-primary)',
-              border: '1px solid #334155',
-              borderRadius: '6px',
-              padding: '6px 10px',
-              fontSize: '13px',
+              border: '1px solid rgba(201, 214, 234, 0.3)',
+              borderRadius: '4px',
+              padding: '5px 8px',
+              fontSize: '12px',
               width: '130px',
             }}
           />
         )}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <button
           onClick={onTare}
-          disabled={!isConnected}
+          disabled={!isHardwareStreaming}
           style={{
-            backgroundColor: '#334155',
-            color: '#f8fafc',
-            border: 'none',
-            borderRadius: '6px',
-            padding: '7px 16px',
-            fontSize: '13px',
-            fontWeight: 600,
-            cursor: isConnected ? 'pointer' : 'not-allowed',
-            opacity: isConnected ? 1 : 0.5,
+            backgroundColor: 'transparent',
+            color: 'var(--brand-ice)',
+            border: '1px solid rgba(201, 214, 234, 0.3)',
+            borderRadius: '4px',
+            padding: '6px 14px',
+            fontSize: '12px',
+            fontWeight: 700,
+            cursor: isHardwareStreaming ? 'pointer' : 'not-allowed',
+            opacity: isHardwareStreaming ? 1 : 0.4,
           }}
         >
           TARE ALL
         </button>
 
         <button
-          onClick={handleConnect}
+          onClick={handleToggleConnect}
           disabled={isLoading}
           style={{
-            backgroundColor: isConnected ? '#ef4444' : '#0284c7',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '6px',
-            padding: '7px 20px',
-            fontSize: '13px',
-            fontWeight: 'bold',
+            backgroundColor: isHardwareStreaming ? '#7f1d1d' : 'var(--brand-blue)',
+            color: '#FFFFFF',
+            border: isHardwareStreaming ? '1px solid var(--color-danger)' : '1px solid var(--brand-ice)',
+            borderRadius: '4px',
+            padding: '6px 18px',
+            fontSize: '12px',
+            fontWeight: 700,
             cursor: 'pointer',
+            transition: 'background-color 0.2s ease',
           }}
         >
-          {isLoading ? 'WORKING...' : isConnected ? 'DISCONNECT' : 'CONNECT'}
+          {isLoading ? 'COMMUNICATING...' : isHardwareStreaming ? 'DISCONNECT' : 'CONNECT'}
         </button>
       </div>
     </div>

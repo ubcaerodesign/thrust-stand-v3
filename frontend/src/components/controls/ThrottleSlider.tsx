@@ -1,25 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import { ProtocolMode } from '../../types/session';
 
 interface ThrottleSliderProps {
-  isConnected: boolean;
+  isHardwareStreaming: boolean;
   isEstop: boolean;
 }
 
-export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({ isConnected, isEstop }) => {
+export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({ isHardwareStreaming, isEstop }) => {
   const [throttle, setThrottle] = useState<number>(0);
   const [isArmed, setIsArmed] = useState<boolean>(false);
   const [mode, setMode] = useState<ProtocolMode>('dshot');
 
+  // Automatically reset throttle and disarm if emergency stop triggers
+  useEffect(() => {
+    if (isEstop) {
+      setThrottle(0);
+      setIsArmed(false);
+    }
+  }, [isEstop]);
+
   const sendThrottle = async (val: number) => {
     const clamped = Math.max(0, Math.min(100, val));
     setThrottle(clamped);
-    if (isConnected && isArmed && !isEstop) {
+    if (isHardwareStreaming && isArmed && !isEstop) {
       try {
         await api.setThrottle({ throttle_pct: clamped, mode });
       } catch (err) {
-        console.error('Failed to command throttle:', err);
+        console.error('Throttle command failed:', err);
       }
     }
   };
@@ -31,44 +39,41 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({ isConnected, isE
     }
   };
 
-  const isDisabled = !isConnected || !isArmed || isEstop;
+  const isDisabled = !isHardwareStreaming || !isArmed || isEstop;
 
   return (
-    <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+    <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
+        <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--brand-ice)', textTransform: 'uppercase' }}>
           Motor Actuation
         </span>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {/* Protocol Toggle */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--brand-ice)' }}>
             <span>PROTOCOL:</span>
             <select
               value={mode}
               onChange={(e) => setMode(e.target.value as ProtocolMode)}
-              style={{ backgroundColor: '#0f172a', color: '#fff', border: '1px solid #334155', borderRadius: '4px', padding: '2px 6px', fontSize: '11px' }}
+              style={{ backgroundColor: 'var(--bg-base)', color: '#FFFFFF', border: '1px solid rgba(201, 214, 234, 0.3)', borderRadius: '4px', padding: '2px 6px', fontSize: '11px' }}
             >
-              <option value="dshot">D-Shot</option>
+              <option value="dshot">D-Shot Telemetry</option>
               <option value="pwm">Standard PWM</option>
             </select>
           </div>
 
-          {/* Safety Arm Checkbox */}
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: isArmed ? '#22c55e' : '#94a3b8' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 700, color: isArmed ? 'var(--color-success)' : 'var(--brand-ice)' }}>
             <input
               type="checkbox"
               checked={isArmed}
               onChange={(e) => handleArmToggle(e.target.checked)}
-              disabled={!isConnected || isEstop}
+              disabled={!isHardwareStreaming || isEstop}
             />
             {isArmed ? 'ARMED' : 'ARM MOTOR'}
           </label>
         </div>
       </div>
 
-      {/* Main Throttle Slider */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
         <input
           type="range"
           min="0"
@@ -80,18 +85,25 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({ isConnected, isE
           style={{
             flex: 1,
             cursor: isDisabled ? 'not-allowed' : 'pointer',
-            accentColor: 'var(--text-accent)',
-            height: '8px',
+            accentColor: 'var(--brand-yellow)',
+            height: '6px',
           }}
         />
-        <span style={{ fontSize: '28px', fontWeight: 'bold', minWidth: '85px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: isDisabled ? 'var(--text-secondary)' : 'var(--text-accent)' }}>
+        <span style={{
+          fontFamily: 'var(--font-heading)',
+          fontSize: '24px',
+          fontWeight: 700,
+          minWidth: '70px',
+          textAlign: 'right',
+          fontVariantNumeric: 'tabular-nums',
+          color: isDisabled ? 'var(--brand-ice)' : 'var(--brand-yellow)'
+        }}>
           {throttle.toFixed(1)}%
         </span>
       </div>
 
-      {/* Stepping Quick Buttons */}
-      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-        <button onClick={() => sendThrottle(0)} disabled={isDisabled} style={btnStyle}>0% (IDLE)</button>
+      <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+        <button onClick={() => sendThrottle(0)} disabled={isDisabled} style={btnStyle}>0% IDLE</button>
         <button onClick={() => sendThrottle(throttle - 5)} disabled={isDisabled} style={btnStyle}>-5%</button>
         <button onClick={() => sendThrottle(throttle - 1)} disabled={isDisabled} style={btnStyle}>-1%</button>
         <button onClick={() => sendThrottle(throttle + 1)} disabled={isDisabled} style={btnStyle}>+1%</button>
@@ -104,12 +116,12 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({ isConnected, isE
 };
 
 const btnStyle: React.CSSProperties = {
-  backgroundColor: '#334155',
-  color: '#f8fafc',
-  border: 'none',
+  backgroundColor: 'var(--bg-surface-elevated)',
+  color: 'var(--brand-ice)',
+  border: '1px solid rgba(201, 214, 234, 0.2)',
   borderRadius: '4px',
-  padding: '6px 12px',
-  fontSize: '12px',
-  fontWeight: 600,
+  padding: '5px 10px',
+  fontSize: '11px',
+  fontWeight: 700,
   cursor: 'pointer',
 };
