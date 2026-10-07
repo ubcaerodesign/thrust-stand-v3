@@ -64,7 +64,7 @@ export const TelemetryPlot: React.FC<TelemetryPlotProps> = ({
     );
   }
 
-  // Dual Split View (Left/Right columns)
+  // Dual Split View
   if (layoutMode === 'split') {
     return (
       <div
@@ -124,7 +124,6 @@ const CanvasPane: React.FC<CanvasPaneProps> = ({ tab, title, bufferRef }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // ResizeObserver monitors the parent container, NOT the canvas
   useEffect(() => {
     const container = containerRef.current;
     const canvas = canvasRef.current;
@@ -208,14 +207,15 @@ function drawPlot(
   const plotW = Math.max(10, width - padLeft - padRight);
   const plotH = Math.max(10, height - padTop - padBottom);
 
+  // Pane Title Header
   if (customTitle) {
-    ctx.fillStyle = 'var(--brand-ice)';
-    ctx.font = '11px var(--font-heading)';
+    ctx.fillStyle = '#C9D6EA'; // Ice Blue
+    ctx.font = '11px "Titillium Web", sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(customTitle, padLeft, 13);
   }
 
-  // Grid background
+  // Grid background lines
   ctx.strokeStyle = 'rgba(201, 214, 234, 0.08)';
   ctx.lineWidth = 1;
   for (let i = 0; i <= 3; i++) {
@@ -226,11 +226,12 @@ function drawPlot(
     ctx.stroke();
   }
 
+  // Blank placeholder text when no data has arrived yet
   if (data.length < 2) {
-    ctx.fillStyle = 'var(--brand-ice)';
-    ctx.font = '11px var(--font-body)';
+    ctx.fillStyle = 'rgba(201, 214, 234, 0.85)'; // High-contrast readable Ice Blue
+    ctx.font = '12px Lato, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Awaiting stream...', width / 2, height / 2);
+    ctx.fillText('Awaiting live telemetry stream...', width / 2, height / 2);
     return;
   }
 
@@ -238,8 +239,8 @@ function drawPlot(
     const maxThrust = Math.max(500, ...data.map((d) => d.thrust));
     const maxRPM = Math.max(2000, ...data.map((d) => d.rpm));
 
-    drawLineSeries(ctx, data, (d) => d.thrust, 0, maxThrust, padLeft, padTop, plotW, plotH, '#ECEB2A');
-    drawLineSeries(ctx, data, (d) => d.rpm, 0, maxRPM, padLeft, padTop, plotW, plotH, '#38bdf8');
+    drawLineSeries(ctx, data, (d) => d.thrust, 0, maxThrust, padLeft, padTop, plotW, plotH, '#ECEB2A'); // Yellow
+    drawLineSeries(ctx, data, (d) => d.rpm, 0, maxRPM, padLeft, padTop, plotW, plotH, '#38bdf8');     // Sky Blue
 
     drawAxisLabel(ctx, `${maxThrust.toFixed(0)} g`, padLeft - 6, padTop, '#ECEB2A', 'right');
     drawAxisLabel(ctx, '0 g', padLeft - 6, padTop + plotH, '#ECEB2A', 'right');
@@ -308,7 +309,7 @@ function drawAxisLabel(
   align: CanvasTextAlign
 ) {
   ctx.fillStyle = color;
-  ctx.font = '9px var(--font-body)';
+  ctx.font = '10px Lato, sans-serif';
   ctx.textAlign = align;
   ctx.fillText(text, x, y + 3);
 }
