@@ -13,13 +13,14 @@ import { ConnectionBar } from './components/controls/ConnectionSlider';
 import { ThrottleSlider } from './components/controls/ThrottleSlider';
 import { SessionRecorder } from './components/controls/SessionRecorder';
 import { TelemetryPlot } from './components/plots/TelemetryPlot';
-import { PlotControls, ActivePlotTab } from './components/plots/PlotControls';
+import { PlotControls, ActivePlotTab, LayoutMode } from './components/plots/PlotControls';
 
 export default function App() {
   const { isWsConnected, isHardwareStreaming, isEstop, latestPacket } = useTelemetryStream();
   const { triggerEStop } = useKeyboardEStop();
 
   const [plotTab, setPlotTab] = useState<ActivePlotTab>('thrust_time');
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>('split'); // Default to Dual Split view
   const [clearTrigger, setClearTrigger] = useState<number>(0);
 
   const handleTare = async () => {
@@ -33,7 +34,16 @@ export default function App() {
   const voltage = latestPacket.current?.voltage_v ?? 0;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', backgroundColor: 'var(--bg-base)' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        width: '100vw',
+        backgroundColor: 'var(--bg-base)',
+        overflow: 'hidden',
+      }}
+    >
       {/* Brand Header */}
       <header
         style={{
@@ -48,7 +58,6 @@ export default function App() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {/* Brand Logo with compliant padding */}
           <img
             src="/src/assets/logo_white_horizontal.svg"
             alt="UBC AeroDesign"
@@ -95,8 +104,18 @@ export default function App() {
         <ConnectionBar isHardwareStreaming={isHardwareStreaming} onTare={handleTare} />
       </div>
 
-      {/* Main Responsive Grid Layout */}
-      <main style={{ flex: 1, padding: '12px 16px', display: 'flex', gap: '16px', minHeight: 0, overflow: 'hidden' }}>
+      {/* Main Responsive Layout */}
+      <main
+        style={{
+          flex: 1,
+          padding: '12px 16px',
+          display: 'flex',
+          gap: '16px',
+          minHeight: 0,
+          minWidth: 0,
+          overflow: 'hidden',
+        }}
+      >
         {/* Left Column: Primary Telemetry Cluster */}
         <section
           style={{
@@ -169,7 +188,7 @@ export default function App() {
           />
         </section>
 
-        {/* Center/Right Column: Fluid Resizing Visualizer & Controls */}
+        {/* Center/Right Column: Fluid Resizing Visualizer & Actuation Controls */}
         <section
           style={{
             flex: 1,
@@ -178,18 +197,40 @@ export default function App() {
             gap: '10px',
             minWidth: 0,
             minHeight: 0,
+            overflow: 'hidden',
           }}
         >
           {/* Dynamic Resizing Canvas Container */}
-          <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '260px' }}>
+          <div
+            className="glass-panel"
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              minHeight: 0,
+              minWidth: 0,
+              overflow: 'hidden',
+            }}
+          >
             <PlotControls
               activeTab={plotTab}
+              layoutMode={layoutMode}
               onTabChange={setPlotTab}
+              onLayoutChange={setLayoutMode}
               onClear={() => setClearTrigger((prev) => prev + 1)}
             />
-            <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
+            <div
+              style={{
+                flex: 1,
+                minHeight: 0,
+                minWidth: 0,
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
               <TelemetryPlot
                 activeTab={plotTab}
+                layoutMode={layoutMode}
                 getLatestPacket={() => latestPacket.current}
                 clearTrigger={clearTrigger}
               />
