@@ -77,8 +77,9 @@ export default function App() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {/* Brand Logo with compliant padding & imported production asset */}
           <img
-            src="/src/assets/logo_white_horizontal.svg"
+            src={new URL('./assets/logo_white_horizontal.svg', import.meta.url).href}
             alt="UBC AeroDesign"
             style={{ height: '36px', maxWidth: '160px', objectFit: 'contain' }}
           />
