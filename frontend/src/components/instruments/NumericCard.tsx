@@ -38,7 +38,7 @@ export const NumericCard: React.FC<NumericCardProps> = ({ title, unit, getValue,
 
   return (
     <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '12px' }}>
-      <span style={{ fontSize: '11px', color: 'var(--brand-ice)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 700 }}>
+      <span style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 700 }}>
         {title}
       </span>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
@@ -48,13 +48,13 @@ export const NumericCard: React.FC<NumericCardProps> = ({ title, unit, getValue,
             fontFamily: 'var(--font-heading)',
             fontSize: '26px',
             fontWeight: 700,
-            color: '#FFFFFF',
+            color: 'var(--text-primary)',
             fontVariantNumeric: 'tabular-nums',
           }}
         >
           ---
         </span>
-        <span style={{ fontSize: '12px', color: 'var(--brand-ice)', fontWeight: 600 }}>
+        <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 600 }}>
           {unit}
         </span>
       </div>

@@ -1,7 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Titillium+Web:wght@600;700&display=swap');
 
 :root {
-  /* UBC AeroDesign Brand Palette (Brand Identity 2023) */
+  /* ========================================================================
+     FLIGHT DECK (DARK THEME) — Default
+     ======================================================================== */
   --bg-base: #0a141f;                  /* Deep aerospace dark */
   --bg-surface: #11273B;               /* Primary Dark Navy */
   --bg-surface-elevated: #16324a;      /* Lighter Navy for cards */
@@ -9,7 +11,7 @@
   --brand-ice: #C9D6EA;                /* Ice Blue (Secondary / Accents) */
   --brand-yellow: #ECEB2A;             /* Emphasis / Safety Yellow */
   
-  /* Typography */
+  /* Typography & Lines */
   --text-primary: #FFFFFF;
   --text-secondary: #C9D6EA;
   --text-accent: #ECEB2A;
@@ -20,13 +22,40 @@
   --color-success: #22c55e;
   --color-warning: #ECEB2A;
 
-  /* Typography Families */
+  /* Fonts */
   --font-heading: 'Titillium Web', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-body: 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Layout */
   --header-height: 64px;
   --border-subtle: 1px solid rgba(201, 214, 234, 0.15);
+  --plot-bg: #0a141f;
+}
+
+/* ==========================================================================
+   AIRFIELD (HIGH-CONTRAST LIGHT THEME) — Outdoor Sunlight Optimized
+   ========================================================================== */
+[data-theme='light'] {
+  --bg-base: #e2e8f0;                  /* High-glare reduction light slate */
+  --bg-surface: #FFFFFF;               /* Pure white high-contrast panels */
+  --bg-surface-elevated: #f1f5f9;      /* Crisp elevated cards */
+  --brand-blue: #003565;               /* UBC Blue */
+  --brand-ice: #003565;                /* High-contrast dark navy for labels */
+  --brand-yellow: #b45309;             /* Sunlight-legible Amber (WCAG compliant) */
+  
+  /* Typography */
+  --text-primary: #11273B;             /* Official Brand Navy text on light */
+  --text-secondary: #475569;           /* Slate secondary text */
+  --text-accent: #003565;              /* UBC Blue emphasis */
+  
+  /* Status Colors */
+  --color-danger: #dc2626;
+  --color-danger-glow: rgba(220, 38, 38, 0.25);
+  --color-success: #16a34a;
+  --color-warning: #b45309;
+
+  --border-subtle: 1px solid rgba(0, 53, 101, 0.2);
+  --plot-bg: #FFFFFF;
 }
 
 body {
@@ -38,6 +67,7 @@ body {
   overflow: hidden;
   user-select: none;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -53,11 +83,12 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--bg-surface);
   border: var(--border-subtle);
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   padding: 14px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-/* Custom scrollbars for responsive panels */
+/* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -66,9 +97,9 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--bg-base);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(201, 214, 234, 0.2);
+  background: rgba(148, 163, 184, 0.4);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(201, 214, 234, 0.4);
+  background: rgba(148, 163, 184, 0.7);
 }

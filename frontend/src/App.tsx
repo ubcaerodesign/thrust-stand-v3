@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTelemetryStream } from './hooks/useTelemetryStream';
 import { useKeyboardEStop } from './hooks/useKeyboardEStop';
 import { api } from './services/api';
@@ -26,6 +26,20 @@ export default function App() {
   const [clearTrigger, setClearTrigger] = useState<number>(0);
   const [isCalibrationOpen, setIsCalibrationOpen] = useState<boolean>(false);
 
+  // Theme State: 'dark' (Flight Deck) vs 'light' (Airfield Sunlight)
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    return (localStorage.getItem('aerothrust_theme') as 'dark' | 'light') || 'dark';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('aerothrust_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
   const handleTareAll = async () => {
     try {
       await api.tare({ mask: 0x0f });
@@ -39,6 +53,7 @@ export default function App() {
 
   return (
     <div
+      data-theme={theme}
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -48,12 +63,12 @@ export default function App() {
         overflow: 'hidden',
       }}
     >
-      {/* Brand Header */}
+      {/* Brand Header — Maintained in Navy (#11273B) per Brand Guidelines */}
       <header
         style={{
           height: 'var(--header-height)',
-          backgroundColor: 'var(--bg-surface)',
-          borderBottom: 'var(--border-subtle)',
+          backgroundColor: '#11273B',
+          borderBottom: '1px solid rgba(201, 214, 234, 0.2)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -70,13 +85,34 @@ export default function App() {
           <div style={{ height: '24px', width: '1px', backgroundColor: 'rgba(201, 214, 234, 0.2)' }} />
           <div>
             <h2 style={{ margin: 0, fontSize: '16px', letterSpacing: '1px', color: '#FFFFFF' }}>AEROTHRUST V3</h2>
-            <span style={{ fontSize: '10px', color: 'var(--brand-ice)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <span style={{ fontSize: '10px', color: '#C9D6EA', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               Ground Propulsion Testing Core
             </span>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* Theme Toggle Button */}
+          <button
+            onClick={toggleTheme}
+            style={{
+              backgroundColor: 'transparent',
+              color: '#C9D6EA',
+              border: '1px solid rgba(201, 214, 234, 0.3)',
+              borderRadius: '4px',
+              padding: '6px 12px',
+              fontSize: '11px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+            title="Toggle between Flight Deck (Dark) and Airfield Sunlight (Light) themes"
+          >
+            {theme === 'dark' ? '☀️ AIRFIELD (LIGHT)' : '🌙 FLIGHT DECK (DARK)'}
+          </button>
+
           <div
             style={{
               padding: '4px 10px',
@@ -239,6 +275,7 @@ export default function App() {
               <TelemetryPlot
                 activeTab={plotTab}
                 layoutMode={layoutMode}
+                theme={theme}
                 getLatestPacket={() => latestPacket.current}
                 clearTrigger={clearTrigger}
               />
