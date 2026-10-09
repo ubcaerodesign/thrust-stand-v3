@@ -13,6 +13,7 @@ import { ConnectionBar } from './components/controls/ConnectionSlider';
 import { ThrottleSlider } from './components/controls/ThrottleSlider';
 import { SessionRecorder } from './components/controls/SessionRecorder';
 import { SequenceController } from './components/controls/SequenceController';
+import { CalibrationModal } from './components/controls/CalibrationModal';
 import { TelemetryPlot } from './components/plots/TelemetryPlot';
 import { PlotControls, ActivePlotTab, LayoutMode } from './components/plots/PlotControls';
 
@@ -23,8 +24,9 @@ export default function App() {
   const [plotTab, setPlotTab] = useState<ActivePlotTab>('thrust_time');
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('split');
   const [clearTrigger, setClearTrigger] = useState<number>(0);
+  const [isCalibrationOpen, setIsCalibrationOpen] = useState<boolean>(false);
 
-  const handleTare = async () => {
+  const handleTareAll = async () => {
     try {
       await api.tare({ mask: 0x0f });
     } catch (err) {
@@ -103,7 +105,11 @@ export default function App() {
 
       {/* Hardware Transport Toolbar */}
       <div style={{ padding: '8px 16px 0 16px', flexShrink: 0 }}>
-        <ConnectionBar isHardwareStreaming={isHardwareStreaming} onTare={handleTare} />
+        <ConnectionBar
+          isHardwareStreaming={isHardwareStreaming}
+          onTareAll={handleTareAll}
+          onOpenCalibration={() => setIsCalibrationOpen(true)}
+        />
       </div>
 
       {/* Main Responsive Layout */}
@@ -263,6 +269,14 @@ export default function App() {
           </div>
         </section>
       </main>
+
+      {/* Granular Channel Calibration & Tare Modal */}
+      <CalibrationModal
+        isOpen={isCalibrationOpen}
+        onClose={() => setIsCalibrationOpen(false)}
+        getLatestPacket={() => latestPacket.current}
+        isHardwareStreaming={isHardwareStreaming}
+      />
     </div>
   );
 }

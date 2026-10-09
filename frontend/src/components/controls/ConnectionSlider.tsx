@@ -4,10 +4,15 @@ import { TransportMode } from '../../types/session';
 
 interface ConnectionBarProps {
   isHardwareStreaming: boolean;
-  onTare: () => void;
+  onTareAll: () => void;
+  onOpenCalibration: () => void;
 }
 
-export const ConnectionBar: React.FC<ConnectionBarProps> = ({ isHardwareStreaming, onTare }) => {
+export const ConnectionBar: React.FC<ConnectionBarProps> = ({
+  isHardwareStreaming,
+  onTareAll,
+  onOpenCalibration,
+}) => {
   const [mode, setMode] = useState<TransportMode>('simulator');
   const [port, setPort] = useState<string>('COM3');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -77,7 +82,24 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({ isHardwareStreamin
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <button
-          onClick={onTare}
+          onClick={onOpenCalibration}
+          style={{
+            backgroundColor: 'transparent',
+            color: 'var(--brand-ice)',
+            border: '1px solid rgba(201, 214, 234, 0.3)',
+            borderRadius: '4px',
+            padding: '6px 12px',
+            fontSize: '12px',
+            fontWeight: 700,
+            cursor: 'pointer',
+          }}
+          title="Open per-channel calibration and tare inspector"
+        >
+          ⚙️ CHANNELS...
+        </button>
+
+        <button
+          onClick={onTareAll}
           disabled={!isHardwareStreaming}
           style={{
             backgroundColor: 'transparent',
@@ -90,6 +112,7 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({ isHardwareStreamin
             cursor: isHardwareStreaming ? 'pointer' : 'not-allowed',
             opacity: isHardwareStreaming ? 1 : 0.4,
           }}
+          title="Master tare for all 4 channels (0x0F)"
         >
           TARE ALL
         </button>
