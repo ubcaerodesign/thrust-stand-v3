@@ -10,16 +10,16 @@ To prevent **React render thrashing** (where updating state at 50 Hz pins the br
 
 ```mermaid
 flowchart TD
-    WS[WebSocket /ws/telemetry @ 50 Hz] --> Hook[useTelemetryStream]
+    WS["WebSocket /ws/telemetry @ 50 Hz"] --> Hook["useTelemetryStream"]
 
-    Hook -->|Continuous Numbers| Ref[Mutable useRef Buffer]
-    Hook -->|Discrete Status Flags| State[React State: isEstop, isArmed]
+    Hook -->|"Continuous Numbers"| Ref["Mutable useRef Buffer"]
+    Hook -->|"Discrete Status Flags"| State["React State: isEstop, isArmed"]
 
-    Ref --> rAF[requestAnimationFrame Loop: 60 FPS]
-    rAF --> DOM[Direct TextContent Mutation (NumericCard)]
-    rAF --> Canvas[HTML5 Canvas Render (TelemetryPlot)]
+    Ref --> rAF["requestAnimationFrame Loop: 60 FPS"]
+    rAF --> DOM["Direct TextContent Mutation (NumericCard)"]
+    rAF --> Canvas["HTML5 Canvas Render (TelemetryPlot)"]
 
-    State --> UI[Header, Banners, Disabled Sliders]
+    State --> UI["Header, Banners, Disabled Sliders"]
 ```
 
 1. **High-Frequency Tier (Direct-to-DOM / Canvas):** Numerical values (Thrust, Voltage, Current, RPM) are stored in an in-memory mutable `useRef`. A `requestAnimationFrame` graphics loop renders them directly onto HTML5 `<canvas>` elements and mutates `.textContent` on gauge cards, completely bypassing React reconciliation.
