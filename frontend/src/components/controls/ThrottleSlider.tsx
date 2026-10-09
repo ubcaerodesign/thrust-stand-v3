@@ -5,14 +5,18 @@ import { ProtocolMode } from '../../types/session';
 interface ThrottleSliderProps {
   isHardwareStreaming: boolean;
   isEstop: boolean;
+  isSequenceRunning?: boolean;
 }
 
-export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({ isHardwareStreaming, isEstop }) => {
+export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
+  isHardwareStreaming,
+  isEstop,
+  isSequenceRunning = false,
+}) => {
   const [throttle, setThrottle] = useState<number>(0);
   const [isArmed, setIsArmed] = useState<boolean>(false);
   const [mode, setMode] = useState<ProtocolMode>('dshot');
 
-  // Automatically reset throttle and disarm if emergency stop triggers
   useEffect(() => {
     if (isEstop) {
       setThrottle(0);
@@ -23,7 +27,7 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({ isHardwareStream
   const sendThrottle = async (val: number) => {
     const clamped = Math.max(0, Math.min(100, val));
     setThrottle(clamped);
-    if (isHardwareStreaming && isArmed && !isEstop) {
+    if (isHardwareStreaming && isArmed && !isEstop && !isSequenceRunning) {
       try {
         await api.setThrottle({ throttle_pct: clamped, mode });
       } catch (err) {
@@ -39,14 +43,21 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({ isHardwareStream
     }
   };
 
-  const isDisabled = !isHardwareStreaming || !isArmed || isEstop;
+  const isDisabled = !isHardwareStreaming || !isArmed || isEstop || isSequenceRunning;
 
   return (
     <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--brand-ice)', textTransform: 'uppercase' }}>
-          Motor Actuation
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--brand-ice)', textTransform: 'uppercase' }}>
+            Manual Actuation
+          </span>
+          {isSequenceRunning && (
+            <span style={{ fontSize: '11px', color: 'var(--brand-yellow)', fontWeight: 700 }}>
+              (LOCKED: Auto-Sequence Running)
+            </span>
+          )}
+        </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--brand-ice)' }}>
@@ -54,6 +65,7 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({ isHardwareStream
             <select
               value={mode}
               onChange={(e) => setMode(e.target.value as ProtocolMode)}
+              disabled={isSequenceRunning}
               style={{ backgroundColor: 'var(--bg-base)', color: '#FFFFFF', border: '1px solid rgba(201, 214, 234, 0.3)', borderRadius: '4px', padding: '2px 6px', fontSize: '11px' }}
             >
               <option value="dshot">D-Shot Telemetry</option>
@@ -61,12 +73,12 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({ isHardwareStream
             </select>
           </div>
 
-          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 700, color: isArmed ? 'var(--color-success)' : 'var(--brand-ice)' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: isSequenceRunning ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: 700, color: isArmed ? 'var(--color-success)' : 'var(--brand-ice)' }}>
             <input
               type="checkbox"
               checked={isArmed}
               onChange={(e) => handleArmToggle(e.target.checked)}
-              disabled={!isHardwareStreaming || isEstop}
+              disabled={!isHardwareStreaming || isEstop || isSequenceRunning}
             />
             {isArmed ? 'ARMED' : 'ARM MOTOR'}
           </label>

@@ -1,3 +1,5 @@
+import { SequenceStatus } from './sequence';
+
 export interface TelemetryPacket {
   uptime_ms: number;
   thrust_g: number;
@@ -11,6 +13,7 @@ export interface TelemetryPacket {
   flags: number;
   armed: boolean;
   estop: boolean;
+  sequence?: SequenceStatus;
 }
 
 export interface SystemStatus {

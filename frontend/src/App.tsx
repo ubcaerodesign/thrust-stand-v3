@@ -12,15 +12,16 @@ import { SafetyBanner } from './components/safety/SafetyBanner';
 import { ConnectionBar } from './components/controls/ConnectionSlider';
 import { ThrottleSlider } from './components/controls/ThrottleSlider';
 import { SessionRecorder } from './components/controls/SessionRecorder';
+import { SequenceController } from './components/controls/SequenceController';
 import { TelemetryPlot } from './components/plots/TelemetryPlot';
 import { PlotControls, ActivePlotTab, LayoutMode } from './components/plots/PlotControls';
 
 export default function App() {
-  const { isWsConnected, isHardwareStreaming, isEstop, latestPacket } = useTelemetryStream();
+  const { isWsConnected, isHardwareStreaming, isEstop, sequenceStatus, latestPacket } = useTelemetryStream();
   const { triggerEStop } = useKeyboardEStop();
 
   const [plotTab, setPlotTab] = useState<ActivePlotTab>('thrust_time');
-  const [layoutMode, setLayoutMode] = useState<LayoutMode>('split'); // Default to Dual Split view
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>('split');
   const [clearTrigger, setClearTrigger] = useState<number>(0);
 
   const handleTare = async () => {
@@ -32,6 +33,7 @@ export default function App() {
   };
 
   const voltage = latestPacket.current?.voltage_v ?? 0;
+  const isSequenceRunning = sequenceStatus?.is_running ?? false;
 
   return (
     <div
@@ -188,13 +190,13 @@ export default function App() {
           />
         </section>
 
-        {/* Center/Right Column: Fluid Resizing Visualizer & Actuation Controls */}
+        {/* Center/Right Column: Plot, Automation & Actuation Controls */}
         <section
           style={{
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
-            gap: '10px',
+            gap: '8px',
             minWidth: 0,
             minHeight: 0,
             overflow: 'hidden',
@@ -242,9 +244,22 @@ export default function App() {
             <SessionRecorder isHardwareStreaming={isHardwareStreaming} />
           </div>
 
-          {/* Throttle Actuation Interface */}
+          {/* Automated Test Sequencer Bar */}
           <div style={{ flexShrink: 0 }}>
-            <ThrottleSlider isHardwareStreaming={isHardwareStreaming} isEstop={isEstop} />
+            <SequenceController
+              isHardwareStreaming={isHardwareStreaming}
+              isEstop={isEstop}
+              sequenceStatus={sequenceStatus}
+            />
+          </div>
+
+          {/* Manual Throttle Actuation Interface */}
+          <div style={{ flexShrink: 0 }}>
+            <ThrottleSlider
+              isHardwareStreaming={isHardwareStreaming}
+              isEstop={isEstop}
+              isSequenceRunning={isSequenceRunning}
+            />
           </div>
         </section>
       </main>

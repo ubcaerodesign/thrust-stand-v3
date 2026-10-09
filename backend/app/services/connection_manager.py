@@ -15,6 +15,7 @@ from app.core.protocol import (
 )
 from app.services.safety_watchdog import SafetyWatchdog
 from app.services.storage_service import StorageService
+from app.services.sequence_service import SequenceService
 
 
 class ConnectionManager:
@@ -23,6 +24,9 @@ class ConnectionManager:
         self.transport: Optional[BaseTransport] = None
         self.watchdog: Optional[SafetyWatchdog] = None
 
+        # Wire sequencer with throttle execution hook
+        self.sequence_service = SequenceService(self.set_throttle_raw)
+
         self.latest_telemetry: Optional[TelemetryData] = None
         self.active_websockets: Set[WebSocket] = set()
 
@@ -30,7 +34,6 @@ class ConnectionManager:
         self._is_running = False
 
     async def connect_simulator(self, host: str = SIMULATOR_HOST, port: int = SIMULATOR_PORT) -> bool:
-        """Connects to the virtual simulator."""
         await self.disconnect()
         transport = TcpTransport(host, port)
         if await transport.connect():
@@ -41,7 +44,6 @@ class ConnectionManager:
         return False
 
     async def connect_serial(self, port: str, baud: int = DEFAULT_SERIAL_BAUD) -> bool:
-        """Connects to a physical STM32 microcontroller via USB Serial."""
         await self.disconnect()
         transport = SerialTransport(port, baud)
         if await transport.connect():
@@ -52,8 +54,12 @@ class ConnectionManager:
         return False
 
     async def disconnect(self):
-        """Disconnects current transport cleanly."""
         self._is_running = False
+
+        # Abort any active automated sequence
+        if self.sequence_service.is_running:
+            await self.sequence_service.abort_sequence("Hardware disconnected")
+
         if self.watchdog:
             await self.watchdog.stop()
             self.watchdog = None
@@ -74,39 +80,43 @@ class ConnectionManager:
         self._reader_task = asyncio.create_task(self._read_telemetry_loop())
 
     async def send_command(self, cmd: int, value: int = 0, protocol_mode: int = 0x01) -> bool:
-        """Encodes and sends an outbound command packet."""
         if not self.transport or not await self.transport.is_connected():
             return False
         packet = pack_command(cmd, value, protocol_mode)
         return await self.transport.write_packet(packet)
 
-    async def set_throttle(self, percent: float, protocol_mode: int = 0x01) -> bool:
-        """Sets target throttle (0.0% to 100.0%)."""
+    async def set_throttle_raw(self, percent: float, protocol_mode: int = 0x01) -> bool:
+        """Internal throttle commander callable by sequencer and UI."""
         if self.watchdog and self.watchdog.estop_triggered:
-            print("[WARNING] Cannot set throttle: E-Stop is active.")
             return False
 
         clamped = max(0.0, min(100.0, percent))
         if protocol_mode == 0x01:
-            # D-Shot Mode: 0 to 2047
             raw_val = int((clamped / 100.0) * 2047)
         else:
-            # PWM Mode: 1000us to 2000us
             raw_val = int(1000 + (clamped / 100.0) * 1000)
 
         return await self.send_command(CMD_SET_THROTTLE, raw_val, protocol_mode)
 
+    async def set_throttle(self, percent: float, protocol_mode: int = 0x01) -> bool:
+        """Manual throttle method. Rejects manual inputs if an automated sequence is active."""
+        if self.sequence_service.is_running:
+            print("[WARNING] Manual throttle command rejected: Automated sequence in progress.")
+            return False
+        return await self.set_throttle_raw(percent, protocol_mode)
+
     async def tare(self, channel_mask: int = 0x0F) -> bool:
-        """Tares specified load cell channels (0x0F = all 4 channels)."""
         return await self.send_command(CMD_TARE_CHANNELS, channel_mask, 0x00)
 
     async def trigger_estop(self):
-        """Triggers immediate E-Stop."""
+        # Abort any running automated sequence immediately
+        if self.sequence_service.is_running:
+            await self.sequence_service.abort_sequence("Emergency Stop triggered")
+
         if self.watchdog:
             await self.watchdog.trigger_estop("User requested E-Stop")
 
     async def _read_telemetry_loop(self):
-        """High-frequency background ingestion loop (50 Hz)."""
         while self._is_running and self.transport and await self.transport.is_connected():
             frame = await self.transport.read_frame()
             if frame:
@@ -117,11 +127,11 @@ class ConnectionManager:
                     # Run safety tripwire verification
                     if self.watchdog:
                         await self.watchdog.verify_telemetry_safety(telemetry)
+                        # If tripwire fired E-Stop, abort running sequence
+                        if self.watchdog.estop_triggered and self.sequence_service.is_running:
+                            await self.sequence_service.abort_sequence("Safety tripwire engaged")
 
-                    # Buffer to SQLite if session is recording
                     await self.storage.record_sample(telemetry)
-
-                    # Broadcast to WebSockets
                     await self._broadcast_telemetry(telemetry)
             else:
                 await asyncio.sleep(0.001)
@@ -148,10 +158,10 @@ class ConnectionManager:
             "rpm": data.rpm,
             "flags": data.flags,
             "armed": data.armed,
-            "estop": data.estop
+            "estop": data.estop,
+            "sequence": self.sequence_service.get_status_dict()
         }
 
-        # Broadcast concurrently; drop failed connections
         dead_sockets = []
         for ws in self.active_websockets:
             try:

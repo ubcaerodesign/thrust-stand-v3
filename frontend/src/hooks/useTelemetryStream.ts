@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { TelemetryPacket } from '../types/telemetry';
+import { SequenceStatus } from '../types/sequence';
 
 const WS_URL = 'ws://127.0.0.1:8000/ws/telemetry';
 
@@ -8,12 +9,13 @@ export function useTelemetryStream() {
   const [isHardwareStreaming, setIsHardwareStreaming] = useState<boolean>(false);
   const [isEstop, setIsEstop] = useState<boolean>(false);
   const [isArmed, setIsArmed] = useState<boolean>(false);
+  const [sequenceStatus, setSequenceStatus] = useState<SequenceStatus | null>(null);
 
-  // Mutable ref for high-frequency (50Hz) rendering without React re-renders
   const latestPacket = useRef<TelemetryPacket | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const lastPacketTime = useRef<number>(0);
   const lastFlags = useRef<{ estop: boolean; armed: boolean }>({ estop: false, armed: false });
+  const lastSeqRunning = useRef<boolean>(false);
 
   useEffect(() => {
     let reconnectTimer: number;
@@ -30,7 +32,7 @@ export function useTelemetryStream() {
           latestPacket.current = data;
           lastPacketTime.current = Date.now();
 
-          // Latch discrete state updates only when status flags change
+          // Discrete state dirty-check
           if (data.estop !== lastFlags.current.estop) {
             lastFlags.current.estop = data.estop;
             setIsEstop(data.estop);
@@ -39,6 +41,13 @@ export function useTelemetryStream() {
           if (data.armed !== lastFlags.current.armed) {
             lastFlags.current.armed = data.armed;
             setIsArmed(data.armed);
+          }
+
+          if (data.sequence) {
+            if (data.sequence.is_running !== lastSeqRunning.current || data.sequence.is_running) {
+              lastSeqRunning.current = data.sequence.is_running;
+              setSequenceStatus(data.sequence);
+            }
           }
         } catch (err) {
           console.error('Failed to parse telemetry frame', err);
@@ -56,7 +65,6 @@ export function useTelemetryStream() {
 
     connect();
 
-    // Watchdog to verify if the hardware/simulator is actively streaming packets
     const streamWatchdog = window.setInterval(() => {
       const isStreaming = Date.now() - lastPacketTime.current < 800 && lastPacketTime.current > 0;
       setIsHardwareStreaming(isStreaming);
@@ -69,5 +77,5 @@ export function useTelemetryStream() {
     };
   }, []);
 
-  return { isWsConnected, isHardwareStreaming, isEstop, isArmed, latestPacket };
+  return { isWsConnected, isHardwareStreaming, isEstop, isArmed, sequenceStatus, latestPacket };
 }
