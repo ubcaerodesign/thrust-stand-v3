@@ -6,6 +6,9 @@ on:
       - 'v*' # Triggers whenever you push a tag like v1.0.0, v1.0.1, etc.
   workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
 
+permissions:
+  contents: write # Grants GitHub Actions permission to publish releases
+
 jobs:
   build-release:
     strategy:
