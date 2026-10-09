@@ -81,6 +81,7 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* Expanded width and nowrap ensures full button visibility */}
         <button
           onClick={onOpenCalibration}
           style={{
@@ -88,10 +89,16 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
             color: 'var(--brand-ice)',
             border: '1px solid rgba(201, 214, 234, 0.3)',
             borderRadius: '4px',
-            padding: '6px 12px',
+            padding: '6px 16px',
+            minWidth: '135px',
+            whiteSpace: 'nowrap',
             fontSize: '12px',
             fontWeight: 700,
             cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px',
           }}
           title="Open per-channel calibration and tare inspector"
         >
@@ -109,6 +116,7 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
             padding: '6px 14px',
             fontSize: '12px',
             fontWeight: 700,
+            whiteSpace: 'nowrap',
             cursor: isHardwareStreaming ? 'pointer' : 'not-allowed',
             opacity: isHardwareStreaming ? 1 : 0.4,
           }}
@@ -128,6 +136,7 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
             padding: '6px 18px',
             fontSize: '12px',
             fontWeight: 700,
+            whiteSpace: 'nowrap',
             cursor: 'pointer',
             transition: 'background-color 0.2s ease',
           }}

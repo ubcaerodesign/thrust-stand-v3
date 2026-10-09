@@ -113,7 +113,6 @@ export const TelemetryPlot: React.FC<TelemetryPlotProps> = ({
   );
 };
 
-// Reusable single canvas pane utilizing the Absolute Fill Container pattern
 interface CanvasPaneProps {
   tab: ActivePlotTab;
   title?: string;
@@ -200,8 +199,8 @@ function drawPlot(
 ) {
   ctx.clearRect(0, 0, width, height);
 
-  const padLeft = 48;
-  const padRight = 48;
+  const padLeft = 52;
+  const padRight = 52;
   const padTop = customTitle ? 20 : 14;
   const padBottom = 20;
   const plotW = Math.max(10, width - padLeft - padRight);
@@ -209,7 +208,7 @@ function drawPlot(
 
   // Pane Title Header
   if (customTitle) {
-    ctx.fillStyle = '#C9D6EA'; // Ice Blue
+    ctx.fillStyle = '#C9D6EA';
     ctx.font = '11px "Titillium Web", sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(customTitle, padLeft, 13);
@@ -226,9 +225,9 @@ function drawPlot(
     ctx.stroke();
   }
 
-  // Blank placeholder text when no data has arrived yet
+  // Blank placeholder text when no data has arrived
   if (data.length < 2) {
-    ctx.fillStyle = 'rgba(201, 214, 234, 0.85)'; // High-contrast readable Ice Blue
+    ctx.fillStyle = 'rgba(201, 214, 234, 0.85)';
     ctx.font = '12px Lato, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('Awaiting live telemetry stream...', width / 2, height / 2);
@@ -236,40 +235,99 @@ function drawPlot(
   }
 
   if (tab === 'thrust_time') {
-    const maxThrust = Math.max(500, ...data.map((d) => d.thrust));
-    const maxRPM = Math.max(2000, ...data.map((d) => d.rpm));
+    // Dynamic bipolar auto-scale for Thrust
+    const rawMinThrust = Math.min(...data.map((d) => d.thrust));
+    const rawMaxThrust = Math.max(...data.map((d) => d.thrust));
 
-    drawLineSeries(ctx, data, (d) => d.thrust, 0, maxThrust, padLeft, padTop, plotW, plotH, '#ECEB2A'); // Yellow
-    drawLineSeries(ctx, data, (d) => d.rpm, 0, maxRPM, padLeft, padTop, plotW, plotH, '#38bdf8');     // Sky Blue
+    // Allow scale to expand below 0 if tared under load
+    const minThrust = Math.min(0, Math.floor((rawMinThrust - 50) / 100) * 100);
+    const maxThrust = Math.max(minThrust + 500, Math.ceil((rawMaxThrust + 50) / 100) * 100);
 
+    // RPM is always non-negative
+    const maxRPM = Math.max(2000, Math.ceil(Math.max(...data.map((d) => d.rpm)) / 500) * 500);
+
+    // Draw Zero Baseline if scale spans negative and positive values
+    if (minThrust < 0 && maxThrust > 0) {
+      const zeroY = padTop + plotH - ((0 - minThrust) / (maxThrust - minThrust)) * plotH;
+      drawZeroBaseline(ctx, padLeft, zeroY, width - padRight);
+      drawAxisLabel(ctx, '0 g', padLeft - 6, zeroY, 'rgba(236, 235, 42, 0.65)', 'right');
+    }
+
+    // Series Curves
+    drawLineSeries(ctx, data, (d) => d.thrust, minThrust, maxThrust, padLeft, padTop, plotW, plotH, '#ECEB2A'); // Yellow Thrust
+    drawLineSeries(ctx, data, (d) => d.rpm, 0, maxRPM, padLeft, padTop, plotW, plotH, '#38bdf8');             // Sky Blue RPM
+
+    // Axis Labels
     drawAxisLabel(ctx, `${maxThrust.toFixed(0)} g`, padLeft - 6, padTop, '#ECEB2A', 'right');
-    drawAxisLabel(ctx, '0 g', padLeft - 6, padTop + plotH, '#ECEB2A', 'right');
+    drawAxisLabel(ctx, `${minThrust.toFixed(0)} g`, padLeft - 6, padTop + plotH, '#ECEB2A', 'right');
     drawAxisLabel(ctx, `${maxRPM.toFixed(0)} RPM`, width - padRight + 6, padTop, '#38bdf8', 'left');
     drawAxisLabel(ctx, '0 RPM', width - padRight + 6, padTop + plotH, '#38bdf8', 'left');
-  } else if (tab === 'electrical_time') {
-    const maxCurrent = Math.max(10, ...data.map((d) => d.current));
-    const maxVolts = Math.max(18, ...data.map((d) => d.voltage));
 
-    drawLineSeries(ctx, data, (d) => d.current, 0, maxCurrent, padLeft, padTop, plotW, plotH, '#ef4444');
-    drawLineSeries(ctx, data, (d) => d.voltage, 0, maxVolts, padLeft, padTop, plotW, plotH, '#22c55e');
+  } else if (tab === 'electrical_time') {
+    // Dynamic bipolar auto-scale for Current & Voltage
+    const rawMinCurrent = Math.min(...data.map((d) => d.current));
+    const rawMaxCurrent = Math.max(...data.map((d) => d.current));
+    const minCurrent = Math.min(0, Math.floor(rawMinCurrent - 1));
+    const maxCurrent = Math.max(minCurrent + 10, Math.ceil(rawMaxCurrent + 2));
+
+    const rawMinVolts = Math.min(...data.map((d) => d.voltage));
+    const rawMaxVolts = Math.max(...data.map((d) => d.voltage));
+    const minVolts = Math.min(0, Math.floor(rawMinVolts - 1));
+    const maxVolts = Math.max(minVolts + 18, Math.ceil(rawMaxVolts + 1));
+
+    // Zero baseline for Current if negative
+    if (minCurrent < 0 && maxCurrent > 0) {
+      const zeroY = padTop + plotH - ((0 - minCurrent) / (maxCurrent - minCurrent)) * plotH;
+      drawZeroBaseline(ctx, padLeft, zeroY, width - padRight);
+      drawAxisLabel(ctx, '0 A', padLeft - 6, zeroY, 'rgba(239, 68, 68, 0.65)', 'right');
+    }
+
+    drawLineSeries(ctx, data, (d) => d.current, minCurrent, maxCurrent, padLeft, padTop, plotW, plotH, '#ef4444');
+    drawLineSeries(ctx, data, (d) => d.voltage, minVolts, maxVolts, padLeft, padTop, plotW, plotH, '#22c55e');
 
     drawAxisLabel(ctx, `${maxCurrent.toFixed(1)} A`, padLeft - 6, padTop, '#ef4444', 'right');
-    drawAxisLabel(ctx, '0 A', padLeft - 6, padTop + plotH, '#ef4444', 'right');
+    drawAxisLabel(ctx, `${minCurrent.toFixed(1)} A`, padLeft - 6, padTop + plotH, '#ef4444', 'right');
     drawAxisLabel(ctx, `${maxVolts.toFixed(1)} V`, width - padRight + 6, padTop, '#22c55e', 'left');
-    drawAxisLabel(ctx, '0 V', width - padRight + 6, padTop + plotH, '#22c55e', 'left');
+    drawAxisLabel(ctx, `${minVolts.toFixed(1)} V`, width - padRight + 6, padTop + plotH, '#22c55e', 'left');
+
   } else if (tab === 'thrust_throttle') {
-    const maxThrust = Math.max(500, ...data.map((d) => d.thrust));
+    // Dynamic bipolar auto-scale for Thrust vs Throttle
+    const rawMinThrust = Math.min(...data.map((d) => d.thrust));
+    const rawMaxThrust = Math.max(...data.map((d) => d.thrust));
+    const minThrust = Math.min(0, Math.floor((rawMinThrust - 50) / 100) * 100);
+    const maxThrust = Math.max(minThrust + 500, Math.ceil((rawMaxThrust + 50) / 100) * 100);
+
+    if (minThrust < 0 && maxThrust > 0) {
+      const zeroY = padTop + plotH - ((0 - minThrust) / (maxThrust - minThrust)) * plotH;
+      drawZeroBaseline(ctx, padLeft, zeroY, width - padRight);
+      drawAxisLabel(ctx, '0 g', padLeft - 6, zeroY, 'rgba(236, 235, 42, 0.65)', 'right');
+    }
+
     ctx.fillStyle = '#ECEB2A';
     data.forEach((d, i) => {
       const x = padLeft + (i / data.length) * plotW;
-      const y = padTop + plotH - (d.thrust / maxThrust) * plotH;
+      const norm = Math.max(0, Math.min(1, (d.thrust - minThrust) / (maxThrust - minThrust || 1)));
+      const y = padTop + plotH - norm * plotH;
       ctx.beginPath();
       ctx.arc(x, y, 2, 0, Math.PI * 2);
       ctx.fill();
     });
+
     drawAxisLabel(ctx, `${maxThrust.toFixed(0)} g`, padLeft - 6, padTop, '#ECEB2A', 'right');
-    drawAxisLabel(ctx, '0 g', padLeft - 6, padTop + plotH, '#ECEB2A', 'right');
+    drawAxisLabel(ctx, `${minThrust.toFixed(0)} g`, padLeft - 6, padTop + plotH, '#ECEB2A', 'right');
   }
+}
+
+function drawZeroBaseline(ctx: CanvasRenderingContext2D, startX: number, y: number, endX: number) {
+  ctx.save();
+  ctx.strokeStyle = 'rgba(201, 214, 234, 0.35)'; // Dashed zero line
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(startX, y);
+  ctx.lineTo(endX, y);
+  ctx.stroke();
+  ctx.restore();
 }
 
 function drawLineSeries(
