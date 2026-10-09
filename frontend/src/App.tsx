@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTelemetryStream } from './hooks/useTelemetryStream';
 import { useKeyboardEStop } from './hooks/useKeyboardEStop';
 import { api } from './services/api';
