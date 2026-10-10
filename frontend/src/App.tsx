@@ -5,7 +5,7 @@ import { api } from './services/api';
 
 // Components
 import { NumericCard } from './components/instruments/NumericCard';
-import { TachometerGauge } from './components/instruments/TachometerGauge';
+import { EscTelemetryCard } from './components/instruments/EscTelemetryCard';
 import { BatteryGauge } from './components/instruments/BatteryGauge';
 import { EStopButton } from './components/safety/EStopButton';
 import { SafetyBanner } from './components/safety/SafetyBanner';
@@ -183,9 +183,8 @@ export default function App() {
             precision={0}
           />
 
-          <TachometerGauge
+          <EscTelemetryCard
             getRPM={() => latestPacket.current?.rpm ?? 0}
-            maxRPM={18000}
             isDshotEnabled={isDshotEnabled}
           />
 
