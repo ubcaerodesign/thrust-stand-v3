@@ -6,6 +6,7 @@ interface SequenceControllerProps {
   isHardwareStreaming: boolean;
   isEstop: boolean;
   sequenceStatus: SequenceStatus | null;
+  isDshotEnabled?: boolean;
 }
 
 // Built-in presets ensure the dropdown is never empty, even before backend responds
@@ -44,6 +45,7 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
   isHardwareStreaming,
   isEstop,
   sequenceStatus,
+  isDshotEnabled = true,
 }) => {
   const [presets, setPresets] = useState<SequencePreset[]>(DEFAULT_PRESETS);
   const [selectedPresetId, setSelectedPresetId] = useState<string>('stepped_sweep_10_100');
@@ -59,7 +61,6 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
         }
       })
       .catch((err) => {
-        // Silently keep default presets if backend is still spinning up
         console.warn('Using client-side default sequence presets:', err);
       });
   }, []);
@@ -70,7 +71,8 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
     if (!isHardwareStreaming || isEstop || isRunning) return;
     setIsStarting(true);
     try {
-      await api.startSequence(selectedPresetId, 'dshot');
+      const mode = isDshotEnabled ? 'dshot' : 'pwm';
+      await api.startSequence(selectedPresetId, mode);
     } catch (err) {
       alert(`Could not start sequence: ${(err as Error).message}`);
     } finally {

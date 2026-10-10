@@ -1,5 +1,5 @@
 export type CompetitionClass = 'MCR' | 'ADV';
-export type TransportMode = 'simulator' | 'serial';
+export type TransportMode = 'simulator' | 'serial' | 'legacy_serial';
 export type ProtocolMode = 'dshot' | 'pwm';
 
 export interface ConnectPayload {

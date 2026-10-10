@@ -8,6 +8,7 @@ from fastapi import WebSocket
 from app.hal.base import BaseTransport
 from app.hal.tcp_transport import TcpTransport
 from app.hal.serial_transport import SerialTransport
+from app.hal.legacy_serial_transport import LegacySerialTransport
 from app.hal.virtual_transport import VirtualTransport
 from app.core.config import SIMULATOR_HOST, SIMULATOR_PORT, DEFAULT_SERIAL_BAUD
 from app.core.protocol import (
@@ -61,6 +62,16 @@ class ConnectionManager:
             self.transport = transport
             self._start_services()
             print(f"[HAL] Connected to Serial Port {port} at {baud} baud")
+            return True
+        return False
+
+    async def connect_legacy_serial(self, port: str, baud: int = 9600) -> bool:
+        await self.disconnect()
+        transport = LegacySerialTransport(port, baud)
+        if await transport.connect():
+            self.transport = transport
+            self._start_services()
+            print(f"[HAL] Connected to Legacy Serial Port {port} at {baud} baud")
             return True
         return False
 
@@ -170,6 +181,7 @@ class ConnectionManager:
             "flags": data.flags,
             "armed": data.armed,
             "estop": data.estop,
+            "dshot_enabled": data.dshot_enabled,
             "sequence": self.sequence_service.get_status_dict()
         }
 

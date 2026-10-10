@@ -46,7 +46,7 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
 
   const handleModeChange = (newMode: TransportMode) => {
     setMode(newMode);
-    if (newMode === 'serial') {
+    if (newMode === 'serial' || newMode === 'legacy_serial') {
       refreshPorts();
     }
   };
@@ -59,8 +59,8 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
       } else {
         await api.connect({
           mode,
-          port: mode === 'serial' ? port : undefined,
-          baudrate: 115200,
+          port: (mode === 'serial' || mode === 'legacy_serial') ? port : undefined,
+          baudrate: mode === 'legacy_serial' ? 9600 : 115200,
         });
       }
     } catch (err) {
@@ -69,6 +69,8 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
       setIsLoading(false);
     }
   };
+
+  const isSerialMode = mode === 'serial' || mode === 'legacy_serial';
 
   return (
     <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', padding: '8px 16px' }}>
@@ -91,10 +93,11 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
           }}
         >
           <option value="simulator">Virtual Simulator (Built-in)</option>
-          <option value="serial">Physical USB Serial (STM32 Controller)</option>
+          <option value="serial">Physical USB Serial (STM32 Controller - 115200 baud)</option>
+          <option value="legacy_serial">Legacy Arduino Leonardo (V2 - 9600 baud)</option>
         </select>
 
-        {mode === 'serial' && (
+        {isSerialMode && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             {!isManualPort && availablePorts.length > 0 ? (
               <select

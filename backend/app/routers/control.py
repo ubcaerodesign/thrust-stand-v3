@@ -10,8 +10,8 @@ router = APIRouter(prefix="/api/control", tags=["Control"])
 
 
 class ConnectRequest(BaseModel):
-    mode: str = Field(..., example="simulator", description="'simulator' or 'serial'")
-    port: str = Field("COM3", description="Serial port if mode is 'serial'")
+    mode: str = Field(..., example="simulator", description="'simulator', 'serial', or 'legacy_serial'")
+    port: str = Field("COM3", description="Serial port if mode is 'serial' or 'legacy_serial'")
     baudrate: int = Field(115200, description="Baud rate for serial")
 
 
@@ -37,8 +37,11 @@ async def connect_hardware(req: ConnectRequest, request: Request):
         success = await manager.connect_simulator()
     elif req.mode == "serial":
         success = await manager.connect_serial(req.port, req.baudrate)
+    elif req.mode == "legacy_serial":
+        baud = req.baudrate if req.baudrate != 115200 else 9600
+        success = await manager.connect_legacy_serial(req.port, baud)
     else:
-        raise HTTPException(status_code=400, detail="Invalid mode. Must be 'simulator' or 'serial'")
+        raise HTTPException(status_code=400, detail="Invalid mode. Must be 'simulator', 'serial', or 'legacy_serial'")
 
     if not success:
         raise HTTPException(status_code=500, detail=f"Failed to connect to {req.mode}")

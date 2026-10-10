@@ -13,10 +13,11 @@ export interface TelemetryPacket {
   flags: number;
   armed: boolean;
   estop: boolean;
+  dshot_enabled?: boolean;
   sequence?: SequenceStatus;
 }
 
 export interface SystemStatus {
   isConnected: boolean;
-  transportMode: 'simulator' | 'serial' | 'ble' | 'disconnected';
+  transportMode: 'simulator' | 'serial' | 'legacy_serial' | 'ble' | 'disconnected';
 }

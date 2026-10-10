@@ -50,6 +50,9 @@ export default function App() {
 
   const voltage = latestPacket.current?.voltage_v ?? 0;
   const isSequenceRunning = sequenceStatus?.is_running ?? false;
+  const isDshotEnabled = latestPacket.current?.dshot_enabled ?? (
+    latestPacket.current ? Boolean(latestPacket.current.flags & (1 << 2)) : true
+  );
 
   return (
     <div
@@ -183,6 +186,7 @@ export default function App() {
           <TachometerGauge
             getRPM={() => latestPacket.current?.rpm ?? 0}
             maxRPM={18000}
+            isDshotEnabled={isDshotEnabled}
           />
 
           <NumericCard
@@ -294,6 +298,7 @@ export default function App() {
               isHardwareStreaming={isHardwareStreaming}
               isEstop={isEstop}
               sequenceStatus={sequenceStatus}
+              isDshotEnabled={isDshotEnabled}
             />
           </div>
 
@@ -303,6 +308,7 @@ export default function App() {
               isHardwareStreaming={isHardwareStreaming}
               isEstop={isEstop}
               isSequenceRunning={isSequenceRunning}
+              isDshotEnabled={isDshotEnabled}
             />
           </div>
         </section>

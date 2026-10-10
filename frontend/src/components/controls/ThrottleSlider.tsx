@@ -6,16 +6,24 @@ interface ThrottleSliderProps {
   isHardwareStreaming: boolean;
   isEstop: boolean;
   isSequenceRunning?: boolean;
+  isDshotEnabled?: boolean;
 }
 
 export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
   isHardwareStreaming,
   isEstop,
   isSequenceRunning = false,
+  isDshotEnabled = true,
 }) => {
   const [throttle, setThrottle] = useState<number>(0);
   const [isArmed, setIsArmed] = useState<boolean>(false);
   const [mode, setMode] = useState<ProtocolMode>('dshot');
+
+  useEffect(() => {
+    if (!isDshotEnabled) {
+      setMode('pwm');
+    }
+  }, [isDshotEnabled]);
 
   useEffect(() => {
     if (isEstop) {
@@ -29,7 +37,8 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
     setThrottle(clamped);
     if (isHardwareStreaming && isArmed && !isEstop && !isSequenceRunning) {
       try {
-        await api.setThrottle({ throttle_pct: clamped, mode });
+        const activeMode = isDshotEnabled ? mode : 'pwm';
+        await api.setThrottle({ throttle_pct: clamped, mode: activeMode });
       } catch (err) {
         console.error('Throttle command failed:', err);
       }
@@ -65,10 +74,20 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
             <select
               value={mode}
               onChange={(e) => setMode(e.target.value as ProtocolMode)}
-              disabled={isSequenceRunning}
-              style={{ backgroundColor: 'var(--bg-base)', color: '#FFFFFF', border: '1px solid rgba(201, 214, 234, 0.3)', borderRadius: '4px', padding: '2px 6px', fontSize: '11px' }}
+              disabled={isSequenceRunning || !isDshotEnabled}
+              style={{
+                backgroundColor: 'var(--bg-base)',
+                color: '#FFFFFF',
+                border: '1px solid rgba(201, 214, 234, 0.3)',
+                borderRadius: '4px',
+                padding: '2px 6px',
+                fontSize: '11px',
+                cursor: !isDshotEnabled ? 'not-allowed' : 'pointer',
+              }}
             >
-              <option value="dshot">D-Shot Telemetry</option>
+              <option value="dshot" disabled={!isDshotEnabled}>
+                {isDshotEnabled ? 'D-Shot Telemetry' : 'D-Shot (No Sensor)'}
+              </option>
               <option value="pwm">Standard PWM</option>
             </select>
           </div>
