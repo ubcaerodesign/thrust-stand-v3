@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import { TransportMode } from '../../types/session';
+import { RefreshIcon, SpinnerIcon, TuneIcon } from '../common/Icons';
 
 interface ConnectionBarProps {
   isHardwareStreaming: boolean;
@@ -34,7 +35,7 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
         }
       }
     } catch {
-      // Retain fallback port value if daemon is still starting
+      // Retain fallback port value
     } finally {
       setIsRefreshingPorts(false);
     }
@@ -73,9 +74,9 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
   const isSerialMode = mode === 'serial' || mode === 'legacy_serial';
 
   return (
-    <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', padding: '8px 16px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--brand-ice)', letterSpacing: '0.5px' }}>
+    <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', padding: '6px 14px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--brand-ice)', letterSpacing: '0.8px' }}>
           HARDWARE TRANSPORT:
         </span>
         <select
@@ -86,9 +87,9 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
             backgroundColor: 'var(--bg-base)',
             color: 'var(--text-primary)',
             border: '1px solid rgba(201, 214, 234, 0.3)',
-            borderRadius: '4px',
-            padding: '5px 10px',
-            fontSize: '12px',
+            borderRadius: '0px',
+            padding: '4px 8px',
+            fontSize: '11px',
             fontFamily: 'var(--font-body)',
           }}
         >
@@ -114,9 +115,9 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
                   backgroundColor: 'var(--bg-base)',
                   color: 'var(--text-primary)',
                   border: '1px solid rgba(201, 214, 234, 0.3)',
-                  borderRadius: '4px',
-                  padding: '5px 8px',
-                  fontSize: '12px',
+                  borderRadius: '0px',
+                  padding: '4px 8px',
+                  fontSize: '11px',
                 }}
               >
                 {availablePorts.map((p) => (
@@ -137,10 +138,10 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
                   backgroundColor: 'var(--bg-base)',
                   color: 'var(--text-primary)',
                   border: '1px solid rgba(201, 214, 234, 0.3)',
-                  borderRadius: '4px',
-                  padding: '5px 8px',
-                  fontSize: '12px',
-                  width: '130px',
+                  borderRadius: '0px',
+                  padding: '4px 8px',
+                  fontSize: '11px',
+                  width: '120px',
                 }}
               />
             )}
@@ -154,13 +155,16 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
                 backgroundColor: 'transparent',
                 color: 'var(--brand-ice)',
                 border: '1px solid rgba(201, 214, 234, 0.3)',
-                borderRadius: '4px',
-                padding: '5px 8px',
+                borderRadius: '0px',
+                padding: '4px 8px',
                 fontSize: '11px',
                 cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              {isRefreshingPorts ? '⏳' : '🔄'}
+              {isRefreshingPorts ? <SpinnerIcon size={12} color="var(--brand-ice)" /> : <RefreshIcon size={12} color="var(--brand-ice)" />}
             </button>
 
             {isManualPort && availablePorts.length > 0 && (
@@ -191,11 +195,11 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
             backgroundColor: 'transparent',
             color: 'var(--brand-ice)',
             border: '1px solid rgba(201, 214, 234, 0.3)',
-            borderRadius: '4px',
-            padding: '6px 16px',
-            minWidth: '135px',
+            borderRadius: '0px',
+            padding: '5px 12px',
+            minWidth: '125px',
             whiteSpace: 'nowrap',
-            fontSize: '12px',
+            fontSize: '11px',
             fontWeight: 700,
             cursor: 'pointer',
             display: 'inline-flex',
@@ -205,7 +209,8 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
           }}
           title="Open per-channel calibration and tare inspector"
         >
-          ⚙️ CHANNELS...
+          <TuneIcon size={13} color="var(--brand-ice)" />
+          CHANNELS...
         </button>
 
         <button
@@ -215,9 +220,9 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
             backgroundColor: 'transparent',
             color: 'var(--brand-ice)',
             border: '1px solid rgba(201, 214, 234, 0.3)',
-            borderRadius: '4px',
-            padding: '6px 14px',
-            fontSize: '12px',
+            borderRadius: '0px',
+            padding: '5px 12px',
+            fontSize: '11px',
             fontWeight: 700,
             whiteSpace: 'nowrap',
             cursor: isHardwareStreaming ? 'pointer' : 'not-allowed',
@@ -235,16 +240,16 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
             backgroundColor: isHardwareStreaming ? '#7f1d1d' : 'var(--brand-blue)',
             color: '#FFFFFF',
             border: isHardwareStreaming ? '1px solid var(--color-danger)' : '1px solid var(--brand-ice)',
-            borderRadius: '4px',
-            padding: '6px 18px',
-            fontSize: '12px',
+            borderRadius: '0px',
+            padding: '5px 16px',
+            fontSize: '11px',
             fontWeight: 700,
             whiteSpace: 'nowrap',
             cursor: 'pointer',
             transition: 'background-color 0.2s ease',
           }}
         >
-          {isLoading ? 'COMMUNICATING...' : isHardwareStreaming ? 'DISCONNECT' : 'CONNECT'}
+          {isLoading ? 'SYNCING...' : isHardwareStreaming ? 'DISCONNECT' : 'CONNECT'}
         </button>
       </div>
     </div>

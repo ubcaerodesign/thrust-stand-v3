@@ -1,4 +1,5 @@
 import React from 'react';
+import { EstopIcon } from '../common/Icons';
 
 interface EStopButtonProps {
   onTrigger: () => void;
@@ -12,24 +13,25 @@ export const EStopButton: React.FC<EStopButtonProps> = ({ onTrigger, isEstopActi
       style={{
         backgroundColor: isEstopActive ? '#7f1d1d' : 'var(--color-danger)',
         color: '#FFFFFF',
-        border: isEstopActive ? '2px solid var(--brand-yellow)' : '2px solid rgba(255, 255, 255, 0.4)',
-        padding: '10px 22px',
-        borderRadius: '6px',
+        border: isEstopActive ? '2px solid var(--brand-yellow)' : '1px solid rgba(255, 255, 255, 0.4)',
+        padding: '8px 18px',
+        borderRadius: '0px',
         fontFamily: 'var(--font-heading)',
-        fontSize: '14px',
+        fontSize: '13px',
         fontWeight: 700,
         letterSpacing: '1px',
         cursor: 'pointer',
-        boxShadow: isEstopActive ? '0 0 15px rgba(236, 235, 42, 0.6)' : '0 0 12px var(--color-danger-glow)',
+        boxShadow: isEstopActive ? '0 0 16px rgba(236, 235, 42, 0.6)' : '0 0 10px var(--color-danger-glow)',
         transition: 'all 0.15s ease',
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
+        clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)',
       }}
-      onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.96)')}
+      onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.97)')}
       onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
     >
-      <span style={{ fontSize: '16px' }}>🛑</span>
+      <EstopIcon size={15} color="#FFFFFF" />
       {isEstopActive ? 'E-STOP ACTIVE (RESET)' : 'EMERGENCY STOP (SPACE)'}
     </button>
   );

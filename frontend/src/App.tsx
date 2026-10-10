@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTelemetryStream } from './hooks/useTelemetryStream';
 import { useKeyboardEStop } from './hooks/useKeyboardEStop';
 import { api } from './services/api';
+import packageJson from '../package.json';
 
 // Components
 import { NumericCard } from './components/instruments/NumericCard';
@@ -16,6 +17,7 @@ import { SequenceController } from './components/controls/SequenceController';
 import { CalibrationModal } from './components/controls/CalibrationModal';
 import { TelemetryPlot } from './components/plots/TelemetryPlot';
 import { PlotControls, ActivePlotTab, LayoutMode } from './components/plots/PlotControls';
+import { MoonIcon, SunIcon } from './components/common/Icons';
 
 export default function App() {
   const { isWsConnected, isHardwareStreaming, isEstop, sequenceStatus, latestPacket } = useTelemetryStream();
@@ -26,7 +28,7 @@ export default function App() {
   const [clearTrigger, setClearTrigger] = useState<number>(0);
   const [isCalibrationOpen, setIsCalibrationOpen] = useState<boolean>(false);
 
-  // Theme State: 'dark' (Flight Deck) vs 'light' (Airfield Sunlight)
+  // Theme State
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     return (localStorage.getItem('aerothrust_theme') as 'dark' | 'light') || 'dark';
   });
@@ -66,7 +68,7 @@ export default function App() {
         overflow: 'hidden',
       }}
     >
-      {/* Brand Header — Maintained in Navy (#11273B) per Brand Guidelines */}
+      {/* Brand Header */}
       <header
         style={{
           height: 'var(--header-height)',
@@ -75,36 +77,34 @@ export default function App() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 20px',
+          padding: '0 16px',
           flexShrink: 0,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {/* Brand Logo with compliant padding & imported production asset */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <img
             src={new URL('./assets/logo_white_horizontal.svg', import.meta.url).href}
             alt="UBC AeroDesign"
-            style={{ height: '36px', maxWidth: '160px', objectFit: 'contain' }}
+            style={{ height: '32px', maxWidth: '150px', objectFit: 'contain' }}
           />
-          <div style={{ height: '24px', width: '1px', backgroundColor: 'rgba(201, 214, 234, 0.2)' }} />
+          <div style={{ height: '20px', width: '1px', backgroundColor: 'rgba(201, 214, 234, 0.2)' }} />
           <div>
-            <h2 style={{ margin: 0, fontSize: '16px', letterSpacing: '1px', color: '#FFFFFF' }}>AEROTHRUST V3</h2>
-            <span style={{ fontSize: '10px', color: '#C9D6EA', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <h2 style={{ fontSize: '15px', letterSpacing: '1px', color: '#FFFFFF' }}>AEROTHRUST V3</h2>
+            <span style={{ fontSize: '9px', color: '#C9D6EA', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
               Ground Propulsion Testing Core
             </span>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {/* Theme Toggle Button */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
             style={{
               backgroundColor: 'transparent',
               color: '#C9D6EA',
               border: '1px solid rgba(201, 214, 234, 0.3)',
-              borderRadius: '4px',
-              padding: '6px 12px',
+              padding: '5px 12px',
               fontSize: '11px',
               fontWeight: 700,
               cursor: 'pointer',
@@ -112,17 +112,18 @@ export default function App() {
               alignItems: 'center',
               gap: '6px',
             }}
-            title="Toggle between Flight Deck (Dark) and Airfield Sunlight (Light) themes"
+            title="Toggle between Flight Deck (Dark) and Airfield (Light) theme"
           >
-            {theme === 'dark' ? '☀️ AIRFIELD (LIGHT)' : '🌙 FLIGHT DECK (DARK)'}
+            {theme === 'dark' ? <SunIcon size={13} color="var(--brand-yellow)" /> : <MoonIcon size={13} color="#C9D6EA" />}
+            {theme === 'dark' ? 'AIRFIELD' : 'FLIGHT DECK'}
           </button>
 
           <div
             style={{
               padding: '4px 10px',
-              borderRadius: '4px',
-              fontSize: '11px',
+              fontSize: '10px',
               fontWeight: 700,
+              letterSpacing: '0.6px',
               backgroundColor: isHardwareStreaming ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
               color: isHardwareStreaming ? 'var(--color-success)' : 'var(--color-danger)',
               border: isHardwareStreaming ? '1px solid var(--color-success)' : '1px solid var(--color-danger)',
@@ -144,7 +145,7 @@ export default function App() {
       />
 
       {/* Hardware Transport Toolbar */}
-      <div style={{ padding: '8px 16px 0 16px', flexShrink: 0 }}>
+      <div style={{ padding: '6px 14px 0 14px', flexShrink: 0 }}>
         <ConnectionBar
           isHardwareStreaming={isHardwareStreaming}
           onTareAll={handleTareAll}
@@ -152,30 +153,31 @@ export default function App() {
         />
       </div>
 
-      {/* Main Responsive Layout */}
+      {/* Main Two-Column Layout */}
       <main
         style={{
           flex: 1,
-          padding: '12px 16px',
+          padding: '10px 14px',
           display: 'flex',
-          gap: '16px',
+          gap: '12px',
           minHeight: 0,
           minWidth: 0,
           overflow: 'hidden',
         }}
       >
-        {/* Left Column: Primary Telemetry Cluster */}
+        {/* Left Column: Primary Telemetry Cluster + Session Recorder + Dynamic Version */}
         <section
           style={{
-            width: '260px',
+            width: '270px',
             flexShrink: 0,
             display: 'flex',
             flexDirection: 'column',
             gap: '8px',
             overflowY: 'auto',
-            paddingRight: '4px',
+            paddingRight: '2px',
           }}
         >
+          {/* Force & Torque Cards */}
           <NumericCard
             title="Axial Thrust"
             unit="g"
@@ -195,6 +197,7 @@ export default function App() {
             precision={0}
           />
 
+          {/* Electrical Measurement Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             <NumericCard
               title="Bus Voltage"
@@ -229,14 +232,41 @@ export default function App() {
             />
           </div>
 
+          {/* Battery Consumption */}
           <BatteryGauge
             maxMah={1000}
             getVoltage={() => latestPacket.current?.voltage_v ?? 0}
             getCurrent={() => latestPacket.current?.current_a ?? 0}
           />
+
+          {/* Session Data Logger */}
+          <SessionRecorder isHardwareStreaming={isHardwareStreaming} />
+
+          {/* Spacer */}
+          <div style={{ flex: 1 }} />
+
+          {/* Application Version Tag (Dynamically pulls from package.json) */}
+          <div
+            style={{
+              padding: '6px 4px',
+              fontSize: '10px',
+              fontWeight: 700,
+              color: 'var(--text-secondary)',
+              letterSpacing: '0.8px',
+              textTransform: 'uppercase',
+              opacity: 0.75,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              borderTop: 'var(--border-subtle)',
+            }}
+          >
+            <span>AEROTHRUST V3</span>
+            <span>v{packageJson.version}</span>
+          </div>
         </section>
 
-        {/* Center/Right Column: Plot, Automation & Actuation Controls */}
+        {/* Right Column: Graphs + Auto Sequencer + Throttle Actuation */}
         <section
           style={{
             flex: 1,
@@ -245,17 +275,17 @@ export default function App() {
             gap: '8px',
             minWidth: 0,
             minHeight: 0,
-            overflow: 'hidden',
+            overflowY: 'auto',
           }}
         >
-          {/* Dynamic Resizing Canvas Container */}
+          {/* Real-time Telemetry Plots */}
           <div
             className="glass-panel"
             style={{
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
-              minHeight: 0,
+              minHeight: '300px',
               minWidth: 0,
               overflow: 'hidden',
             }}
@@ -286,12 +316,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* Test Session Recording Bar */}
-          <div style={{ flexShrink: 0 }}>
-            <SessionRecorder isHardwareStreaming={isHardwareStreaming} />
-          </div>
-
-          {/* Automated Test Sequencer Bar */}
+          {/* Automated Test Sequencer */}
           <div style={{ flexShrink: 0 }}>
             <SequenceController
               isHardwareStreaming={isHardwareStreaming}
@@ -301,7 +326,7 @@ export default function App() {
             />
           </div>
 
-          {/* Manual Throttle Actuation Interface */}
+          {/* Manual Throttle Actuation */}
           <div style={{ flexShrink: 0 }}>
             <ThrottleSlider
               isHardwareStreaming={isHardwareStreaming}
@@ -313,7 +338,7 @@ export default function App() {
         </section>
       </main>
 
-      {/* Granular Channel Calibration & Tare Modal */}
+      {/* Calibration Modal */}
       <CalibrationModal
         isOpen={isCalibrationOpen}
         onClose={() => setIsCalibrationOpen(false)}

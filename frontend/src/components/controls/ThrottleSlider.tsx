@@ -58,8 +58,8 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
     <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--brand-ice)', textTransform: 'uppercase' }}>
-            Manual Actuation
+          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+            MANUAL ACTUATION
           </span>
           {isSequenceRunning && (
             <span style={{ fontSize: '11px', color: 'var(--brand-yellow)', fontWeight: 700 }}>
@@ -69,17 +69,17 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--brand-ice)' }}>
-            <span>PROTOCOL:</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--text-secondary)' }}>
+            <span style={{ fontWeight: 700 }}>PROTOCOL:</span>
             <select
               value={mode}
               onChange={(e) => setMode(e.target.value as ProtocolMode)}
               disabled={isSequenceRunning || !isDshotEnabled}
               style={{
-                backgroundColor: 'var(--bg-base)',
-                color: '#FFFFFF',
-                border: '1px solid rgba(201, 214, 234, 0.3)',
-                borderRadius: '4px',
+                backgroundColor: 'var(--input-bg)',
+                color: 'var(--input-text)',
+                border: '1px solid var(--input-border)',
+                borderRadius: '0px',
                 padding: '2px 6px',
                 fontSize: '11px',
                 cursor: !isDshotEnabled ? 'not-allowed' : 'pointer',
@@ -92,7 +92,7 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
             </select>
           </div>
 
-          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: isSequenceRunning ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: 700, color: isArmed ? 'var(--color-success)' : 'var(--brand-ice)' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: isSequenceRunning ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: 700, color: isArmed ? 'var(--color-success)' : 'var(--text-secondary)' }}>
             <input
               type="checkbox"
               checked={isArmed}
@@ -117,7 +117,9 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
             flex: 1,
             cursor: isDisabled ? 'not-allowed' : 'pointer',
             accentColor: 'var(--brand-yellow)',
+            backgroundColor: 'var(--slider-track)',
             height: '6px',
+            border: 'none',
           }}
         />
         <span style={{
@@ -127,7 +129,7 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
           minWidth: '70px',
           textAlign: 'right',
           fontVariantNumeric: 'tabular-nums',
-          color: isDisabled ? 'var(--brand-ice)' : 'var(--brand-yellow)'
+          color: isDisabled ? 'var(--text-secondary)' : 'var(--brand-yellow)'
         }}>
           {throttle.toFixed(1)}%
         </span>
@@ -148,10 +150,10 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
 
 const btnStyle: React.CSSProperties = {
   backgroundColor: 'var(--bg-surface-elevated)',
-  color: 'var(--brand-ice)',
-  border: '1px solid rgba(201, 214, 234, 0.2)',
-  borderRadius: '4px',
-  padding: '5px 10px',
+  color: 'var(--text-primary)',
+  border: 'var(--border-subtle)',
+  borderRadius: '0px',
+  padding: '4px 10px',
   fontSize: '11px',
   fontWeight: 700,
   cursor: 'pointer',
