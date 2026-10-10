@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type ActivePlotTab = 'thrust_time' | 'electrical_time' | 'thrust_throttle';
+export type ActivePlotTab = 'thrust_time' | 'torque_time' | 'electrical_time' | 'thrust_throttle';
 export type LayoutMode = 'single' | 'split' | 'grid';
 
 interface PlotControlsProps {
@@ -21,7 +21,7 @@ export const PlotControls: React.FC<PlotControlsProps> = ({
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
       {/* Left side: View Mode Toggle + Tabs */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
         {/* Layout Switcher */}
         <div style={{ display: 'flex', gap: '3px', backgroundColor: 'var(--bg-base)', padding: '2px', borderRadius: '6px', border: '1px solid rgba(201, 214, 234, 0.15)' }}>
           <button
@@ -34,27 +34,58 @@ export const PlotControls: React.FC<PlotControlsProps> = ({
           <button
             onClick={() => onLayoutChange('split')}
             style={layoutBtnStyle(layoutMode === 'split')}
-            title="Dual Split View (Thrust + Electrical)"
+            title="Dual Split View"
           >
             Dual Split
           </button>
           <button
             onClick={() => onLayoutChange('grid')}
             style={layoutBtnStyle(layoutMode === 'grid')}
-            title="3-Graph Grid View"
+            title="4-Graph 2x2 Grid View"
           >
-            Grid (All)
+            Grid (All 4)
           </button>
         </div>
 
-        {/* Tab Selector (Only shown if Single Mode is active) */}
+        {/* Tab Selector for Single Mode */}
         {layoutMode === 'single' && (
-          <div style={{ display: 'flex', gap: '6px' }}>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
             <button
               onClick={() => onTabChange('thrust_time')}
               style={tabStyle(activeTab === 'thrust_time')}
             >
               Thrust & RPM
+            </button>
+            <button
+              onClick={() => onTabChange('torque_time')}
+              style={tabStyle(activeTab === 'torque_time')}
+            >
+              Reaction Torque (LC2)
+            </button>
+            <button
+              onClick={() => onTabChange('electrical_time')}
+              style={tabStyle(activeTab === 'electrical_time')}
+            >
+              Electrical (V & A)
+            </button>
+            <button
+              onClick={() => onTabChange('thrust_throttle')}
+              style={tabStyle(activeTab === 'thrust_throttle')}
+            >
+              Thrust vs. Throttle (%)
+            </button>
+          </div>
+        )}
+
+        {/* Second Pane Selector for Dual Split Mode */}
+        {layoutMode === 'split' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '11px', color: 'var(--brand-ice)', fontWeight: 600 }}>Right Pane:</span>
+            <button
+              onClick={() => onTabChange('torque_time')}
+              style={tabStyle(activeTab === 'torque_time' || activeTab === 'thrust_time')}
+            >
+              Torque (LC2)
             </button>
             <button
               onClick={() => onTabChange('electrical_time')}
