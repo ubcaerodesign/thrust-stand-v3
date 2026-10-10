@@ -15,6 +15,10 @@
   --text-primary: #FFFFFF;
   --text-secondary: #C9D6EA;
   --text-accent: #ECEB2A;
+
+  /* Fonts (UBC AeroDesign V3 Identity) */
+  --font-heading: 'Titillium Web', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
   
   /* Status Colors */
   --color-danger: #ef4444;
@@ -22,15 +26,15 @@
   --color-success: #22c55e;
   --color-warning: #ECEB2A;
 
-  /* Fonts */
-  --font-heading: 'Titillium Web', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-body: 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
-
   /* Layout */
   --header-height: 56px;
   --border-subtle: 1px solid rgba(201, 214, 234, 0.18);
   --border-active: 1px solid var(--brand-ice);
   --plot-bg: #0a141f;
+
+  /* Banner Standby Tokens */
+  --banner-standby-bg: #003565;
+  --banner-standby-text: #C9D6EA;
 
   /* Input & Slider Tokens */
   --input-bg: #0a141f;
@@ -62,6 +66,10 @@
   --border-subtle: 1px solid rgba(0, 53, 101, 0.25);
   --border-active: 1px solid var(--brand-blue);
   --plot-bg: #FFFFFF;
+
+  /* Banner Standby Tokens in Light Mode (High Contrast Slate Blue) */
+  --banner-standby-bg: #dbeafe;
+  --banner-standby-text: #003565;
 
   /* Input & Slider Tokens in Light Mode */
   --input-bg: #f8fafc;

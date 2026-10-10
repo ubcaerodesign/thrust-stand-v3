@@ -86,7 +86,7 @@ export const CalibrationModal: React.FC<CalibrationModalProps> = ({
   return (
     <Modal isOpen={isOpen} title="Strain Gauge Channel Calibration & Tare" onClose={onClose}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <p style={{ margin: 0, fontSize: '11px', color: 'var(--brand-ice)', lineHeight: 1.4 }}>
+        <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
           Zero resting fixture weight and baseline offsets. You can tare individual channels or execute a master tare.
         </p>
 
@@ -99,14 +99,14 @@ export const CalibrationModal: React.FC<CalibrationModalProps> = ({
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '8px 10px',
-                backgroundColor: 'var(--bg-base)',
+                backgroundColor: 'var(--bg-surface-elevated)',
                 borderRadius: '0px',
-                border: '1px solid rgba(201, 214, 234, 0.15)',
+                border: 'var(--border-subtle)',
               }}
             >
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                <span style={{ fontSize: '11px', fontWeight: 700, color: '#FFFFFF' }}>{ch.name}</span>
-                <span style={{ fontSize: '10px', color: 'var(--brand-ice)' }}>{ch.role}</span>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-primary)' }}>{ch.name}</span>
+                <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{ch.role}</span>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -129,9 +129,9 @@ export const CalibrationModal: React.FC<CalibrationModalProps> = ({
                   onClick={() => executeTare(ch.mask, ch.name)}
                   disabled={!isHardwareStreaming || isTaring}
                   style={{
-                    backgroundColor: 'var(--brand-surface-elevated)',
-                    color: '#FFFFFF',
-                    border: '1px solid rgba(201, 214, 234, 0.3)',
+                    backgroundColor: 'var(--bg-surface)',
+                    color: 'var(--text-primary)',
+                    border: 'var(--border-subtle)',
                     borderRadius: '0px',
                     padding: '4px 10px',
                     fontSize: '11px',
@@ -168,14 +168,14 @@ export const CalibrationModal: React.FC<CalibrationModalProps> = ({
           </div>
         )}
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', paddingTop: '8px', borderTop: '1px solid rgba(201, 214, 234, 0.15)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', paddingTop: '8px', borderTop: 'var(--border-subtle)' }}>
           <button
             onClick={() => executeTare(0x03, 'Motor Channels (Ch1 + Ch2)')}
             disabled={!isHardwareStreaming || isTaring}
             style={{
               backgroundColor: 'transparent',
-              color: 'var(--brand-ice)',
-              border: '1px solid rgba(201, 214, 234, 0.3)',
+              color: 'var(--text-primary)',
+              border: 'var(--border-subtle)',
               borderRadius: '0px',
               padding: '5px 10px',
               fontSize: '11px',
@@ -194,7 +194,7 @@ export const CalibrationModal: React.FC<CalibrationModalProps> = ({
               style={{
                 backgroundColor: 'var(--brand-blue)',
                 color: '#FFFFFF',
-                border: '1px solid var(--brand-ice)',
+                border: '1px solid var(--brand-blue)',
                 borderRadius: '0px',
                 padding: '5px 14px',
                 fontSize: '11px',
@@ -209,9 +209,9 @@ export const CalibrationModal: React.FC<CalibrationModalProps> = ({
             <button
               onClick={onClose}
               style={{
-                backgroundColor: '#334155',
-                color: '#FFFFFF',
-                border: 'none',
+                backgroundColor: 'var(--bg-surface-elevated)',
+                color: 'var(--text-primary)',
+                border: 'var(--border-subtle)',
                 borderRadius: '0px',
                 padding: '5px 12px',
                 fontSize: '11px',
