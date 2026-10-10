@@ -8,6 +8,7 @@ from fastapi import WebSocket
 from app.hal.base import BaseTransport
 from app.hal.tcp_transport import TcpTransport
 from app.hal.serial_transport import SerialTransport
+from app.hal.virtual_transport import VirtualTransport
 from app.core.config import SIMULATOR_HOST, SIMULATOR_PORT, DEFAULT_SERIAL_BAUD
 from app.core.protocol import (
     pack_command, unpack_telemetry, TelemetryData,
@@ -35,12 +36,22 @@ class ConnectionManager:
 
     async def connect_simulator(self, host: str = SIMULATOR_HOST, port: int = SIMULATOR_PORT) -> bool:
         await self.disconnect()
-        transport = TcpTransport(host, port)
-        if await transport.connect():
-            self.transport = transport
+        # Attempt external TCP simulator connection first
+        tcp_transport = TcpTransport(host, port)
+        if await tcp_transport.connect():
+            self.transport = tcp_transport
             self._start_services()
-            print(f"[HAL] Connected to Virtual Stand at {host}:{port}")
+            print(f"[HAL] Connected to External Virtual Stand at {host}:{port}")
             return True
+
+        # Fallback to embedded in-process virtual stand simulator
+        v_transport = VirtualTransport()
+        if await v_transport.connect():
+            self.transport = v_transport
+            self._start_services()
+            print("[HAL] Connected to Embedded Virtual Stand Simulator")
+            return True
+
         return False
 
     async def connect_serial(self, port: str, baud: int = DEFAULT_SERIAL_BAUD) -> bool:

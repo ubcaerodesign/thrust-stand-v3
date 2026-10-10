@@ -7,14 +7,21 @@
   },
   "package": {
     "productName": "AeroThrust V3",
-    "version": "1.0.0"
+    "version": "1.0.3"
   },
   "tauri": {
     "allowlist": {
       "all": false,
       "shell": {
         "all": false,
-        "open": true
+        "open": true,
+        "sidecar": true,
+        "scope": [
+          {
+            "name": "binaries/aerothrust-backend",
+            "sidecar": true
+          }
+        ]
       }
     },
     "bundle": {

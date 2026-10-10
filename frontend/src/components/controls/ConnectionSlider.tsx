@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import { TransportMode } from '../../types/session';
 
@@ -15,7 +15,41 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
 }) => {
   const [mode, setMode] = useState<TransportMode>('simulator');
   const [port, setPort] = useState<string>('COM3');
+  const [availablePorts, setAvailablePorts] = useState<string[]>([]);
+  const [isManualPort, setIsManualPort] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isRefreshingPorts, setIsRefreshingPorts] = useState<boolean>(false);
+
+  const refreshPorts = async () => {
+    setIsRefreshingPorts(true);
+    try {
+      const res = await api.getAvailablePorts();
+      if (res && Array.isArray(res.ports)) {
+        setAvailablePorts(res.ports);
+        if (res.ports.length > 0 && !res.ports.includes(port)) {
+          setPort(res.ports[0]);
+          setIsManualPort(false);
+        } else if (res.ports.length === 0) {
+          setIsManualPort(true);
+        }
+      }
+    } catch {
+      // Retain fallback port value if daemon is still starting
+    } finally {
+      setIsRefreshingPorts(false);
+    }
+  };
+
+  useEffect(() => {
+    refreshPorts();
+  }, []);
+
+  const handleModeChange = (newMode: TransportMode) => {
+    setMode(newMode);
+    if (newMode === 'serial') {
+      refreshPorts();
+    }
+  };
 
   const handleToggleConnect = async () => {
     setIsLoading(true);
@@ -44,7 +78,7 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
         </span>
         <select
           value={mode}
-          onChange={(e) => setMode(e.target.value as TransportMode)}
+          onChange={(e) => handleModeChange(e.target.value as TransportMode)}
           disabled={isHardwareStreaming || isLoading}
           style={{
             backgroundColor: 'var(--bg-base)',
@@ -56,32 +90,98 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
             fontFamily: 'var(--font-body)',
           }}
         >
-          <option value="simulator">Virtual Simulator (TCP :8765)</option>
+          <option value="simulator">Virtual Simulator (Built-in)</option>
           <option value="serial">Physical USB Serial (STM32 Controller)</option>
         </select>
 
         {mode === 'serial' && (
-          <input
-            type="text"
-            value={port}
-            onChange={(e) => setPort(e.target.value)}
-            placeholder="COM3 or /dev/ttyACM0"
-            disabled={isHardwareStreaming || isLoading}
-            style={{
-              backgroundColor: 'var(--bg-base)',
-              color: 'var(--text-primary)',
-              border: '1px solid rgba(201, 214, 234, 0.3)',
-              borderRadius: '4px',
-              padding: '5px 8px',
-              fontSize: '12px',
-              width: '130px',
-            }}
-          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {!isManualPort && availablePorts.length > 0 ? (
+              <select
+                value={port}
+                onChange={(e) => {
+                  if (e.target.value === '__custom__') {
+                    setIsManualPort(true);
+                  } else {
+                    setPort(e.target.value);
+                  }
+                }}
+                disabled={isHardwareStreaming || isLoading}
+                style={{
+                  backgroundColor: 'var(--bg-base)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid rgba(201, 214, 234, 0.3)',
+                  borderRadius: '4px',
+                  padding: '5px 8px',
+                  fontSize: '12px',
+                }}
+              >
+                {availablePorts.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+                <option value="__custom__">Manual entry...</option>
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={port}
+                onChange={(e) => setPort(e.target.value)}
+                placeholder="COM3 or /dev/ttyACM0"
+                disabled={isHardwareStreaming || isLoading}
+                style={{
+                  backgroundColor: 'var(--bg-base)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid rgba(201, 214, 234, 0.3)',
+                  borderRadius: '4px',
+                  padding: '5px 8px',
+                  fontSize: '12px',
+                  width: '130px',
+                }}
+              />
+            )}
+
+            <button
+              type="button"
+              onClick={refreshPorts}
+              disabled={isHardwareStreaming || isLoading || isRefreshingPorts}
+              title="Scan and refresh available COM ports"
+              style={{
+                backgroundColor: 'transparent',
+                color: 'var(--brand-ice)',
+                border: '1px solid rgba(201, 214, 234, 0.3)',
+                borderRadius: '4px',
+                padding: '5px 8px',
+                fontSize: '11px',
+                cursor: 'pointer',
+              }}
+            >
+              {isRefreshingPorts ? '⏳' : '🔄'}
+            </button>
+
+            {isManualPort && availablePorts.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setIsManualPort(false)}
+                title="Switch back to detected ports"
+                style={{
+                  backgroundColor: 'transparent',
+                  color: 'var(--brand-ice)',
+                  border: 'none',
+                  fontSize: '11px',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                }}
+              >
+                List
+              </button>
+            )}
+          </div>
         )}
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        {/* Expanded width and nowrap ensures full button visibility */}
         <button
           onClick={onOpenCalibration}
           style={{

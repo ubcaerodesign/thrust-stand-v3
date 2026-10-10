@@ -33,6 +33,7 @@ async function getJson<T>(endpoint: string): Promise<T> {
 }
 
 export const api = {
+  getAvailablePorts: () => getJson<{ ports: string[] }>('/api/control/ports'),
   connect: (payload: ConnectPayload) => postJson<{ status: string; mode: string }>('/api/control/connect', payload),
   disconnect: () => postJson<{ status: string }>('/api/control/disconnect'),
   setThrottle: (payload: ThrottlePayload) => postJson<{ status: string; throttle_pct: number }>('/api/control/throttle', payload),

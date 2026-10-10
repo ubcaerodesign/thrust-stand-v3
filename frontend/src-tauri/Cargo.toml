@@ -1,6 +1,6 @@
 [package]
 name = "aerothrust-v3"
-version = "1.0.0"
+version = "1.0.3"
 description = "AeroThrust V3 Desktop Application"
 authors = ["UBC AeroDesign"]
 edition = "2021"
@@ -9,7 +9,7 @@ edition = "2021"
 tauri-build = { version = "1", features = [] }
 
 [dependencies]
-tauri = { version = "1", features = ["shell-open"] }
+tauri = { version = "1", features = ["shell-open", "shell-sidecar", "process-command-api"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 

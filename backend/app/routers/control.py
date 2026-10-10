@@ -2,6 +2,7 @@
 AeroThrust V3 - Motor Control & Hardware Routing Endpoints
 """
 
+import serial.tools.list_ports
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 
@@ -21,6 +22,12 @@ class ThrottleRequest(BaseModel):
 
 class TareRequest(BaseModel):
     mask: int = Field(0x0F, description="Channel bitmask (0x01=Ch1, 0x02=Ch2, 0x0F=All)")
+
+
+@router.get("/ports")
+async def list_serial_ports():
+    ports = [p.device for p in serial.tools.list_ports.comports()]
+    return {"ports": ports}
 
 
 @router.post("/connect")
