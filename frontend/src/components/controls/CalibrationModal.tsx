@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Modal } from '../common/Modal';
 import { api } from '../../services/api';
 import { TelemetryPacket } from '../../types/telemetry';
+import { CheckIcon, CloseIcon } from '../common/Icons';
 
 interface CalibrationModalProps {
   isOpen: boolean;
@@ -31,16 +32,14 @@ export const CalibrationModal: React.FC<CalibrationModalProps> = ({
   getLatestPacket,
   isHardwareStreaming,
 }) => {
-  const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null);
+  const [feedbackMsg, setFeedbackMsg] = useState<{ text: string; success: boolean } | null>(null);
   const [isTaring, setIsTaring] = useState<boolean>(false);
 
-  // References for direct 60 FPS text updates inside the modal
   const ch1Ref = useRef<HTMLSpanElement>(null);
   const ch2Ref = useRef<HTMLSpanElement>(null);
   const ch3Ref = useRef<HTMLSpanElement>(null);
   const ch4Ref = useRef<HTMLSpanElement>(null);
 
-  // High-speed render loop to show live net forces while zeroing
   useEffect(() => {
     if (!isOpen) return;
     let animId: number;
@@ -65,10 +64,10 @@ export const CalibrationModal: React.FC<CalibrationModalProps> = ({
     setIsTaring(true);
     try {
       await api.tare({ mask });
-      setFeedbackMsg(`✓ Successfully zeroed ${label}`);
+      setFeedbackMsg({ text: `Successfully zeroed ${label}`, success: true });
       setTimeout(() => setFeedbackMsg(null), 3000);
     } catch (err) {
-      setFeedbackMsg(`✕ Tare failed: ${(err as Error).message}`);
+      setFeedbackMsg({ text: `Tare failed: ${(err as Error).message}`, success: false });
     } finally {
       setIsTaring(false);
     }
@@ -86,13 +85,12 @@ export const CalibrationModal: React.FC<CalibrationModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} title="Strain Gauge Channel Calibration & Tare" onClose={onClose}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-        <p style={{ margin: 0, fontSize: '12px', color: 'var(--brand-ice)', lineHeight: 1.4 }}>
-          Zero resting weight and aerodynamic balance offsets. You can tare individual load cells or trigger group tares.
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <p style={{ margin: 0, fontSize: '11px', color: 'var(--brand-ice)', lineHeight: 1.4 }}>
+          Zero resting fixture weight and baseline offsets. You can tare individual channels or execute a master tare.
         </p>
 
-        {/* Live Channel Inspection Cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           {CHANNELS.map((ch) => (
             <div
               key={ch.id}
@@ -100,26 +98,26 @@ export const CalibrationModal: React.FC<CalibrationModalProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '10px 12px',
+                padding: '8px 10px',
                 backgroundColor: 'var(--bg-base)',
-                borderRadius: '6px',
+                borderRadius: '0px',
                 border: '1px solid rgba(201, 214, 234, 0.15)',
               }}
             >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#FFFFFF' }}>{ch.name}</span>
-                <span style={{ fontSize: '11px', color: 'var(--brand-ice)' }}>{ch.role}</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#FFFFFF' }}>{ch.name}</span>
+                <span style={{ fontSize: '10px', color: 'var(--brand-ice)' }}>{ch.role}</span>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <span
                   ref={getRefForChannel(ch.id)}
                   style={{
                     fontFamily: 'var(--font-heading)',
-                    fontSize: '18px',
+                    fontSize: '16px',
                     fontWeight: 700,
                     color: 'var(--brand-yellow)',
-                    minWidth: '70px',
+                    minWidth: '65px',
                     textAlign: 'right',
                     fontVariantNumeric: 'tabular-nums',
                   }}
@@ -134,8 +132,8 @@ export const CalibrationModal: React.FC<CalibrationModalProps> = ({
                     backgroundColor: 'var(--brand-surface-elevated)',
                     color: '#FFFFFF',
                     border: '1px solid rgba(201, 214, 234, 0.3)',
-                    borderRadius: '4px',
-                    padding: '5px 12px',
+                    borderRadius: '0px',
+                    padding: '4px 10px',
                     fontSize: '11px',
                     fontWeight: 700,
                     cursor: isHardwareStreaming ? 'pointer' : 'not-allowed',
@@ -149,26 +147,28 @@ export const CalibrationModal: React.FC<CalibrationModalProps> = ({
           ))}
         </div>
 
-        {/* Status / Feedback Banner */}
         {feedbackMsg && (
           <div
             style={{
-              padding: '6px 12px',
-              borderRadius: '4px',
-              fontSize: '12px',
+              padding: '6px 10px',
+              borderRadius: '0px',
+              fontSize: '11px',
               fontWeight: 600,
-              backgroundColor: feedbackMsg.startsWith('✓') ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-              color: feedbackMsg.startsWith('✓') ? 'var(--color-success)' : 'var(--color-danger)',
-              border: feedbackMsg.startsWith('✓') ? '1px solid var(--color-success)' : '1px solid var(--color-danger)',
-              textAlign: 'center',
+              backgroundColor: feedbackMsg.success ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+              color: feedbackMsg.success ? 'var(--color-success)' : 'var(--color-danger)',
+              border: feedbackMsg.success ? '1px solid var(--color-success)' : '1px solid var(--color-danger)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
             }}
           >
-            {feedbackMsg}
+            {feedbackMsg.success ? <CheckIcon size={13} color="var(--color-success)" /> : <CloseIcon size={13} color="var(--color-danger)" />}
+            {feedbackMsg.text}
           </div>
         )}
 
-        {/* Group Actions Footer */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px', paddingTop: '10px', borderTop: '1px solid rgba(201, 214, 234, 0.15)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', paddingTop: '8px', borderTop: '1px solid rgba(201, 214, 234, 0.15)' }}>
           <button
             onClick={() => executeTare(0x03, 'Motor Channels (Ch1 + Ch2)')}
             disabled={!isHardwareStreaming || isTaring}
@@ -176,15 +176,15 @@ export const CalibrationModal: React.FC<CalibrationModalProps> = ({
               backgroundColor: 'transparent',
               color: 'var(--brand-ice)',
               border: '1px solid rgba(201, 214, 234, 0.3)',
-              borderRadius: '4px',
-              padding: '6px 12px',
+              borderRadius: '0px',
+              padding: '5px 10px',
               fontSize: '11px',
               fontWeight: 700,
               cursor: isHardwareStreaming ? 'pointer' : 'not-allowed',
               opacity: isHardwareStreaming ? 1 : 0.4,
             }}
           >
-            Zero Motor Pair (Ch 1+2)
+            Zero Motor Pair (1+2)
           </button>
 
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -195,8 +195,8 @@ export const CalibrationModal: React.FC<CalibrationModalProps> = ({
                 backgroundColor: 'var(--brand-blue)',
                 color: '#FFFFFF',
                 border: '1px solid var(--brand-ice)',
-                borderRadius: '4px',
-                padding: '6px 16px',
+                borderRadius: '0px',
+                padding: '5px 14px',
                 fontSize: '11px',
                 fontWeight: 700,
                 cursor: isHardwareStreaming ? 'pointer' : 'not-allowed',
@@ -212,8 +212,8 @@ export const CalibrationModal: React.FC<CalibrationModalProps> = ({
                 backgroundColor: '#334155',
                 color: '#FFFFFF',
                 border: 'none',
-                borderRadius: '4px',
-                padding: '6px 14px',
+                borderRadius: '0px',
+                padding: '5px 12px',
                 fontSize: '11px',
                 fontWeight: 700,
                 cursor: 'pointer',

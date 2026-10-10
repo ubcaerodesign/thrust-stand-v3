@@ -13,6 +13,7 @@ interface TelemetryPlotProps {
 interface PlotSample {
   time: number;
   thrust: number;
+  torque: number;
   rpm: number;
   voltage: number;
   current: number;
@@ -41,6 +42,7 @@ export const TelemetryPlot: React.FC<TelemetryPlotProps> = ({
         bufferRef.current.push({
           time: pkt.uptime_ms / 1000,
           thrust: pkt.thrust_g,
+          torque: pkt.torque_g,
           rpm: pkt.rpm,
           voltage: pkt.voltage_v,
           current: pkt.current_a,
@@ -65,6 +67,14 @@ export const TelemetryPlot: React.FC<TelemetryPlotProps> = ({
   }
 
   if (layoutMode === 'split') {
+    const rightTab: ActivePlotTab = activeTab === 'thrust_time' ? 'torque_time' : activeTab;
+    const rightTitle =
+      rightTab === 'torque_time'
+        ? 'Reaction Torque (Load Cell 2)'
+        : rightTab === 'electrical_time'
+        ? 'Electrical (Voltage & Current)'
+        : 'Thrust vs. Throttle (%) Curve';
+
     return (
       <div
         style={{
@@ -78,13 +88,13 @@ export const TelemetryPlot: React.FC<TelemetryPlotProps> = ({
           gap: '8px',
         }}
       >
-        <CanvasPane tab="thrust_time" title="Thrust & RPM" theme={theme} bufferRef={bufferRef} />
-        <CanvasPane tab="electrical_time" title="Electrical (V & A)" theme={theme} bufferRef={bufferRef} />
+        <CanvasPane tab="thrust_time" title="Axial Thrust & RPM (Load Cell 1)" theme={theme} bufferRef={bufferRef} />
+        <CanvasPane tab={rightTab} title={rightTitle} theme={theme} bufferRef={bufferRef} />
       </div>
     );
   }
 
-  // 3-Graph Grid View
+  // 4-Graph 2x2 Matrix
   return (
     <div
       style={{
@@ -100,12 +110,15 @@ export const TelemetryPlot: React.FC<TelemetryPlotProps> = ({
       }}
     >
       <div style={{ gridColumn: '1 / 2', gridRow: '1 / 2', minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
-        <CanvasPane tab="thrust_time" title="Thrust & RPM" theme={theme} bufferRef={bufferRef} />
+        <CanvasPane tab="thrust_time" title="Axial Thrust & RPM (Load Cell 1)" theme={theme} bufferRef={bufferRef} />
       </div>
       <div style={{ gridColumn: '2 / 3', gridRow: '1 / 2', minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
-        <CanvasPane tab="electrical_time" title="Electrical (V & A)" theme={theme} bufferRef={bufferRef} />
+        <CanvasPane tab="torque_time" title="Reaction Torque (Load Cell 2)" theme={theme} bufferRef={bufferRef} />
       </div>
-      <div style={{ gridColumn: '1 / 3', gridRow: '2 / 3', minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
+      <div style={{ gridColumn: '1 / 2', gridRow: '2 / 3', minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
+        <CanvasPane tab="electrical_time" title="Electrical (Voltage & Current)" theme={theme} bufferRef={bufferRef} />
+      </div>
+      <div style={{ gridColumn: '2 / 3', gridRow: '2 / 3', minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
         <CanvasPane tab="thrust_throttle" title="Thrust vs. Throttle (%) Curve" theme={theme} bufferRef={bufferRef} />
       </div>
     </div>
@@ -181,7 +194,7 @@ const CanvasPane: React.FC<CanvasPaneProps> = ({ tab, title, theme, bufferRef })
           width: '100%',
           height: '100%',
           display: 'block',
-          borderRadius: '4px',
+          borderRadius: '0px',
           backgroundColor: theme === 'light' ? '#FFFFFF' : '#0a141f',
           transition: 'background-color 0.2s ease',
         }}
@@ -203,16 +216,16 @@ function drawPlot(
 
   const isLight = theme === 'light';
 
-  // Palette definitions based on theme
   const colors = {
-    bgGrid: isLight ? 'rgba(0, 53, 101, 0.08)' : 'rgba(201, 214, 234, 0.08)',
-    textTitle: isLight ? '#11273B' : '#C9D6EA',
-    textPlaceholder: isLight ? '#475569' : 'rgba(201, 214, 234, 0.85)',
-    thrustLine: isLight ? '#b45309' : '#ECEB2A',     // Amber in sunlight vs Yellow in dark
-    rpmLine: isLight ? '#0284c7' : '#38bdf8',        // High-contrast blue
+    bgGrid: isLight ? 'rgba(0, 53, 101, 0.12)' : 'rgba(201, 214, 234, 0.08)',
+    textTitle: isLight ? '#0f172a' : '#C9D6EA',
+    textPlaceholder: isLight ? '#334155' : 'rgba(201, 214, 234, 0.85)',
+    thrustLine: isLight ? '#b45309' : '#ECEB2A',     // Amber vs Yellow
+    rpmLine: isLight ? '#0284c7' : '#38bdf8',        // Blue
+    torqueLine: isLight ? '#7c3aed' : '#a855f7',     // Purple for Load Cell 2 Torque
     currentLine: isLight ? '#dc2626' : '#ef4444',
     voltageLine: isLight ? '#16a34a' : '#22c55e',
-    zeroBaseline: isLight ? 'rgba(17, 39, 59, 0.35)' : 'rgba(201, 214, 234, 0.35)',
+    zeroBaseline: isLight ? 'rgba(15, 23, 42, 0.4)' : 'rgba(201, 214, 234, 0.35)',
   };
 
   const padLeft = 52;
@@ -224,7 +237,7 @@ function drawPlot(
 
   if (customTitle) {
     ctx.fillStyle = colors.textTitle;
-    ctx.font = '11px "Titillium Web", sans-serif';
+    ctx.font = '700 11px "Titillium Web", sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(customTitle, padLeft, 13);
   }
@@ -242,7 +255,7 @@ function drawPlot(
 
   if (data.length < 2) {
     ctx.fillStyle = colors.textPlaceholder;
-    ctx.font = '12px Lato, sans-serif';
+    ctx.font = '700 12px Lato, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('Awaiting live telemetry stream...', width / 2, height / 2);
     return;
@@ -268,6 +281,23 @@ function drawPlot(
     drawAxisLabel(ctx, `${minThrust.toFixed(0)} g`, padLeft - 6, padTop + plotH, colors.thrustLine, 'right');
     drawAxisLabel(ctx, `${maxRPM.toFixed(0)} RPM`, width - padRight + 6, padTop, colors.rpmLine, 'left');
     drawAxisLabel(ctx, '0 RPM', width - padRight + 6, padTop + plotH, colors.rpmLine, 'left');
+
+  } else if (tab === 'torque_time') {
+    const rawMinTorque = Math.min(...data.map((d) => d.torque));
+    const rawMaxTorque = Math.max(...data.map((d) => d.torque));
+    const minTorque = Math.min(0, Math.floor((rawMinTorque - 20) / 50) * 50);
+    const maxTorque = Math.max(minTorque + 100, Math.ceil((rawMaxTorque + 20) / 50) * 50);
+
+    if (minTorque < 0 && maxTorque > 0) {
+      const zeroY = padTop + plotH - ((0 - minTorque) / (maxTorque - minTorque)) * plotH;
+      drawZeroBaseline(ctx, padLeft, zeroY, width - padRight, colors.zeroBaseline);
+      drawAxisLabel(ctx, '0 g', padLeft - 6, zeroY, colors.torqueLine, 'right');
+    }
+
+    drawLineSeries(ctx, data, (d) => d.torque, minTorque, maxTorque, padLeft, padTop, plotW, plotH, colors.torqueLine);
+
+    drawAxisLabel(ctx, `${maxTorque.toFixed(0)} g`, padLeft - 6, padTop, colors.torqueLine, 'right');
+    drawAxisLabel(ctx, `${minTorque.toFixed(0)} g`, padLeft - 6, padTop + plotH, colors.torqueLine, 'right');
 
   } else if (tab === 'electrical_time') {
     const rawMinCurrent = Math.min(...data.map((d) => d.current));
@@ -370,7 +400,7 @@ function drawAxisLabel(
   align: CanvasTextAlign
 ) {
   ctx.fillStyle = color;
-  ctx.font = '10px Lato, sans-serif';
+  ctx.font = '700 10px Lato, sans-serif';
   ctx.textAlign = align;
   ctx.fillText(text, x, y + 3);
 }

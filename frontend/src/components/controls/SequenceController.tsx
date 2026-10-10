@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import { SequencePreset, SequenceStatus } from '../../types/sequence';
+import { BoltIcon, PlayIcon } from '../common/Icons';
 
 interface SequenceControllerProps {
   isHardwareStreaming: boolean;
@@ -9,7 +10,6 @@ interface SequenceControllerProps {
   isDshotEnabled?: boolean;
 }
 
-// Built-in presets ensure the dropdown is never empty, even before backend responds
 const DEFAULT_PRESETS: SequencePreset[] = [
   {
     id: 'stepped_sweep_10_100',
@@ -51,7 +51,6 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
   const [selectedPresetId, setSelectedPresetId] = useState<string>('stepped_sweep_10_100');
   const [isStarting, setIsStarting] = useState<boolean>(false);
 
-  // Sync dynamic presets from backend on mount if available
   useEffect(() => {
     api.getSequencePresets()
       .then((data) => {
@@ -93,16 +92,17 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
     : 0;
 
   return (
-    <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '10px 16px' }}>
+    <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '8px 14px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--brand-ice)', letterSpacing: '0.5px' }}>
-            AUTO TEST SEQUENCE:
+          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '0.8px' }}>
+            AUTO SEQUENCER:
           </span>
 
           {isRunning ? (
-            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--brand-yellow)' }}>
-              ⚡ EXECUTING: {sequenceStatus?.preset_name}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: 700, color: 'var(--brand-yellow)' }}>
+              <BoltIcon size={12} color="var(--brand-yellow)" />
+              EXECUTING: {sequenceStatus?.preset_name}
             </span>
           ) : (
             <select
@@ -110,10 +110,10 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
               onChange={(e) => setSelectedPresetId(e.target.value)}
               disabled={isRunning}
               style={{
-                backgroundColor: 'var(--bg-base)',
-                color: '#FFFFFF',
-                border: '1px solid rgba(201, 214, 234, 0.3)',
-                borderRadius: '4px',
+                backgroundColor: 'var(--input-bg)',
+                color: 'var(--input-text)',
+                border: '1px solid var(--input-border)',
+                borderRadius: '0px',
                 padding: '4px 8px',
                 fontSize: '11px',
                 fontFamily: 'var(--font-body)',
@@ -121,11 +121,7 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
               }}
             >
               {presets.map((p) => (
-                <option
-                  key={p.id}
-                  value={p.id}
-                  style={{ backgroundColor: '#11273B', color: '#FFFFFF' }}
-                >
+                <option key={p.id} value={p.id}>
                   {p.name} ({p.total_duration_sec}s)
                 </option>
               ))}
@@ -141,7 +137,7 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
                 backgroundColor: 'var(--color-danger)',
                 color: '#FFFFFF',
                 border: 'none',
-                borderRadius: '4px',
+                borderRadius: '0px',
                 padding: '5px 14px',
                 fontSize: '11px',
                 fontWeight: 700,
@@ -158,32 +154,35 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
                 backgroundColor: 'var(--brand-blue)',
                 color: '#FFFFFF',
                 border: '1px solid var(--brand-ice)',
-                borderRadius: '4px',
+                borderRadius: '0px',
                 padding: '5px 14px',
                 fontSize: '11px',
                 fontWeight: 700,
                 cursor: isHardwareStreaming && !isEstop ? 'pointer' : 'not-allowed',
                 opacity: isHardwareStreaming && !isEstop ? 1 : 0.4,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
               }}
             >
-              {isStarting ? 'STARTING...' : '▶ RUN AUTOMATED SWEEP'}
+              <PlayIcon size={10} color="#FFFFFF" />
+              {isStarting ? 'STARTING...' : 'RUN AUTOMATED SWEEP'}
             </button>
           )}
         </div>
       </div>
 
-      {/* Progress & Dwell Indicator when running */}
       {isRunning && sequenceStatus && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '2px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--brand-ice)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginTop: '2px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--text-secondary)' }}>
             <span>
-              Step <strong>{sequenceStatus.current_step}</strong> of {sequenceStatus.total_steps} (Target: <strong>{sequenceStatus.target_throttle_pct}%</strong>)
+              Step <strong>{sequenceStatus.current_step}</strong> / {sequenceStatus.total_steps} (Target: <strong>{sequenceStatus.target_throttle_pct}%</strong>)
             </span>
             <span>
-              Dwell Remaining: <strong>{sequenceStatus.dwell_remaining_sec.toFixed(1)}s</strong> (Total: {sequenceStatus.elapsed_sec.toFixed(1)}s)
+              Dwell Remaining: <strong>{sequenceStatus.dwell_remaining_sec.toFixed(1)}s</strong> ({sequenceStatus.elapsed_sec.toFixed(1)}s elapsed)
             </span>
           </div>
-          <div style={{ height: '4px', width: '100%', backgroundColor: 'var(--bg-base)', borderRadius: '2px', overflow: 'hidden' }}>
+          <div style={{ height: '3px', width: '100%', backgroundColor: 'var(--slider-track)', borderRadius: '0px', overflow: 'hidden' }}>
             <div
               style={{
                 height: '100%',

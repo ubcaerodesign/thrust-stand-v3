@@ -25,9 +25,9 @@ export const EscTelemetryCard: React.FC<EscTelemetryCardProps> = ({
         if (freqRef.current) freqRef.current.textContent = '--- Hz';
         if (statusBadgeRef.current) {
           statusBadgeRef.current.textContent = 'NO TELEMETRY (PWM)';
-          statusBadgeRef.current.style.color = '#94a3b8';
-          statusBadgeRef.current.style.backgroundColor = 'rgba(148, 163, 184, 0.12)';
-          statusBadgeRef.current.style.borderColor = 'rgba(148, 163, 184, 0.3)';
+          statusBadgeRef.current.style.color = '#64748b';
+          statusBadgeRef.current.style.backgroundColor = 'rgba(148, 163, 184, 0.18)';
+          statusBadgeRef.current.style.borderColor = 'rgba(148, 163, 184, 0.4)';
         }
         animId = requestAnimationFrame(loop);
         return;
@@ -35,7 +35,6 @@ export const EscTelemetryCard: React.FC<EscTelemetryCardProps> = ({
 
       const rpm = getRPM();
       const polePairs = poles / 2;
-      // Commutation frequency in Hz = (RPM * polePairs) / 60
       const commutationHz = Math.round((rpm * polePairs) / 60);
 
       if (rpmRef.current) {
@@ -49,14 +48,14 @@ export const EscTelemetryCard: React.FC<EscTelemetryCardProps> = ({
       if (statusBadgeRef.current) {
         if (rpm > 50) {
           statusBadgeRef.current.textContent = 'D-SHOT ACTIVE';
-          statusBadgeRef.current.style.color = '#22c55e';
-          statusBadgeRef.current.style.backgroundColor = 'rgba(34, 197, 94, 0.15)';
-          statusBadgeRef.current.style.borderColor = 'rgba(34, 197, 94, 0.4)';
+          statusBadgeRef.current.style.color = '#16a34a';
+          statusBadgeRef.current.style.backgroundColor = 'rgba(22, 163, 74, 0.15)';
+          statusBadgeRef.current.style.borderColor = 'rgba(22, 163, 74, 0.4)';
         } else {
           statusBadgeRef.current.textContent = 'D-SHOT IDLE';
-          statusBadgeRef.current.style.color = 'var(--brand-ice)';
-          statusBadgeRef.current.style.backgroundColor = 'rgba(201, 214, 234, 0.1)';
-          statusBadgeRef.current.style.borderColor = 'rgba(201, 214, 234, 0.25)';
+          statusBadgeRef.current.style.color = 'var(--text-secondary)';
+          statusBadgeRef.current.style.backgroundColor = 'rgba(148, 163, 184, 0.15)';
+          statusBadgeRef.current.style.borderColor = 'rgba(148, 163, 184, 0.3)';
         }
       }
 
@@ -71,7 +70,7 @@ export const EscTelemetryCard: React.FC<EscTelemetryCardProps> = ({
     <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px' }}>
       {/* Header with Title and Link Status Badge */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '11px', color: 'var(--brand-ice)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 700 }}>
+        <span style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', fontWeight: 700 }}>
           ESC Telemetry (D-Shot)
         </span>
         <span
@@ -80,8 +79,8 @@ export const EscTelemetryCard: React.FC<EscTelemetryCardProps> = ({
             fontSize: '10px',
             fontWeight: 700,
             padding: '2px 8px',
-            borderRadius: '4px',
-            border: '1px solid rgba(201, 214, 234, 0.25)',
+            borderRadius: '0px',
+            border: 'var(--border-subtle)',
             textTransform: 'uppercase',
             letterSpacing: '0.4px',
             transition: 'all 0.2s ease',
@@ -100,18 +99,18 @@ export const EscTelemetryCard: React.FC<EscTelemetryCardProps> = ({
               fontFamily: 'var(--font-heading)',
               fontSize: '26px',
               fontWeight: 700,
-              color: isDshotEnabled ? 'var(--brand-yellow)' : 'var(--brand-ice)',
+              color: isDshotEnabled ? 'var(--brand-yellow)' : 'var(--text-secondary)',
               fontVariantNumeric: 'tabular-nums',
             }}
           >
             {isDshotEnabled ? '0' : 'N/A'}
           </span>
-          <span style={{ fontSize: '12px', color: 'var(--brand-ice)', fontWeight: 600 }}>RPM</span>
+          <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 600 }}>RPM</span>
         </div>
 
         {/* Commutation Frequency Subtitle */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1px' }}>
-          <span style={{ fontSize: '10px', color: 'var(--brand-ice)', opacity: 0.8, textTransform: 'uppercase' }}>
+          <span style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.85, textTransform: 'uppercase', fontWeight: 700 }}>
             Commutation
           </span>
           <span
@@ -120,7 +119,7 @@ export const EscTelemetryCard: React.FC<EscTelemetryCardProps> = ({
               fontFamily: 'var(--font-body)',
               fontSize: '12px',
               fontWeight: 700,
-              color: 'var(--brand-ice)',
+              color: 'var(--text-primary)',
               fontVariantNumeric: 'tabular-nums',
             }}
           >
@@ -136,24 +135,24 @@ export const EscTelemetryCard: React.FC<EscTelemetryCardProps> = ({
           justifyContent: 'space-between',
           alignItems: 'center',
           paddingTop: '6px',
-          borderTop: '1px solid rgba(201, 214, 234, 0.12)',
+          borderTop: 'var(--border-subtle)',
           fontSize: '11px',
-          color: 'var(--brand-ice)',
+          color: 'var(--text-secondary)',
         }}
       >
-        <span style={{ opacity: 0.85 }}>Motor Poles:</span>
+        <span style={{ fontWeight: 700 }}>Motor Poles:</span>
         <select
           value={poles}
           onChange={(e) => setPoles(Number(e.target.value))}
           disabled={!isDshotEnabled}
           style={{
-            backgroundColor: 'var(--bg-base)',
-            color: 'var(--text-primary)',
-            border: '1px solid rgba(201, 214, 234, 0.25)',
-            borderRadius: '4px',
+            backgroundColor: 'var(--input-bg)',
+            color: 'var(--input-text)',
+            border: '1px solid var(--input-border)',
+            borderRadius: '0px',
             padding: '1px 6px',
             fontSize: '10px',
-            fontWeight: 600,
+            fontWeight: 700,
             cursor: isDshotEnabled ? 'pointer' : 'not-allowed',
           }}
           title="Magnetic poles of the brushless motor (Sunnysky 2216 / 2814 are 14 poles = 7 pole pairs)"

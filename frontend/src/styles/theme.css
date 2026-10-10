@@ -27,35 +27,47 @@
   --font-body: 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Layout */
-  --header-height: 64px;
-  --border-subtle: 1px solid rgba(201, 214, 234, 0.15);
+  --header-height: 56px;
+  --border-subtle: 1px solid rgba(201, 214, 234, 0.18);
+  --border-active: 1px solid var(--brand-ice);
   --plot-bg: #0a141f;
+
+  /* Input & Slider Tokens */
+  --input-bg: #0a141f;
+  --input-text: #FFFFFF;
+  --input-border: rgba(201, 214, 234, 0.25);
+  --slider-track: #1e293b;
 }
 
 /* ==========================================================================
    AIRFIELD (HIGH-CONTRAST LIGHT THEME) — Outdoor Sunlight Optimized
    ========================================================================== */
 [data-theme='light'] {
-  --bg-base: #e2e8f0;                  /* High-glare reduction light slate */
-  --bg-surface: #FFFFFF;               /* Pure white high-contrast panels */
-  --bg-surface-elevated: #f1f5f9;      /* Crisp elevated cards */
+  --bg-base: #e2e8f0;                  /* Light slate */
+  --bg-surface: #FFFFFF;               /* Pure white panels */
+  --bg-surface-elevated: #f1f5f9;      /* Crisp light card */
   --brand-blue: #003565;               /* UBC Blue */
-  --brand-ice: #003565;                /* High-contrast dark navy for labels */
-  --brand-yellow: #b45309;             /* Sunlight-legible Amber (WCAG compliant) */
+  --brand-ice: #003565;                /* High-contrast Navy for labels */
+  --brand-yellow: #b45309;             /* Sunlight Amber */
   
-  /* Typography */
-  --text-primary: #11273B;             /* Official Brand Navy text on light */
-  --text-secondary: #475569;           /* Slate secondary text */
-  --text-accent: #003565;              /* UBC Blue emphasis */
+  --text-primary: #0f172a;             /* Pure dark slate */
+  --text-secondary: #334155;           /* Medium dark slate */
+  --text-accent: #003565;              /* UBC Blue */
   
-  /* Status Colors */
   --color-danger: #dc2626;
   --color-danger-glow: rgba(220, 38, 38, 0.25);
   --color-success: #16a34a;
   --color-warning: #b45309;
 
-  --border-subtle: 1px solid rgba(0, 53, 101, 0.2);
+  --border-subtle: 1px solid rgba(0, 53, 101, 0.25);
+  --border-active: 1px solid var(--brand-blue);
   --plot-bg: #FFFFFF;
+
+  /* Input & Slider Tokens in Light Mode */
+  --input-bg: #f8fafc;
+  --input-text: #0f172a;
+  --input-border: #94a3b8;
+  --slider-track: #cbd5e1;
 }
 
 body {
@@ -73,33 +85,56 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   letter-spacing: 0.5px;
+  margin: 0;
 }
 
 * {
   box-sizing: border-box;
 }
 
+/* Sharp Tactical Aerospace Panel */
 .glass-panel {
   background-color: var(--bg-surface);
   border: var(--border-subtle);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  padding: 14px;
+  border-radius: 0px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 12px;
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-/* Custom scrollbars */
+/* Sharp Controls */
+button {
+  font-family: var(--font-body);
+  border-radius: 0px;
+  letter-spacing: 0.5px;
+}
+
+input, select, textarea {
+  border-radius: 0px;
+  font-family: var(--font-body);
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+}
+
+/* Keyframes */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Custom Sharp Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: var(--bg-base);
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(148, 163, 184, 0.4);
-  border-radius: 3px;
+  border-radius: 0px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.7);
+  background: var(--brand-blue);
 }
