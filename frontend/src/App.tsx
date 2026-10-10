@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTelemetryStream } from './hooks/useTelemetryStream';
 import { useKeyboardEStop } from './hooks/useKeyboardEStop';
 import { api } from './services/api';
+import packageJson from '../package.json';
 
 // Components
 import { NumericCard } from './components/instruments/NumericCard';
@@ -96,7 +97,7 @@ export default function App() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {/* Theme Toggle (High contrast in header) */}
+          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
             style={{
@@ -164,7 +165,7 @@ export default function App() {
           overflow: 'hidden',
         }}
       >
-        {/* Left Column: Primary Telemetry Cluster + Session Recorder + Version */}
+        {/* Left Column: Primary Telemetry Cluster + Session Recorder + Dynamic Version */}
         <section
           style={{
             width: '270px',
@@ -238,13 +239,13 @@ export default function App() {
             getCurrent={() => latestPacket.current?.current_a ?? 0}
           />
 
-          {/* Session Data Logger (Positioned on the Left) */}
+          {/* Session Data Logger */}
           <SessionRecorder isHardwareStreaming={isHardwareStreaming} />
 
           {/* Spacer */}
           <div style={{ flex: 1 }} />
 
-          {/* Application Version Tag (Bottom Left Corner) */}
+          {/* Application Version Tag (Dynamically pulls from package.json) */}
           <div
             style={{
               padding: '6px 4px',
@@ -261,11 +262,11 @@ export default function App() {
             }}
           >
             <span>AEROTHRUST V3</span>
-            <span>v1.0.3</span>
+            <span>v{packageJson.version}</span>
           </div>
         </section>
 
-        {/* Right Column: Graphs + Auto Sequencer + Throttle Actuator */}
+        {/* Right Column: Graphs + Auto Sequencer + Throttle Actuation */}
         <section
           style={{
             flex: 1,
