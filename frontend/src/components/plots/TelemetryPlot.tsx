@@ -94,7 +94,7 @@ export const TelemetryPlot: React.FC<TelemetryPlotProps> = ({
     );
   }
 
-  // 4-Graph 2x2 Grid View
+  // 4-Graph 2x2 Matrix
   return (
     <div
       style={{
@@ -194,7 +194,7 @@ const CanvasPane: React.FC<CanvasPaneProps> = ({ tab, title, theme, bufferRef })
           width: '100%',
           height: '100%',
           display: 'block',
-          borderRadius: '4px',
+          borderRadius: '0px',
           backgroundColor: theme === 'light' ? '#FFFFFF' : '#0a141f',
           transition: 'background-color 0.2s ease',
         }}
@@ -216,17 +216,16 @@ function drawPlot(
 
   const isLight = theme === 'light';
 
-  // Palette definitions based on theme
   const colors = {
-    bgGrid: isLight ? 'rgba(0, 53, 101, 0.08)' : 'rgba(201, 214, 234, 0.08)',
-    textTitle: isLight ? '#11273B' : '#C9D6EA',
-    textPlaceholder: isLight ? '#475569' : 'rgba(201, 214, 234, 0.85)',
-    thrustLine: isLight ? '#b45309' : '#ECEB2A',     // Amber in sunlight vs Yellow in dark
+    bgGrid: isLight ? 'rgba(0, 53, 101, 0.12)' : 'rgba(201, 214, 234, 0.08)',
+    textTitle: isLight ? '#0f172a' : '#C9D6EA',
+    textPlaceholder: isLight ? '#334155' : 'rgba(201, 214, 234, 0.85)',
+    thrustLine: isLight ? '#b45309' : '#ECEB2A',     // Amber vs Yellow
     rpmLine: isLight ? '#0284c7' : '#38bdf8',        // Blue
-    torqueLine: isLight ? '#7c3aed' : '#a855f7',     // Aerospace Purple for Load Cell 2 Torque
+    torqueLine: isLight ? '#7c3aed' : '#a855f7',     // Purple for Load Cell 2 Torque
     currentLine: isLight ? '#dc2626' : '#ef4444',
     voltageLine: isLight ? '#16a34a' : '#22c55e',
-    zeroBaseline: isLight ? 'rgba(17, 39, 59, 0.35)' : 'rgba(201, 214, 234, 0.35)',
+    zeroBaseline: isLight ? 'rgba(15, 23, 42, 0.4)' : 'rgba(201, 214, 234, 0.35)',
   };
 
   const padLeft = 52;
@@ -238,7 +237,7 @@ function drawPlot(
 
   if (customTitle) {
     ctx.fillStyle = colors.textTitle;
-    ctx.font = '11px "Titillium Web", sans-serif';
+    ctx.font = '700 11px "Titillium Web", sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(customTitle, padLeft, 13);
   }
@@ -256,7 +255,7 @@ function drawPlot(
 
   if (data.length < 2) {
     ctx.fillStyle = colors.textPlaceholder;
-    ctx.font = '12px Lato, sans-serif';
+    ctx.font = '700 12px Lato, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('Awaiting live telemetry stream...', width / 2, height / 2);
     return;
@@ -401,7 +400,7 @@ function drawAxisLabel(
   align: CanvasTextAlign
 ) {
   ctx.fillStyle = color;
-  ctx.font = '10px Lato, sans-serif';
+  ctx.font = '700 10px Lato, sans-serif';
   ctx.textAlign = align;
   ctx.fillText(text, x, y + 3);
 }
