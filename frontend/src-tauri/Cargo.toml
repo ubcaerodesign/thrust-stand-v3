@@ -1,6 +1,6 @@
 [package]
 name = "aerothrust-v3"
-version = "1.0.3"
+version = "1.0.4"
 description = "AeroThrust V3 Desktop Application"
 authors = ["UBC AeroDesign"]
 edition = "2021"
