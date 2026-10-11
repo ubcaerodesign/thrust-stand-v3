@@ -28,6 +28,11 @@
       "active": true,
       "targets": "all",
       "identifier": "com.ubcaerodesign.aerothrust",
+      "windows": {
+        "nsis": {
+          "installerHooks": "installer-hooks.nsh"
+        }
+      },
       "externalBin": [
         "binaries/aerothrust-backend"
       ],

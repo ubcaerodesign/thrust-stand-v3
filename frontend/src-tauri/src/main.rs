@@ -10,6 +10,22 @@ use tauri::Manager;
 
 struct BackendProcess(Mutex<Option<CommandChild>>);
 
+fn kill_backend(state: &BackendProcess) {
+    if let Some(child) = state.0.lock().unwrap().take() {
+        #[cfg(target_os = "windows")]
+        {
+            let pid = child.pid();
+            use std::os::windows::process::CommandExt;
+            // CREATE_NO_WINDOW (0x08000000) prevents a cmd window from popping up
+            let _ = std::process::Command::new("taskkill")
+                .args(["/F", "/T", "/PID", &pid.to_string()])
+                .creation_flags(0x08000000)
+                .output();
+        }
+        let _ = child.kill();
+    }
+}
+
 fn main() {
     tauri::Builder::default()
         .manage(BackendProcess(Mutex::new(None)))
@@ -25,15 +41,16 @@ fn main() {
         })
         .on_window_event(|event| {
             if let tauri::WindowEvent::Destroyed = event.event() {
-                // Statements ending with ';' drop temporary MutexGuards immediately
                 let state = event.window().state::<BackendProcess>();
-                let maybe_child = state.0.lock().unwrap().take();
-
-                if let Some(child) = maybe_child {
-                    let _ = child.kill();
-                }
+                kill_backend(&state);
             }
         })
-        .run(tauri::generate_context!())
-        .expect("Error while running Tauri application");
+        .build(tauri::generate_context!())
+        .expect("Error while running Tauri application")
+        .run(|app_handle, event| {
+            if let tauri::RunEvent::ExitRequested { .. } | tauri::RunEvent::Exit = event {
+                let state = app_handle.state::<BackendProcess>();
+                kill_backend(&state);
+            }
+        });
 }
