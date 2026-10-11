@@ -16,7 +16,7 @@ fn kill_backend(state: &BackendProcess) {
         {
             let pid = child.pid();
             use std::os::windows::process::CommandExt;
-            // CREATE_NO_WINDOW (0x08000000) prevents a cmd window from popping up
+            // CREATE_NO_WINDOW (0x08000000) prevents a console window from flashing
             let _ = std::process::Command::new("taskkill")
                 .args(["/F", "/T", "/PID", &pid.to_string()])
                 .creation_flags(0x08000000)
@@ -30,6 +30,16 @@ fn main() {
     tauri::Builder::default()
         .manage(BackendProcess(Mutex::new(None)))
         .setup(|app| {
+            // Clean up any stale backend processes before spawning a new instance
+            #[cfg(target_os = "windows")]
+            {
+                use std::os::windows::process::CommandExt;
+                let _ = std::process::Command::new("taskkill")
+                    .args(["/F", "/IM", "aerothrust-backend.exe"])
+                    .creation_flags(0x08000000)
+                    .output();
+            }
+
             // Attempt to spawn the bundled backend sidecar if available
             if let Ok(cmd) = Command::new_sidecar("aerothrust-backend") {
                 if let Ok((_rx, child)) = cmd.spawn() {
