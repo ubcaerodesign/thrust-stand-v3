@@ -11,10 +11,16 @@ from typing import Optional
 import serial_asyncio
 from app.hal.base import BaseTransport
 from app.core.protocol import (
-    PACKET_ID_TELEMETRY, PACKET_ID_COMMAND,
-    CMD_SET_THROTTLE, CMD_EMERGENCY_STOP, CMD_TARE_CHANNELS, CMD_HEARTBEAT,
-    FLAG_ARMED, FLAG_ESTOP_ACTIVE,
-    compute_crc16, cobs_decode
+    PACKET_ID_TELEMETRY,
+    PACKET_ID_COMMAND,
+    CMD_SET_THROTTLE,
+    CMD_EMERGENCY_STOP,
+    CMD_TARE_CHANNELS,
+    CMD_HEARTBEAT,
+    FLAG_ARMED,
+    FLAG_ESTOP_ACTIVE,
+    compute_crc16,
+    cobs_decode,
 )
 
 
@@ -85,14 +91,15 @@ class LegacySerialTransport(BaseTransport):
 
         # Read available ASCII chunks and parse full lines
         try:
-            chunk = await asyncio.wait_for(self.reader.read(256), timeout=0.02)
+            # Yield execution if no data, allowing the caller's main loop to breathe
+            chunk = await asyncio.wait_for(self.reader.read(256), timeout=0.01)
             if chunk:
                 self._rx_buffer.extend(chunk)
                 while b"\n" in self._rx_buffer:
                     newline_idx = self._rx_buffer.index(b"\n")
                     line_bytes = self._rx_buffer[:newline_idx]
-                    del self._rx_buffer[:newline_idx + 1]
-                    line_str = line_bytes.decode('utf-8', errors='replace').strip()
+                    del self._rx_buffer[: newline_idx + 1]
+                    line_str = line_bytes.decode("utf-8", errors="replace").strip()
                     if line_str:
                         self._parse_line(line_str)
         except asyncio.TimeoutError:
@@ -107,29 +114,29 @@ class LegacySerialTransport(BaseTransport):
             self._last_telemetry_time = now
             return self._build_telemetry_frame()
 
-        await asyncio.sleep(0.005)
         return None
 
     def _parse_line(self, line: str):
         """Parses ASCII telemetry lines emitted by the Arduino Leonardo sketch."""
-        if line.startswith("lc1("):
-            match = re.match(r"lc1\((n|-?\d+)\)", line)
+        # Switched to re.search to handle potential noise characters injected before the actual payload
+        if "lc1(" in line:
+            match = re.search(r"lc1\((n|-?\d+)\)", line)
             if match:
                 val = match.group(1)
-                if val != 'n':
+                if val != "n":
                     self.raw_thrust = int(val)
-        elif line.startswith("lc2("):
-            match = re.match(r"lc2\((n|-?\d+)\)", line)
+        elif "lc2(" in line:
+            match = re.search(r"lc2\((n|-?\d+)\)", line)
             if match:
                 val = match.group(1)
-                if val != 'n':
+                if val != "n":
                     self.raw_torque = int(val)
-        elif line.startswith("cur("):
-            match = re.match(r"cur\(([-+]?[0-9]*\.?[0-9]+)\)", line)
+        elif "cur(" in line:
+            match = re.search(r"cur\(([-+]?[0-9]*\.?[0-9]+)\)", line)
             if match:
                 self.raw_current = float(match.group(1))
-        elif line.startswith("vtg("):
-            match = re.match(r"vtg\(([-+]?[0-9]*\.?[0-9]+)\)", line)
+        elif "vtg(" in line:
+            match = re.search(r"vtg\(([-+]?[0-9]*\.?[0-9]+)\)", line)
             if match:
                 self.raw_voltage = float(match.group(1))
 
@@ -162,9 +169,14 @@ class LegacySerialTransport(BaseTransport):
             "<B I 4h 3H B",
             PACKET_ID_TELEMETRY,
             uptime_ms,
-            t1, t2, ch3, ch4,
-            v_centi, i_centi, rpm,
-            flags
+            t1,
+            t2,
+            ch3,
+            ch4,
+            v_centi,
+            i_centi,
+            rpm,
+            flags,
         )
         crc = compute_crc16(payload)
         return payload + struct.pack("<H", crc)
@@ -186,7 +198,9 @@ class LegacySerialTransport(BaseTransport):
             return False
         return False
 
-    async def _handle_command(self, cmd_id: int, value: int, protocol_mode: int) -> bool:
+    async def _handle_command(
+        self, cmd_id: int, value: int, protocol_mode: int
+    ) -> bool:
         if cmd_id == CMD_HEARTBEAT:
             # Legacy Arduino does not use hardware watchdog heartbeats; acknowledge silently
             return True
@@ -234,7 +248,7 @@ class LegacySerialTransport(BaseTransport):
         if not self.writer:
             return False
         try:
-            self.writer.write(msg.encode('utf-8'))
+            self.writer.write(msg.encode("utf-8"))
             await self.writer.drain()
             return True
         except Exception:
