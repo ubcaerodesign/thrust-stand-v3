@@ -45,6 +45,7 @@ class LegacySerialTransport(BaseTransport):
 
         # Host-side software tare offsets
         self.tare_offsets = [0.0, 0.0, 0.0, 0.0]
+        self.tare_current_offset = 0.0
 
         # Timing
         self._start_time = time.time()
@@ -66,6 +67,12 @@ class LegacySerialTransport(BaseTransport):
             self.smoothed_torque = 0.0
             self.smoothed_voltage = 0.0
             self.smoothed_current = 0.0
+            self.tare_current_offset = 0.0
+
+            if self.writer:
+                self.writer.write(b"thr(0)\n")
+                await self.writer.drain()
+
             return True
         except Exception:
             self.reader = None
@@ -122,9 +129,11 @@ class LegacySerialTransport(BaseTransport):
     def _parse_line(self, line: str):
         """
         Parses ASCII telemetry lines emitted by the Arduino Leonardo sketch.
-        Note: The V2 Arduino sketch swapped the flag strings intentionally (printing current 
-        under the 'vtg' check and voltage under the 'cur' check), so now mapping them correctly 
-        based on the actual V2 Python reference (`board/read.py`).
+        Expected formats:
+        - lc1(<int>|n)  -> Static thrust in grams
+        - lc2(<int>|n)  -> Reaction torque in grams
+        - cur(<float>)  -> Motor bus current in Amperes
+        - vtg(<float>)  -> Battery bus voltage in Volts
         """
         if "lc1(" in line:
             match = re.search(r"lc1\((n|-?\d+)\)", line)
@@ -141,13 +150,11 @@ class LegacySerialTransport(BaseTransport):
         elif "cur(" in line:
             match = re.search(r"cur\(([-+]?[0-9]*\.?[0-9]+)\)", line)
             if match:
-                # V2 firmware quirk: 'cur(' block contains voltage data
-                self.raw_voltage = float(match.group(1))
+                self.raw_current = float(match.group(1))
         elif "vtg(" in line:
             match = re.search(r"vtg\(([-+]?[0-9]*\.?[0-9]+)\)", line)
             if match:
-                # V2 firmware quirk: 'vtg(' block contains current data
-                self.raw_current = float(match.group(1))
+                self.raw_voltage = float(match.group(1))
 
     def _build_telemetry_frame(self) -> bytes:
         """Packs current state into a standard 22-byte unencoded binary frame with CRC16."""
@@ -163,6 +170,7 @@ class LegacySerialTransport(BaseTransport):
 
         net_thrust = int(round(self.smoothed_thrust - self.tare_offsets[0]))
         net_torque = int(round(self.smoothed_torque - self.tare_offsets[1]))
+        net_current = max(0.0, self.smoothed_current - self.tare_current_offset)
 
         # Clamp int16 values
         t1 = max(-32768, min(32767, net_thrust))
@@ -171,7 +179,7 @@ class LegacySerialTransport(BaseTransport):
         ch4 = 0
 
         v_centi = int(round(max(0.0, self.smoothed_voltage) * 100)) & 0xFFFF
-        i_centi = int(round(max(0.0, self.smoothed_current) * 100)) & 0xFFFF
+        i_centi = int(round(net_current * 100)) & 0xFFFF
         rpm = 0  # Legacy V2 hardware has no D-Shot RPM sensor
 
         flags = 0
@@ -246,6 +254,10 @@ class LegacySerialTransport(BaseTransport):
                 self.tare_offsets[2] = 0.0
             if value & (1 << 3):
                 self.tare_offsets[3] = 0.0
+            # Zero current offset on master tare (0x0F) or if channel bit 4 is set
+            if (value & 0x0F) == 0x0F or (value & (1 << 4)):
+                self.tare_current_offset = float(self.raw_current)
+                self.smoothed_current = float(self.raw_current)
             return True
 
         return False

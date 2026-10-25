@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../../services/api';
 import { ProtocolMode } from '../../types/session';
 
@@ -18,6 +18,14 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
   const [throttle, setThrottle] = useState<number>(0);
   const [mode, setMode] = useState<ProtocolMode>('dshot');
 
+  const lastSendTimeRef = useRef<number>(0);
+  const pendingThrottleRef = useRef<number | null>(null);
+  const throttleTimeoutRef = useRef<number | null>(null);
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
+  const isDshotEnabledRef = useRef(isDshotEnabled);
+  isDshotEnabledRef.current = isDshotEnabled;
+
   useEffect(() => {
     if (!isDshotEnabled) {
       setMode('pwm');
@@ -27,18 +35,72 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
   useEffect(() => {
     if (isEstop) {
       setThrottle(0);
+      if (throttleTimeoutRef.current) {
+        clearTimeout(throttleTimeoutRef.current);
+        throttleTimeoutRef.current = null;
+      }
+      pendingThrottleRef.current = null;
     }
   }, [isEstop]);
 
-  const sendThrottle = async (val: number) => {
+  useEffect(() => {
+    return () => {
+      if (throttleTimeoutRef.current) {
+        clearTimeout(throttleTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const emitThrottleApi = async (val: number) => {
+    if (!isHardwareStreaming || isEstop || isSequenceRunning) return;
+    try {
+      const activeMode = isDshotEnabledRef.current ? modeRef.current : 'pwm';
+      await api.setThrottle({ throttle_pct: val, mode: activeMode });
+    } catch (err) {
+      console.error('Throttle command failed:', err);
+    }
+  };
+
+  const sendThrottle = (val: number, immediate: boolean = false) => {
     const clamped = Math.max(0, Math.min(100, val));
     setThrottle(clamped);
-    if (isHardwareStreaming && !isEstop && !isSequenceRunning) {
-      try {
-        const activeMode = isDshotEnabled ? mode : 'pwm';
-        await api.setThrottle({ throttle_pct: clamped, mode: activeMode });
-      } catch (err) {
-        console.error('Throttle command failed:', err);
+
+    if (!isHardwareStreaming || isEstop || isSequenceRunning) return;
+
+    if (immediate || clamped === 0) {
+      if (throttleTimeoutRef.current) {
+        clearTimeout(throttleTimeoutRef.current);
+        throttleTimeoutRef.current = null;
+      }
+      pendingThrottleRef.current = null;
+      lastSendTimeRef.current = performance.now();
+      emitThrottleApi(clamped);
+      return;
+    }
+
+    const now = performance.now();
+    const elapsed = now - lastSendTimeRef.current;
+    const THROTTLE_INTERVAL_MS = 100;
+
+    if (elapsed >= THROTTLE_INTERVAL_MS) {
+      if (throttleTimeoutRef.current) {
+        clearTimeout(throttleTimeoutRef.current);
+        throttleTimeoutRef.current = null;
+      }
+      lastSendTimeRef.current = now;
+      emitThrottleApi(clamped);
+    } else {
+      pendingThrottleRef.current = clamped;
+      if (!throttleTimeoutRef.current) {
+        throttleTimeoutRef.current = window.setTimeout(() => {
+          throttleTimeoutRef.current = null;
+          if (pendingThrottleRef.current !== null) {
+            const nextVal = pendingThrottleRef.current;
+            pendingThrottleRef.current = null;
+            lastSendTimeRef.current = performance.now();
+            emitThrottleApi(nextVal);
+          }
+        }, THROTTLE_INTERVAL_MS - elapsed);
       }
     }
   };
@@ -92,7 +154,7 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
           max="100"
           step="0.5"
           value={throttle}
-          onChange={(e) => sendThrottle(parseFloat(e.target.value))}
+          onChange={(e) => sendThrottle(parseFloat(e.target.value), false)}
           disabled={isDisabled}
           style={{
             flex: 1,
@@ -117,13 +179,13 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
       </div>
 
       <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-        <button onClick={() => sendThrottle(0)} disabled={isDisabled} style={btnStyle}>0% IDLE</button>
-        <button onClick={() => sendThrottle(throttle - 5)} disabled={isDisabled} style={btnStyle}>-5%</button>
-        <button onClick={() => sendThrottle(throttle - 1)} disabled={isDisabled} style={btnStyle}>-1%</button>
-        <button onClick={() => sendThrottle(throttle + 1)} disabled={isDisabled} style={btnStyle}>+1%</button>
-        <button onClick={() => sendThrottle(throttle + 5)} disabled={isDisabled} style={btnStyle}>+5%</button>
-        <button onClick={() => sendThrottle(25)} disabled={isDisabled} style={btnStyle}>25%</button>
-        <button onClick={() => sendThrottle(50)} disabled={isDisabled} style={btnStyle}>50%</button>
+        <button onClick={() => sendThrottle(0, true)} disabled={isDisabled} style={btnStyle}>0% IDLE</button>
+        <button onClick={() => sendThrottle(throttle - 5, true)} disabled={isDisabled} style={btnStyle}>-5%</button>
+        <button onClick={() => sendThrottle(throttle - 1, true)} disabled={isDisabled} style={btnStyle}>-1%</button>
+        <button onClick={() => sendThrottle(throttle + 1, true)} disabled={isDisabled} style={btnStyle}>+1%</button>
+        <button onClick={() => sendThrottle(throttle + 5, true)} disabled={isDisabled} style={btnStyle}>+5%</button>
+        <button onClick={() => sendThrottle(25, true)} disabled={isDisabled} style={btnStyle}>25%</button>
+        <button onClick={() => sendThrottle(50, true)} disabled={isDisabled} style={btnStyle}>50%</button>
       </div>
     </div>
   );
