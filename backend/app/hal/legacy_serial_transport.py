@@ -43,7 +43,7 @@ class LegacySerialTransport(BaseTransport):
         self.smoothed_voltage = 0.0
         self.smoothed_current = 0.0
 
-        # Host-side software tare offsets (V2 firmware has no runtime tare command)
+        # Host-side software tare offsets
         self.tare_offsets = [0.0, 0.0, 0.0, 0.0]
 
         # Timing
@@ -75,7 +75,6 @@ class LegacySerialTransport(BaseTransport):
     async def disconnect(self) -> None:
         if self.writer:
             try:
-                # Command throttle zero before closing
                 self.writer.write(b"thr(0)\n")
                 await self.writer.drain()
                 self.writer.close()
@@ -96,7 +95,6 @@ class LegacySerialTransport(BaseTransport):
 
         # Read available ASCII chunks and parse full lines
         try:
-            # Yield execution if no data, allowing the caller's main loop to breathe
             chunk = await asyncio.wait_for(self.reader.read(256), timeout=0.01)
             if chunk:
                 self._rx_buffer.extend(chunk)
@@ -122,7 +120,12 @@ class LegacySerialTransport(BaseTransport):
         return None
 
     def _parse_line(self, line: str):
-        """Parses ASCII telemetry lines emitted by the Arduino Leonardo sketch."""
+        """
+        Parses ASCII telemetry lines emitted by the Arduino Leonardo sketch.
+        Note: The V2 Arduino sketch swapped the flag strings intentionally (printing current 
+        under the 'vtg' check and voltage under the 'cur' check), so now mapping them correctly 
+        based on the actual V2 Python reference (`board/read.py`).
+        """
         if "lc1(" in line:
             match = re.search(r"lc1\((n|-?\d+)\)", line)
             if match:
@@ -138,19 +141,20 @@ class LegacySerialTransport(BaseTransport):
         elif "cur(" in line:
             match = re.search(r"cur\(([-+]?[0-9]*\.?[0-9]+)\)", line)
             if match:
-                self.raw_current = float(match.group(1))
+                # V2 firmware quirk: 'cur(' block contains voltage data
+                self.raw_voltage = float(match.group(1))
         elif "vtg(" in line:
             match = re.search(r"vtg\(([-+]?[0-9]*\.?[0-9]+)\)", line)
             if match:
-                self.raw_voltage = float(match.group(1))
+                # V2 firmware quirk: 'vtg(' block contains current data
+                self.raw_current = float(match.group(1))
 
     def _build_telemetry_frame(self) -> bytes:
         """Packs current state into a standard 22-byte unencoded binary frame with CRC16."""
         now = time.time()
         uptime_ms = int((now - self._start_time) * 1000) & 0xFFFFFFFF
 
-        # Apply Exponential Moving Average (EMA) to smoothly interpolate sparse 
-        # ~6.6Hz Arduino updates over the 50Hz synthesized stream, eliminating flat stair-steps.
+        # Apply Exponential Moving Average (EMA) to smooth out sparse Arduino updates
         alpha = 0.35
         self.smoothed_thrust += alpha * (self.raw_thrust - self.smoothed_thrust)
         self.smoothed_torque += alpha * (self.raw_torque - self.smoothed_torque)
@@ -175,7 +179,6 @@ class LegacySerialTransport(BaseTransport):
             flags |= FLAG_ARMED
         if self.estop:
             flags |= FLAG_ESTOP_ACTIVE
-        # D-Shot bit is omitted (0) to signal analog PWM mode to frontend
 
         payload = struct.pack(
             "<B I 4h 3H B",
@@ -207,7 +210,6 @@ class LegacySerialTransport(BaseTransport):
 
     async def _handle_command(self, cmd_id: int, value: int, protocol_mode: int) -> bool:
         if cmd_id == CMD_HEARTBEAT:
-            # Legacy Arduino does not use hardware watchdog heartbeats; acknowledge silently
             return True
 
         elif cmd_id == CMD_SET_THROTTLE:
@@ -215,10 +217,8 @@ class LegacySerialTransport(BaseTransport):
                 return False
 
             if protocol_mode == 0x01:
-                # D-Shot target scaled 0..2047 -> 0..100%
                 pct = max(0.0, min(100.0, (value / 2047.0) * 100.0))
             else:
-                # Standard PWM scaled 1000..2000us -> 0..100%
                 clamped_pwm = max(1000, min(2000, value))
                 pct = ((clamped_pwm - 1000) / 1000.0) * 100.0
 
@@ -236,7 +236,6 @@ class LegacySerialTransport(BaseTransport):
             return await self._send_ascii("thr(0)\n")
 
         elif cmd_id == CMD_TARE_CHANNELS:
-            # Update host-side offsets and immediately reset smoothed values for instant UI response
             if value & (1 << 0):
                 self.tare_offsets[0] = float(self.raw_thrust)
                 self.smoothed_thrust = float(self.raw_thrust)
