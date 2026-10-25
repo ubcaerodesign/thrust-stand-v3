@@ -32,6 +32,14 @@ async function getJson<T>(endpoint: string): Promise<T> {
   return response.json();
 }
 
+export interface CustomSequencePayload {
+  start_pct: number;
+  end_pct: number;
+  step_pct: number;
+  dwell_sec: number;
+  mode: string;
+}
+
 export const api = {
   getAvailablePorts: () => getJson<{ ports: string[] }>('/api/control/ports'),
   connect: (payload: ConnectPayload) => postJson<{ status: string; mode: string }>('/api/control/connect', payload),
@@ -49,5 +57,7 @@ export const api = {
   getSequenceStatus: () => getJson<SequenceStatus>('/api/sequence/status'),
   startSequence: (preset_id: string, mode: string = 'dshot') =>
     postJson<{ status: string; preset_id: string }>('/api/sequence/start', { preset_id, mode }),
+  startCustomSequence: (payload: CustomSequencePayload) =>
+    postJson<{ status: string }>('/api/sequence/start-custom', payload),
   abortSequence: () => postJson<{ status: string }>('/api/sequence/abort'),
 };

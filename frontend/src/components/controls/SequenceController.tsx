@@ -51,6 +51,12 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
   const [selectedPresetId, setSelectedPresetId] = useState<string>('stepped_sweep_10_100');
   const [isStarting, setIsStarting] = useState<boolean>(false);
 
+  // Custom sweep state parameters
+  const [customStart, setCustomStart] = useState<number>(10);
+  const [customEnd, setCustomEnd] = useState<number>(100);
+  const [customStep, setCustomStep] = useState<number>(10);
+  const [customDwell, setCustomDwell] = useState<number>(2.0);
+
   useEffect(() => {
     api.getSequencePresets()
       .then((data) => {
@@ -71,7 +77,17 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
     setIsStarting(true);
     try {
       const mode = isDshotEnabled ? 'dshot' : 'pwm';
-      await api.startSequence(selectedPresetId, mode);
+      if (selectedPresetId === 'custom') {
+        await api.startCustomSequence({
+          start_pct: customStart,
+          end_pct: customEnd,
+          step_pct: customStep,
+          dwell_sec: customDwell,
+          mode,
+        });
+      } else {
+        await api.startSequence(selectedPresetId, mode);
+      }
     } catch (err) {
       alert(`Could not start sequence: ${(err as Error).message}`);
     } finally {
@@ -94,7 +110,7 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
   return (
     <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '8px 14px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '0.8px' }}>
             AUTO SEQUENCER:
           </span>
@@ -125,6 +141,7 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
                   {p.name} ({p.total_duration_sec}s)
                 </option>
               ))}
+              <option value="custom">⚙️ Custom Sweep Settings...</option>
             </select>
           )}
         </div>
@@ -171,6 +188,49 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
           )}
         </div>
       </div>
+
+      {/* Custom Sweep Inputs Row */}
+      {!isRunning && selectedPresetId === 'custom' && (
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', paddingTop: '6px', borderTop: 'var(--border-subtle)', fontSize: '11px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span style={{ color: 'var(--text-secondary)', fontWeight: 700 }}>Start %:</span>
+            <input
+              type="number"
+              value={customStart}
+              onChange={(e) => setCustomStart(parseFloat(e.target.value) || 0)}
+              style={{ width: '55px', padding: '2px 4px', fontSize: '11px' }}
+            />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span style={{ color: 'var(--text-secondary)', fontWeight: 700 }}>End %:</span>
+            <input
+              type="number"
+              value={customEnd}
+              onChange={(e) => setCustomEnd(parseFloat(e.target.value) || 0)}
+              style={{ width: '55px', padding: '2px 4px', fontSize: '11px' }}
+            />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span style={{ color: 'var(--text-secondary)', fontWeight: 700 }}>Step %:</span>
+            <input
+              type="number"
+              value={customStep}
+              onChange={(e) => setCustomStep(parseFloat(e.target.value) || 1)}
+              style={{ width: '55px', padding: '2px 4px', fontSize: '11px' }}
+            />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span style={{ color: 'var(--text-secondary)', fontWeight: 700 }}>Dwell (s):</span>
+            <input
+              type="number"
+              step="0.5"
+              value={customDwell}
+              onChange={(e) => setCustomDwell(parseFloat(e.target.value) || 1)}
+              style={{ width: '55px', padding: '2px 4px', fontSize: '11px' }}
+            />
+          </div>
+        </div>
+      )}
 
       {isRunning && sequenceStatus && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginTop: '2px' }}>

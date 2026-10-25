@@ -16,7 +16,6 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
   isDshotEnabled = true,
 }) => {
   const [throttle, setThrottle] = useState<number>(0);
-  const [isArmed, setIsArmed] = useState<boolean>(false);
   const [mode, setMode] = useState<ProtocolMode>('dshot');
 
   useEffect(() => {
@@ -28,14 +27,13 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
   useEffect(() => {
     if (isEstop) {
       setThrottle(0);
-      setIsArmed(false);
     }
   }, [isEstop]);
 
   const sendThrottle = async (val: number) => {
     const clamped = Math.max(0, Math.min(100, val));
     setThrottle(clamped);
-    if (isHardwareStreaming && isArmed && !isEstop && !isSequenceRunning) {
+    if (isHardwareStreaming && !isEstop && !isSequenceRunning) {
       try {
         const activeMode = isDshotEnabled ? mode : 'pwm';
         await api.setThrottle({ throttle_pct: clamped, mode: activeMode });
@@ -45,14 +43,7 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
     }
   };
 
-  const handleArmToggle = (armed: boolean) => {
-    setIsArmed(armed);
-    if (!armed) {
-      sendThrottle(0);
-    }
-  };
-
-  const isDisabled = !isHardwareStreaming || !isArmed || isEstop || isSequenceRunning;
+  const isDisabled = !isHardwareStreaming || isEstop || isSequenceRunning;
 
   return (
     <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -91,16 +82,6 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
               <option value="pwm">Standard PWM</option>
             </select>
           </div>
-
-          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: isSequenceRunning ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: 700, color: isArmed ? 'var(--color-success)' : 'var(--text-secondary)' }}>
-            <input
-              type="checkbox"
-              checked={isArmed}
-              onChange={(e) => handleArmToggle(e.target.checked)}
-              disabled={!isHardwareStreaming || isEstop || isSequenceRunning}
-            />
-            {isArmed ? 'ARMED' : 'ARM MOTOR'}
-          </label>
         </div>
       </div>
 

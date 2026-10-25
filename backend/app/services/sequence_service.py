@@ -124,6 +124,46 @@ class SequenceService:
         self._task = asyncio.create_task(self._run_sequence_loop(preset.steps, protocol_mode))
         return True
 
+    async def start_sequence_custom(
+        self, start_pct: float, end_pct: float, step_pct: float, dwell_sec: float, protocol_mode: int = 0x01
+    ) -> bool:
+        if self.is_running:
+            return False
+
+        if step_pct <= 0:
+            step_pct = 10.0
+
+        steps: List[SequenceStep] = []
+        curr = start_pct
+        if start_pct <= end_pct:
+            while curr <= end_pct + 1e-5:
+                steps.append(SequenceStep(throttle_pct=round(curr, 1), dwell_sec=dwell_sec))
+                curr += step_pct
+        else:
+            while curr >= end_pct - 1e-5:
+                steps.append(SequenceStep(throttle_pct=round(curr, 1), dwell_sec=dwell_sec))
+                curr -= step_pct
+
+        if not steps:
+            return False
+
+        preset = SequencePreset(
+            id="custom_sweep",
+            name=f"Custom Sweep ({start_pct}% to {end_pct}%, {step_pct}% step, {dwell_sec}s dwell)",
+            description=f"User-configured custom sweep from {start_pct}% to {end_pct}% with {step_pct}% increments.",
+            steps=steps
+        )
+
+        self.preset_id = preset.id
+        self.preset_name = preset.name
+        self.is_running = True
+        self.current_step = 0
+        self.total_steps = len(preset.steps)
+        self.elapsed_sec = 0.0
+
+        self._task = asyncio.create_task(self._run_sequence_loop(preset.steps, protocol_mode))
+        return True
+
     async def abort_sequence(self, reason: str = "User Abort"):
         if not self.is_running:
             return
@@ -134,7 +174,6 @@ class SequenceService:
         if self._task and not self._task.done():
             self._task.cancel()
 
-        # Always force throttle to 0 on abort
         try:
             await self._set_throttle(0.0, 0x01)
         except Exception:
@@ -162,13 +201,11 @@ class SequenceService:
                 self.current_step = idx
                 self.target_throttle_pct = step.throttle_pct
 
-                # Set hardware throttle
                 success = await self._set_throttle(step.throttle_pct, protocol_mode)
                 if not success:
                     await self.abort_sequence("Failed to communicate throttle to stand.")
                     return
 
-                # Dwell at step, ticking in 50ms slices for responsive countdown
                 step_start = time.time()
                 while time.time() - step_start < step.dwell_sec:
                     if not self.is_running:
@@ -177,7 +214,6 @@ class SequenceService:
                     self.elapsed_sec = time.time() - seq_start_time
                     await asyncio.sleep(0.05)
 
-            # Sequence completed successfully: safely return throttle to idle
             await self._set_throttle(0.0, protocol_mode)
             print("[SEQUENCER] Sequence completed successfully.")
         except asyncio.CancelledError:
