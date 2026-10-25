@@ -11,16 +11,10 @@ from typing import Optional
 import serial_asyncio
 from app.hal.base import BaseTransport
 from app.core.protocol import (
-    PACKET_ID_TELEMETRY,
-    PACKET_ID_COMMAND,
-    CMD_SET_THROTTLE,
-    CMD_EMERGENCY_STOP,
-    CMD_TARE_CHANNELS,
-    CMD_HEARTBEAT,
-    FLAG_ARMED,
-    FLAG_ESTOP_ACTIVE,
-    compute_crc16,
-    cobs_decode,
+    PACKET_ID_TELEMETRY, PACKET_ID_COMMAND,
+    CMD_SET_THROTTLE, CMD_EMERGENCY_STOP, CMD_TARE_CHANNELS, CMD_HEARTBEAT,
+    FLAG_ARMED, FLAG_ESTOP_ACTIVE,
+    compute_crc16, cobs_decode
 )
 
 
@@ -37,11 +31,17 @@ class LegacySerialTransport(BaseTransport):
         self.estop = False
         self.throttle_pct = 0.0
 
-        # Raw hardware measurements
+        # Raw hardware measurements (updates at ~6.6Hz from Arduino)
         self.raw_thrust = 0
         self.raw_torque = 0
         self.raw_voltage = 0.0
         self.raw_current = 0.0
+
+        # Smoothed values for 50Hz synthesized interpolation
+        self.smoothed_thrust = 0.0
+        self.smoothed_torque = 0.0
+        self.smoothed_voltage = 0.0
+        self.smoothed_current = 0.0
 
         # Host-side software tare offsets (V2 firmware has no runtime tare command)
         self.tare_offsets = [0.0, 0.0, 0.0, 0.0]
@@ -61,6 +61,11 @@ class LegacySerialTransport(BaseTransport):
             self.armed = False
             self.estop = False
             self.throttle_pct = 0.0
+            
+            self.smoothed_thrust = 0.0
+            self.smoothed_torque = 0.0
+            self.smoothed_voltage = 0.0
+            self.smoothed_current = 0.0
             return True
         except Exception:
             self.reader = None
@@ -98,8 +103,8 @@ class LegacySerialTransport(BaseTransport):
                 while b"\n" in self._rx_buffer:
                     newline_idx = self._rx_buffer.index(b"\n")
                     line_bytes = self._rx_buffer[:newline_idx]
-                    del self._rx_buffer[: newline_idx + 1]
-                    line_str = line_bytes.decode("utf-8", errors="replace").strip()
+                    del self._rx_buffer[:newline_idx + 1]
+                    line_str = line_bytes.decode('utf-8', errors='replace').strip()
                     if line_str:
                         self._parse_line(line_str)
         except asyncio.TimeoutError:
@@ -118,18 +123,17 @@ class LegacySerialTransport(BaseTransport):
 
     def _parse_line(self, line: str):
         """Parses ASCII telemetry lines emitted by the Arduino Leonardo sketch."""
-        # Switched to re.search to handle potential noise characters injected before the actual payload
         if "lc1(" in line:
             match = re.search(r"lc1\((n|-?\d+)\)", line)
             if match:
                 val = match.group(1)
-                if val != "n":
+                if val != 'n':
                     self.raw_thrust = int(val)
         elif "lc2(" in line:
             match = re.search(r"lc2\((n|-?\d+)\)", line)
             if match:
                 val = match.group(1)
-                if val != "n":
+                if val != 'n':
                     self.raw_torque = int(val)
         elif "cur(" in line:
             match = re.search(r"cur\(([-+]?[0-9]*\.?[0-9]+)\)", line)
@@ -145,8 +149,16 @@ class LegacySerialTransport(BaseTransport):
         now = time.time()
         uptime_ms = int((now - self._start_time) * 1000) & 0xFFFFFFFF
 
-        net_thrust = int(round(self.raw_thrust - self.tare_offsets[0]))
-        net_torque = int(round(self.raw_torque - self.tare_offsets[1]))
+        # Apply Exponential Moving Average (EMA) to smoothly interpolate sparse 
+        # ~6.6Hz Arduino updates over the 50Hz synthesized stream, eliminating flat stair-steps.
+        alpha = 0.35
+        self.smoothed_thrust += alpha * (self.raw_thrust - self.smoothed_thrust)
+        self.smoothed_torque += alpha * (self.raw_torque - self.smoothed_torque)
+        self.smoothed_voltage += alpha * (self.raw_voltage - self.smoothed_voltage)
+        self.smoothed_current += alpha * (self.raw_current - self.smoothed_current)
+
+        net_thrust = int(round(self.smoothed_thrust - self.tare_offsets[0]))
+        net_torque = int(round(self.smoothed_torque - self.tare_offsets[1]))
 
         # Clamp int16 values
         t1 = max(-32768, min(32767, net_thrust))
@@ -154,8 +166,8 @@ class LegacySerialTransport(BaseTransport):
         ch3 = 0
         ch4 = 0
 
-        v_centi = int(round(max(0.0, self.raw_voltage) * 100)) & 0xFFFF
-        i_centi = int(round(max(0.0, self.raw_current) * 100)) & 0xFFFF
+        v_centi = int(round(max(0.0, self.smoothed_voltage) * 100)) & 0xFFFF
+        i_centi = int(round(max(0.0, self.smoothed_current) * 100)) & 0xFFFF
         rpm = 0  # Legacy V2 hardware has no D-Shot RPM sensor
 
         flags = 0
@@ -169,14 +181,9 @@ class LegacySerialTransport(BaseTransport):
             "<B I 4h 3H B",
             PACKET_ID_TELEMETRY,
             uptime_ms,
-            t1,
-            t2,
-            ch3,
-            ch4,
-            v_centi,
-            i_centi,
-            rpm,
-            flags,
+            t1, t2, ch3, ch4,
+            v_centi, i_centi, rpm,
+            flags
         )
         crc = compute_crc16(payload)
         return payload + struct.pack("<H", crc)
@@ -198,9 +205,7 @@ class LegacySerialTransport(BaseTransport):
             return False
         return False
 
-    async def _handle_command(
-        self, cmd_id: int, value: int, protocol_mode: int
-    ) -> bool:
+    async def _handle_command(self, cmd_id: int, value: int, protocol_mode: int) -> bool:
         if cmd_id == CMD_HEARTBEAT:
             # Legacy Arduino does not use hardware watchdog heartbeats; acknowledge silently
             return True
@@ -231,11 +236,13 @@ class LegacySerialTransport(BaseTransport):
             return await self._send_ascii("thr(0)\n")
 
         elif cmd_id == CMD_TARE_CHANNELS:
-            # Update host-side offsets based on bitmask
+            # Update host-side offsets and immediately reset smoothed values for instant UI response
             if value & (1 << 0):
                 self.tare_offsets[0] = float(self.raw_thrust)
+                self.smoothed_thrust = float(self.raw_thrust)
             if value & (1 << 1):
                 self.tare_offsets[1] = float(self.raw_torque)
+                self.smoothed_torque = float(self.raw_torque)
             if value & (1 << 2):
                 self.tare_offsets[2] = 0.0
             if value & (1 << 3):
@@ -248,7 +255,7 @@ class LegacySerialTransport(BaseTransport):
         if not self.writer:
             return False
         try:
-            self.writer.write(msg.encode("utf-8"))
+            self.writer.write(msg.encode('utf-8'))
             await self.writer.drain()
             return True
         except Exception:
