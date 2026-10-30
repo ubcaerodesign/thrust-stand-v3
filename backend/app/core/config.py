@@ -29,8 +29,12 @@ HEARTBEAT_INTERVAL_SEC = 0.100       # Send keep-alive every 100ms
 WATCHDOG_TIMEOUT_SEC = 0.250         # Stand triggers failsafe if no ping for 250ms
 STORAGE_FLUSH_INTERVAL_SEC = 0.200   # Flush batched samples to SQLite every 200ms
 
-# Default Safety Tripwires
+# Default Safety Tripwires & Limiter Thresholds
+DEFAULT_SOFT_CURRENT_AMPS = 40.0     # Roll back throttle if sustained above 40A
 DEFAULT_MAX_CURRENT_AMPS = 55.0      # Hard cutoff above 55A to protect ESC
+SOFT_LIMIT_ENABLED_DEFAULT = True    # Enable soft rollback by default
+CURRENT_SPIKE_TIME_HARD_SEC = 0.080  # 80ms persistence for hard cut (filters inrush spikes)
+CURRENT_SPIKE_TIME_SOFT_SEC = 0.060  # 60ms persistence before scaling back throttle
 DEFAULT_MIN_VOLTAGE_3S = 9.9         # 3.3V/cell cutoff for Micro Class 3S LiPo
 DEFAULT_MIN_VOLTAGE_4S = 13.2        # 3.3V/cell cutoff for Advanced Class 4S LiPo
 DEFAULT_MIN_VOLTAGE_6S = 19.8        # 3.3V/cell cutoff for 6S LiPo

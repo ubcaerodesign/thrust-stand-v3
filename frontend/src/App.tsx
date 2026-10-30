@@ -15,6 +15,7 @@ import { ThrottleSlider } from './components/controls/ThrottleSlider';
 import { SessionRecorder } from './components/controls/SessionRecorder';
 import { SequenceController } from './components/controls/SequenceController';
 import { CalibrationModal } from './components/controls/CalibrationModal';
+import { CurrentLimitsModal } from './components/controls/CurrentLimitsModal';
 import { TelemetryPlot } from './components/plots/TelemetryPlot';
 import { PlotControls, ActivePlotTab, LayoutMode } from './components/plots/PlotControls';
 import { MoonIcon, SunIcon } from './components/common/Icons';
@@ -27,6 +28,7 @@ export default function App() {
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('split');
   const [clearTrigger, setClearTrigger] = useState<number>(0);
   const [isCalibrationOpen, setIsCalibrationOpen] = useState<boolean>(false);
+  const [isLimitsOpen, setIsLimitsOpen] = useState<boolean>(false);
 
   // Theme State
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -55,6 +57,8 @@ export default function App() {
   const isDshotEnabled = latestPacket.current?.dshot_enabled ?? (
     latestPacket.current ? Boolean(latestPacket.current.flags & (1 << 2)) : true
   );
+  const isSoftLimitActive = latestPacket.current?.soft_limit_active ?? false;
+  const softCurrentLimit = latestPacket.current?.soft_current_limit ?? 40.0;
 
   return (
     <div
@@ -142,6 +146,8 @@ export default function App() {
         isWsConnected={isWsConnected}
         isHardwareStreaming={isHardwareStreaming}
         voltage={voltage}
+        isSoftLimitActive={isSoftLimitActive}
+        softCurrentLimit={softCurrentLimit}
       />
 
       {/* Hardware Transport Toolbar */}
@@ -150,6 +156,7 @@ export default function App() {
           isHardwareStreaming={isHardwareStreaming}
           onTareAll={handleTareAll}
           onOpenCalibration={() => setIsCalibrationOpen(true)}
+          onOpenLimits={() => setIsLimitsOpen(true)}
         />
       </div>
 
@@ -245,7 +252,7 @@ export default function App() {
           {/* Spacer */}
           <div style={{ flex: 1 }} />
 
-          {/* Application Version Tag (Dynamically pulls from package.json) */}
+          {/* Application Version Tag */}
           <div
             style={{
               padding: '6px 4px',
@@ -333,6 +340,7 @@ export default function App() {
               isEstop={isEstop}
               isSequenceRunning={isSequenceRunning}
               isDshotEnabled={isDshotEnabled}
+              isSoftLimitActive={isSoftLimitActive}
             />
           </div>
         </section>
@@ -342,6 +350,14 @@ export default function App() {
       <CalibrationModal
         isOpen={isCalibrationOpen}
         onClose={() => setIsCalibrationOpen(false)}
+        getLatestPacket={() => latestPacket.current}
+        isHardwareStreaming={isHardwareStreaming}
+      />
+
+      {/* Current Limiter & Protection Modal */}
+      <CurrentLimitsModal
+        isOpen={isLimitsOpen}
+        onClose={() => setIsLimitsOpen(false)}
         getLatestPacket={() => latestPacket.current}
         isHardwareStreaming={isHardwareStreaming}
       />

@@ -1,5 +1,6 @@
 """
 AeroThrust V3 - Central Hardware Connection Manager
+Coordinates transports, safety watchdogs, throttle scale-back, and live telemetry streaming.
 """
 
 import asyncio
@@ -31,6 +32,11 @@ class ConnectionManager:
 
         self.latest_telemetry: Optional[TelemetryData] = None
         self.active_websockets: Set[WebSocket] = set()
+
+        # Commanded throttle tracking & soft limit ceiling
+        self.active_throttle_pct: float = 0.0
+        self.active_protocol_mode: int = 0x01
+        self.soft_limit_ceiling_pct: Optional[float] = None
 
         self._reader_task: Optional[asyncio.Task] = None
         self._is_running = False
@@ -77,6 +83,8 @@ class ConnectionManager:
 
     async def disconnect(self):
         self._is_running = False
+        self.active_throttle_pct = 0.0
+        self.soft_limit_ceiling_pct = None
 
         # Abort any active automated sequence
         if self.sequence_service.is_running:
@@ -97,7 +105,9 @@ class ConnectionManager:
 
     def _start_services(self):
         self._is_running = True
-        self.watchdog = SafetyWatchdog(self.send_command)
+        self.active_throttle_pct = 0.0
+        self.soft_limit_ceiling_pct = None
+        self.watchdog = SafetyWatchdog(self.send_command, self._handle_soft_scale_throttle)
         self.watchdog.start()
         self._reader_task = asyncio.create_task(self._read_telemetry_loop())
 
@@ -113,6 +123,19 @@ class ConnectionManager:
             return False
 
         clamped = max(0.0, min(100.0, percent))
+
+        # If soft-limit clamp is engaged, prevent overriding above the ceiling
+        if self.watchdog and self.watchdog.soft_limit_active and self.soft_limit_ceiling_pct is not None:
+            if clamped > self.soft_limit_ceiling_pct:
+                clamped = self.soft_limit_ceiling_pct
+
+        self.active_throttle_pct = clamped
+        self.active_protocol_mode = protocol_mode
+
+        # If user/sequencer voluntarily dropped below ceiling, update ceiling
+        if self.soft_limit_ceiling_pct is not None and clamped < self.soft_limit_ceiling_pct:
+            self.soft_limit_ceiling_pct = clamped
+
         if protocol_mode == 0x01:
             raw_val = int((clamped / 100.0) * 2047)
         else:
@@ -126,6 +149,38 @@ class ConnectionManager:
             print("[WARNING] Manual throttle command rejected: Automated sequence in progress.")
             return False
         return await self.set_throttle_raw(percent, protocol_mode)
+
+    async def _handle_soft_scale_throttle(self, current_a: float, soft_limit_a: float):
+        """Callback from SafetyWatchdog: smoothly steps back throttle when current cap is breached."""
+        if self.active_throttle_pct <= 0.0:
+            return
+
+        # Calculate proportional reduction factor
+        ratio = max(0.50, min(0.98, (soft_limit_a / current_a) * 0.98))
+        target_pct = max(0.0, round(self.active_throttle_pct * ratio, 1))
+
+        # Enforce minimum 1.0% drop per adjustment step
+        if target_pct >= self.active_throttle_pct:
+            target_pct = max(0.0, self.active_throttle_pct - 1.0)
+
+        self.soft_limit_ceiling_pct = target_pct
+        print(f"[CURRENT LIMITER] Soft limit breach ({current_a:.2f}A > {soft_limit_a:.1f}A). Scaling throttle {self.active_throttle_pct:.1f}% -> {target_pct:.1f}%")
+        await self.set_throttle_raw(target_pct, self.active_protocol_mode)
+
+    def set_current_limits(self, soft_limit: float, hard_limit: float, enabled: bool):
+        if self.watchdog:
+            self.watchdog.set_current_limits(soft_limit, hard_limit, enabled)
+
+    def get_current_limits(self) -> dict:
+        if self.watchdog:
+            return self.watchdog.get_current_limits()
+        from app.core.config import DEFAULT_SOFT_CURRENT_AMPS, DEFAULT_MAX_CURRENT_AMPS, SOFT_LIMIT_ENABLED_DEFAULT
+        return {
+            "soft_current_a": DEFAULT_SOFT_CURRENT_AMPS,
+            "hard_current_a": DEFAULT_MAX_CURRENT_AMPS,
+            "soft_limit_enabled": SOFT_LIMIT_ENABLED_DEFAULT,
+            "soft_limit_active": False
+        }
 
     async def tare(self, channel_mask: int = 0x0F) -> bool:
         return await self.send_command(CMD_TARE_CHANNELS, channel_mask, 0x00)
@@ -146,10 +201,10 @@ class ConnectionManager:
                 if telemetry:
                     self.latest_telemetry = telemetry
 
-                    # Run safety tripwire verification
+                    # Run safety tripwire & current limiter verification
                     if self.watchdog:
                         await self.watchdog.verify_telemetry_safety(telemetry)
-                        # If tripwire fired E-Stop, abort running sequence
+                        # If hard over-current fired E-Stop, abort running sequence
                         if self.watchdog.estop_triggered and self.sequence_service.is_running:
                             await self.sequence_service.abort_sequence("Safety tripwire engaged")
 
@@ -182,6 +237,9 @@ class ConnectionManager:
             "armed": data.armed,
             "estop": data.estop,
             "dshot_enabled": data.dshot_enabled,
+            "soft_limit_active": self.watchdog.soft_limit_active if self.watchdog else False,
+            "soft_current_limit": self.watchdog.soft_current_limit if self.watchdog else 40.0,
+            "hard_current_limit": self.watchdog.hard_current_limit if self.watchdog else 55.0,
             "sequence": self.sequence_service.get_status_dict()
         }
 

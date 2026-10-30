@@ -17,6 +17,19 @@ export interface TarePayload {
   mask: number; // 0x01 = Ch1, 0x02 = Ch2, 0x0F = All 4 channels
 }
 
+export interface CurrentLimitsPayload {
+  soft_current_a: number;
+  hard_current_a: number;
+  soft_limit_enabled: boolean;
+}
+
+export interface CurrentLimitsResponse {
+  soft_current_a: number;
+  hard_current_a: number;
+  soft_limit_enabled: boolean;
+  soft_limit_active: boolean;
+}
+
 export interface StartSessionPayload {
   name: string;
   competition_class: CompetitionClass;

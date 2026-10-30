@@ -24,6 +24,12 @@ class TareRequest(BaseModel):
     mask: int = Field(0x0F, description="Channel bitmask (0x01=Ch1, 0x02=Ch2, 0x0F=All)")
 
 
+class CurrentLimitsRequest(BaseModel):
+    soft_current_a: float = Field(..., gt=0.0, le=150.0, description="Soft current limit in Amps (scales back throttle)")
+    hard_current_a: float = Field(..., gt=0.0, le=150.0, description="Hard current limit in Amps (triggers E-Stop)")
+    soft_limit_enabled: bool = Field(True, description="Enable or disable soft throttle scale-back")
+
+
 @router.get("/ports")
 async def list_serial_ports():
     ports = [p.device for p in serial.tools.list_ports.comports()]
@@ -79,3 +85,19 @@ async def tare_load_cells(req: TareRequest, request: Request):
     if not success:
         raise HTTPException(status_code=400, detail="Failed to command tare.")
     return {"status": "ok", "tared_mask": hex(req.mask)}
+
+
+@router.get("/limits")
+async def get_current_limits(request: Request):
+    manager = request.app.state.connection_manager
+    return manager.get_current_limits()
+
+
+@router.post("/limits")
+async def set_current_limits(req: CurrentLimitsRequest, request: Request):
+    manager = request.app.state.connection_manager
+    if req.soft_current_a >= req.hard_current_a:
+        raise HTTPException(status_code=400, detail="Soft limit must be strictly less than hard cutoff limit.")
+
+    manager.set_current_limits(req.soft_current_a, req.hard_current_a, req.soft_limit_enabled)
+    return {"status": "ok", "limits": manager.get_current_limits()}

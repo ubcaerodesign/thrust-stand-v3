@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import { TransportMode } from '../../types/session';
-import { RefreshIcon, SpinnerIcon, TuneIcon } from '../common/Icons';
+import { BoltIcon, RefreshIcon, SpinnerIcon, TuneIcon } from '../common/Icons';
 
 interface ConnectionBarProps {
   isHardwareStreaming: boolean;
   onTareAll: () => void;
   onOpenCalibration: () => void;
+  onOpenLimits: () => void;
 }
 
 export const ConnectionBar: React.FC<ConnectionBarProps> = ({
   isHardwareStreaming,
   onTareAll,
   onOpenCalibration,
+  onOpenLimits,
 }) => {
   const [mode, setMode] = useState<TransportMode>('simulator');
   const [port, setPort] = useState<string>('COM3');
@@ -189,6 +191,29 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <button
+          onClick={onOpenLimits}
+          style={{
+            backgroundColor: 'transparent',
+            color: 'var(--brand-ice)',
+            border: '1px solid rgba(201, 214, 234, 0.3)',
+            borderRadius: '0px',
+            padding: '5px 12px',
+            whiteSpace: 'nowrap',
+            fontSize: '11px',
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px',
+          }}
+          title="Configure soft and hard current limiter caps"
+        >
+          <BoltIcon size={12} color="var(--brand-ice)" />
+          LIMITS...
+        </button>
+
         <button
           onClick={onOpenCalibration}
           style={{

@@ -2,6 +2,8 @@ import {
   ConnectPayload,
   ThrottlePayload,
   TarePayload,
+  CurrentLimitsPayload,
+  CurrentLimitsResponse,
   StartSessionPayload,
   SessionResponse,
 } from '../types/session';
@@ -47,6 +49,10 @@ export const api = {
   setThrottle: (payload: ThrottlePayload) => postJson<{ status: string; throttle_pct: number }>('/api/control/throttle', payload),
   triggerEStop: () => postJson<{ status: string }>('/api/control/estop'),
   tare: (payload: TarePayload = { mask: 0x0f }) => postJson<{ status: string; tared_mask: string }>('/api/control/tare', payload),
+
+  // Current Limiter API
+  getCurrentLimits: () => getJson<CurrentLimitsResponse>('/api/control/limits'),
+  setCurrentLimits: (payload: CurrentLimitsPayload) => postJson<{ status: string; limits: CurrentLimitsResponse }>('/api/control/limits', payload),
 
   startSession: (payload: StartSessionPayload) => postJson<SessionResponse>('/api/session/start', payload),
   stopSession: () => postJson<SessionResponse>('/api/session/stop'),

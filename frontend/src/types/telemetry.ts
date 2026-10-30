@@ -14,6 +14,9 @@ export interface TelemetryPacket {
   armed: boolean;
   estop: boolean;
   dshot_enabled?: boolean;
+  soft_limit_active?: boolean;
+  soft_current_limit?: number;
+  hard_current_limit?: number;
   sequence?: SequenceStatus;
 }
 

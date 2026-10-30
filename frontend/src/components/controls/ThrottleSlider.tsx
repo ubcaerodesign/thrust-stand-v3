@@ -7,6 +7,7 @@ interface ThrottleSliderProps {
   isEstop: boolean;
   isSequenceRunning?: boolean;
   isDshotEnabled?: boolean;
+  isSoftLimitActive?: boolean;
 }
 
 export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
@@ -14,6 +15,7 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
   isEstop,
   isSequenceRunning = false,
   isDshotEnabled = true,
+  isSoftLimitActive = false,
 }) => {
   const [throttle, setThrottle] = useState<number>(0);
   const [mode, setMode] = useState<ProtocolMode>('dshot');
@@ -117,6 +119,11 @@ export const ThrottleSlider: React.FC<ThrottleSliderProps> = ({
           {isSequenceRunning && (
             <span style={{ fontSize: '11px', color: 'var(--brand-yellow)', fontWeight: 700 }}>
               (LOCKED: Auto-Sequence Running)
+            </span>
+          )}
+          {isSoftLimitActive && !isSequenceRunning && (
+            <span style={{ fontSize: '11px', color: 'var(--brand-yellow)', fontWeight: 700 }}>
+              (CURRENT CAPPED: SCALE-BACK ACTIVE)
             </span>
           )}
         </div>
