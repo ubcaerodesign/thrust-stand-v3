@@ -15,7 +15,6 @@ export const CurrentLimitsModal: React.FC<CurrentLimitsModalProps> = ({
   isOpen,
   onClose,
   getLatestPacket,
-  isHardwareStreaming,
 }) => {
   const [softLimit, setSoftLimit] = useState<number>(40.0);
   const [hardLimit, setHardLimit] = useState<number>(55.0);
