@@ -2,6 +2,7 @@
 AeroThrust V3 - Test Sequencer REST Router
 """
 
+import asyncio
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 from typing import Optional
@@ -43,6 +44,10 @@ async def start_sequence(req: StartSequenceRequest, request: Request):
     if manager.watchdog and manager.watchdog.estop_triggered:
         raise HTTPException(status_code=400, detail="Cannot start sequence: Emergency Stop is engaged.")
 
+    # Automatically tare all load cell channels before starting sweep so baseline starts at 0
+    await manager.tare(0x0F)
+    await asyncio.sleep(0.15)
+
     protocol_mode = 0x01 if req.mode.lower() == "dshot" else 0x00
     success = await manager.sequence_service.start_sequence(req.preset_id, protocol_mode)
     if not success:
@@ -59,6 +64,10 @@ async def start_custom_sequence(req: StartCustomSequenceRequest, request: Reques
 
     if manager.watchdog and manager.watchdog.estop_triggered:
         raise HTTPException(status_code=400, detail="Cannot start sequence: Emergency Stop is engaged.")
+
+    # Automatically tare all load cell channels before starting sweep so baseline starts at 0
+    await manager.tare(0x0F)
+    await asyncio.sleep(0.15)
 
     protocol_mode = 0x01 if req.mode.lower() == "dshot" else 0x00
     success = await manager.sequence_service.start_sequence_custom(

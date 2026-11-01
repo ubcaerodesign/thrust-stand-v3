@@ -1,7 +1,7 @@
 {
   "name": "aerothrust-v3-frontend",
   "private": true,
-  "version": "1.0.7",
+  "version": "1.0.8",
   "type": "module",
   "scripts": {
     "dev": "vite",

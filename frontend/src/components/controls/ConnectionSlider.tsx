@@ -10,14 +10,37 @@ interface ConnectionBarProps {
   onOpenLimits: () => void;
 }
 
+const STORAGE_KEY_MODE = 'aerothrust_transport_mode';
+const STORAGE_KEY_PORT = 'aerothrust_serial_port';
+
 export const ConnectionBar: React.FC<ConnectionBarProps> = ({
   isHardwareStreaming,
   onTareAll,
   onOpenCalibration,
   onOpenLimits,
 }) => {
-  const [mode, setMode] = useState<TransportMode>('simulator');
-  const [port, setPort] = useState<string>('COM3');
+  const [mode, setMode] = useState<TransportMode>(() => {
+    try {
+      const savedMode = localStorage.getItem(STORAGE_KEY_MODE) as TransportMode;
+      if (savedMode === 'simulator' || savedMode === 'serial' || savedMode === 'legacy_serial') {
+        return savedMode;
+      }
+    } catch {
+      // ignore
+    }
+    return 'simulator';
+  });
+
+  const [port, setPort] = useState<string>(() => {
+    try {
+      const savedPort = localStorage.getItem(STORAGE_KEY_PORT);
+      if (savedPort) return savedPort;
+    } catch {
+      // ignore
+    }
+    return 'COM3';
+  });
+
   const [availablePorts, setAvailablePorts] = useState<string[]>([]);
   const [isManualPort, setIsManualPort] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -29,7 +52,11 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
       const res = await api.getAvailablePorts();
       if (res && Array.isArray(res.ports)) {
         setAvailablePorts(res.ports);
-        if (res.ports.length > 0 && !res.ports.includes(port)) {
+        const savedPort = localStorage.getItem(STORAGE_KEY_PORT) || port;
+        if (savedPort && res.ports.includes(savedPort)) {
+          setPort(savedPort);
+          setIsManualPort(false);
+        } else if (res.ports.length > 0 && !res.ports.includes(port)) {
           setPort(res.ports[0]);
           setIsManualPort(false);
         } else if (res.ports.length === 0) {
@@ -49,8 +76,22 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
 
   const handleModeChange = (newMode: TransportMode) => {
     setMode(newMode);
+    try {
+      localStorage.setItem(STORAGE_KEY_MODE, newMode);
+    } catch {
+      // ignore
+    }
     if (newMode === 'serial' || newMode === 'legacy_serial') {
       refreshPorts();
+    }
+  };
+
+  const handlePortChange = (newPort: string) => {
+    setPort(newPort);
+    try {
+      localStorage.setItem(STORAGE_KEY_PORT, newPort);
+    } catch {
+      // ignore
     }
   };
 
@@ -109,7 +150,7 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
                   if (e.target.value === '__custom__') {
                     setIsManualPort(true);
                   } else {
-                    setPort(e.target.value);
+                    handlePortChange(e.target.value);
                   }
                 }}
                 disabled={isHardwareStreaming || isLoading}
@@ -133,7 +174,7 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
               <input
                 type="text"
                 value={port}
-                onChange={(e) => setPort(e.target.value)}
+                onChange={(e) => handlePortChange(e.target.value)}
                 placeholder="COM3 or /dev/ttyACM0"
                 disabled={isHardwareStreaming || isLoading}
                 style={{

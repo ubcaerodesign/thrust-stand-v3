@@ -76,6 +76,14 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
     if (!isHardwareStreaming || isEstop || isRunning) return;
     setIsStarting(true);
     try {
+      // Auto-tare all load cell channels before starting sweep so baseline starts at 0
+      try {
+        await api.tare({ mask: 0x0f });
+        await new Promise((resolve) => setTimeout(resolve, 150));
+      } catch (tareErr) {
+        console.warn('Auto-tare before sequence failed:', tareErr);
+      }
+
       const mode = isDshotEnabled ? 'dshot' : 'pwm';
       if (selectedPresetId === 'custom') {
         await api.startCustomSequence({

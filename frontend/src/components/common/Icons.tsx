@@ -116,15 +116,38 @@ export const CheckIcon: React.FC<IconProps> = ({ size = 14, color = 'currentColo
 
 export const SwapIcon: React.FC<IconProps> = ({ size = 13, color = 'currentColor', style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={style}>
-    <polyline points="17 8 21 12 17 16" stroke={color} strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter" />
+    <polyline points="17 8 21 12 17 16" stroke={color} strokeWidth="2" strokeLinecap="square" />
     <line x1="3" y1="12" x2="21" y2="12" stroke={color} strokeWidth="2" strokeLinecap="square" />
-    <polyline points="7 16 3 12 7 8" stroke={color} strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter" />
+    <polyline points="7 16 3 12 7 8" stroke={color} strokeWidth="2" strokeLinecap="square" />
   </svg>
 );
 
 export const ResetIcon: React.FC<IconProps> = ({ size = 13, color = 'currentColor', style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={style}>
-    <polyline points="1 4 1 10 7 10" stroke={color} strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter" />
-    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" stroke={color} strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter" />
+    <polyline points="1 4 1 10 7 10" stroke={color} strokeWidth="2" strokeLinecap="square" />
+    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" stroke={color} strokeWidth="2" strokeLinecap="square" />
+  </svg>
+);
+
+/* Layout Switcher Icons */
+export const SinglePaneIcon: React.FC<IconProps> = ({ size = 14, color = 'currentColor', style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={style}>
+    <rect x="3" y="3" width="18" height="18" stroke={color} strokeWidth="2" strokeLinecap="square" fill="none" />
+  </svg>
+);
+
+export const DualSplitIcon: React.FC<IconProps> = ({ size = 14, color = 'currentColor', style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={style}>
+    <rect x="3" y="3" width="8" height="18" stroke={color} strokeWidth="2" strokeLinecap="square" fill="none" />
+    <rect x="13" y="3" width="8" height="18" stroke={color} strokeWidth="2" strokeLinecap="square" fill="none" />
+  </svg>
+);
+
+export const GridPaneIcon: React.FC<IconProps> = ({ size = 14, color = 'currentColor', style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={style}>
+    <rect x="3" y="3" width="8" height="8" stroke={color} strokeWidth="2" strokeLinecap="square" fill="none" />
+    <rect x="13" y="3" width="8" height="8" stroke={color} strokeWidth="2" strokeLinecap="square" fill="none" />
+    <rect x="3" y="13" width="8" height="8" stroke={color} strokeWidth="2" strokeLinecap="square" fill="none" />
+    <rect x="13" y="13" width="8" height="8" stroke={color} strokeWidth="2" strokeLinecap="square" fill="none" />
   </svg>
 );
