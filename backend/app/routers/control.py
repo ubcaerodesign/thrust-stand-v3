@@ -32,7 +32,10 @@ class CurrentLimitsRequest(BaseModel):
 
 @router.get("/ports")
 async def list_serial_ports():
-    ports = [p.device for p in serial.tools.list_ports.comports()]
+    try:
+        ports = [p.device for p in serial.tools.list_ports.comports()]
+    except Exception:
+        ports = []
     return {"ports": ports}
 
 

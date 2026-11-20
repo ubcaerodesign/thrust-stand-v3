@@ -108,18 +108,16 @@ export default function App() {
               backgroundColor: 'transparent',
               color: '#C9D6EA',
               border: '1px solid rgba(201, 214, 234, 0.3)',
-              padding: '5px 12px',
-              fontSize: '11px',
-              fontWeight: 700,
+              padding: '6px 8px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              justifyContent: 'center',
             }}
-            title="Toggle between Flight Deck (Dark) and Airfield (Light) theme"
+            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            aria-label={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
-            {theme === 'dark' ? <SunIcon size={13} color="var(--brand-yellow)" /> : <MoonIcon size={13} color="#C9D6EA" />}
-            {theme === 'dark' ? 'AIRFIELD' : 'FLIGHT DECK'}
+            {theme === 'dark' ? <SunIcon size={14} color="var(--brand-yellow)" /> : <MoonIcon size={14} color="#C9D6EA" />}
           </button>
 
           <div
@@ -154,6 +152,7 @@ export default function App() {
       <div style={{ padding: '6px 14px 0 14px', flexShrink: 0 }}>
         <ConnectionBar
           isHardwareStreaming={isHardwareStreaming}
+          isWsConnected={isWsConnected}
           onTareAll={handleTareAll}
           onOpenCalibration={() => setIsCalibrationOpen(true)}
           onOpenLimits={() => setIsLimitsOpen(true)}

@@ -50,7 +50,13 @@ class SafetyWatchdog:
     async def stop(self):
         self._is_running = False
         if self._heartbeat_task:
-            self._heartbeat_task.cancel()
+            task = self._heartbeat_task
+            self._heartbeat_task = None
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
 
     def set_current_limits(self, soft_limit: float, hard_limit: float, enabled: bool):
         self.soft_current_limit = max(1.0, soft_limit)
@@ -135,6 +141,11 @@ class SafetyWatchdog:
     async def _heartbeat_loop(self):
         """Sends periodic 0xAA heartbeats to satisfy the stand's 250ms hardware watchdog."""
         while self._is_running:
-            await asyncio.sleep(HEARTBEAT_INTERVAL_SEC)
-            if not self.estop_triggered:
-                await self._send_cmd(CMD_HEARTBEAT, 0, 0x01)
+            try:
+                await asyncio.sleep(HEARTBEAT_INTERVAL_SEC)
+                if not self.estop_triggered:
+                    await self._send_cmd(CMD_HEARTBEAT, 0, 0x01)
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                print(f"[WATCHDOG ERROR] Heartbeat exception: {e}")

@@ -82,11 +82,6 @@ export const CurrentLimitsModal: React.FC<CurrentLimitsModalProps> = ({
     }
   };
 
-  const applyPreset = (soft: number, hard: number) => {
-    setSoftLimit(soft);
-    setHardLimit(hard);
-  };
-
   return (
     <Modal isOpen={isOpen} title="Current Limiting & ESC Protection" onClose={onClose}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -165,34 +160,6 @@ export const CurrentLimitsModal: React.FC<CurrentLimitsModalProps> = ({
             <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
               Triggers an instant Emergency Stop (E-Stop) if current breaches this cap for &gt;80ms (or &gt;140% instant).
             </span>
-          </div>
-        </div>
-
-        {/* Quick Presets */}
-        <div>
-          <span style={labelStyle}>Competition Powertrain Presets</span>
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
-            <button
-              type="button"
-              onClick={() => applyPreset(25.0, 35.0)}
-              style={presetBtnStyle}
-            >
-              Micro Class 3S (25A / 35A)
-            </button>
-            <button
-              type="button"
-              onClick={() => applyPreset(45.0, 55.0)}
-              style={presetBtnStyle}
-            >
-              Advanced Class 4S (45A / 55A)
-            </button>
-            <button
-              type="button"
-              onClick={() => applyPreset(60.0, 80.0)}
-              style={presetBtnStyle}
-            >
-              Heavy Lift 6S (60A / 80A)
-            </button>
           </div>
         </div>
 
@@ -275,15 +242,4 @@ const valStyle: React.CSSProperties = {
   fontWeight: 700,
   color: 'var(--text-primary)',
   fontVariantNumeric: 'tabular-nums',
-};
-
-const presetBtnStyle: React.CSSProperties = {
-  backgroundColor: 'var(--bg-surface)',
-  color: 'var(--text-primary)',
-  border: 'var(--border-subtle)',
-  borderRadius: '0px',
-  padding: '4px 8px',
-  fontSize: '10px',
-  fontWeight: 700,
-  cursor: 'pointer',
 };

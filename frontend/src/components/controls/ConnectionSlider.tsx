@@ -5,6 +5,7 @@ import { BoltIcon, RefreshIcon, SpinnerIcon, TuneIcon } from '../common/Icons';
 
 interface ConnectionBarProps {
   isHardwareStreaming: boolean;
+  isWsConnected?: boolean;
   onTareAll: () => void;
   onOpenCalibration: () => void;
   onOpenLimits: () => void;
@@ -15,6 +16,7 @@ const STORAGE_KEY_PORT = 'aerothrust_serial_port';
 
 export const ConnectionBar: React.FC<ConnectionBarProps> = ({
   isHardwareStreaming,
+  isWsConnected = true,
   onTareAll,
   onOpenCalibration,
   onOpenLimits,
@@ -71,8 +73,10 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
   };
 
   useEffect(() => {
-    refreshPorts();
-  }, []);
+    if (isWsConnected) {
+      refreshPorts();
+    }
+  }, [isWsConnected]);
 
   const handleModeChange = (newMode: TransportMode) => {
     setMode(newMode);
@@ -108,7 +112,12 @@ export const ConnectionBar: React.FC<ConnectionBarProps> = ({
         });
       }
     } catch (err) {
-      alert(`Connection Error: ${(err as Error).message}`);
+      const message = (err as Error).message;
+      if (!isWsConnected || message.includes('Failed to fetch')) {
+        alert('Connection Error: Backend service is still starting or unreachable. Please wait a moment and try again.');
+      } else {
+        alert(`Connection Error: ${message}`);
+      }
     } finally {
       setIsLoading(false);
     }

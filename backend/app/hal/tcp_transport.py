@@ -18,10 +18,13 @@ class TcpTransport(BaseTransport):
 
     async def connect(self) -> bool:
         try:
-            self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
+            self.reader, self.writer = await asyncio.wait_for(
+                asyncio.open_connection(self.host, self.port),
+                timeout=0.3,
+            )
             self._rx_buffer.clear()
             return True
-        except (ConnectionRefusedError, OSError):
+        except (ConnectionRefusedError, OSError, asyncio.TimeoutError, Exception):
             self.reader = None
             self.writer = None
             return False

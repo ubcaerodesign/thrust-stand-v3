@@ -39,10 +39,20 @@ fn main() {
                     .creation_flags(0x08000000)
                     .output();
             }
+            #[cfg(not(target_os = "windows"))]
+            {
+                let _ = std::process::Command::new("pkill")
+                    .args(["-f", "aerothrust-backend"])
+                    .output();
+            }
 
             // Attempt to spawn the bundled backend sidecar if available
             if let Ok(cmd) = Command::new_sidecar("aerothrust-backend") {
-                if let Ok((_rx, child)) = cmd.spawn() {
+                if let Ok((mut rx, child)) = cmd.spawn() {
+                    // Continuously drain sidecar stdout/stderr so OS pipe buffers never block Python
+                    tauri::async_runtime::spawn(async move {
+                        while let Some(_event) = rx.recv().await {}
+                    });
                     let state = app.state::<BackendProcess>();
                     *state.0.lock().unwrap() = Some(child);
                 }

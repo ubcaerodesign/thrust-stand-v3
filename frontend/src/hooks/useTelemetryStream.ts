@@ -19,8 +19,10 @@ export function useTelemetryStream() {
 
   useEffect(() => {
     let reconnectTimer: number;
+    let isUnmounted = false;
 
     const connect = () => {
+      if (isUnmounted) return;
       const ws = new WebSocket(WS_URL);
       wsRef.current = ws;
 
@@ -57,7 +59,9 @@ export function useTelemetryStream() {
       ws.onclose = () => {
         setIsWsConnected(false);
         setIsHardwareStreaming(false);
-        reconnectTimer = window.setTimeout(connect, 2000);
+        if (!isUnmounted) {
+          reconnectTimer = window.setTimeout(connect, 500);
+        }
       };
 
       ws.onerror = () => ws.close();
@@ -71,6 +75,7 @@ export function useTelemetryStream() {
     }, 400);
 
     return () => {
+      isUnmounted = true;
       clearTimeout(reconnectTimer);
       clearInterval(streamWatchdog);
       if (wsRef.current) wsRef.current.close();

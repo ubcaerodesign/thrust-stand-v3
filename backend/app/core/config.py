@@ -2,14 +2,26 @@
 AeroThrust V3 - Backend Configuration & Safety Limits
 """
 
+import sys
+import tempfile
 from pathlib import Path
 
-# Paths: Resolve 4 levels up from backend/app/core/config.py -> Project Root
-BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
+# Paths: Use a user-writable directory when frozen (PyInstaller), or project root in dev
+if getattr(sys, "frozen", False):
+    user_base = Path.home() / "AeroThrust_V3"
+    try:
+        user_base.mkdir(parents=True, exist_ok=True)
+        BASE_DIR = user_base
+    except Exception:
+        BASE_DIR = Path(tempfile.gettempdir()) / "AeroThrust_V3"
+else:
+    # Resolve 4 levels up from backend/app/core/config.py -> Project Root
+    BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
+
 DATA_DIR = BASE_DIR / "data"
 EXPORTS_DIR = BASE_DIR / "exports"
 
-# Ensure runtime directories exist at project root
+# Ensure runtime directories exist
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 EXPORTS_DIR.mkdir(parents=True, exist_ok=True)
 

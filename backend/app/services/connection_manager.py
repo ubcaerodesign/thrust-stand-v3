@@ -95,8 +95,13 @@ class ConnectionManager:
             self.watchdog = None
 
         if self._reader_task:
-            self._reader_task.cancel()
+            task = self._reader_task
             self._reader_task = None
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
 
         if self.transport:
             await self.transport.disconnect()
@@ -195,23 +200,29 @@ class ConnectionManager:
 
     async def _read_telemetry_loop(self):
         while self._is_running and self.transport and await self.transport.is_connected():
-            frame = await self.transport.read_frame()
-            if frame:
-                telemetry = unpack_telemetry(frame)
-                if telemetry:
-                    self.latest_telemetry = telemetry
+            try:
+                frame = await self.transport.read_frame()
+                if frame:
+                    telemetry = unpack_telemetry(frame)
+                    if telemetry:
+                        self.latest_telemetry = telemetry
 
-                    # Run safety tripwire & current limiter verification
-                    if self.watchdog:
-                        await self.watchdog.verify_telemetry_safety(telemetry)
-                        # If hard over-current fired E-Stop, abort running sequence
-                        if self.watchdog.estop_triggered and self.sequence_service.is_running:
-                            await self.sequence_service.abort_sequence("Safety tripwire engaged")
+                        # Run safety tripwire & current limiter verification
+                        if self.watchdog:
+                            await self.watchdog.verify_telemetry_safety(telemetry)
+                            # If hard over-current fired E-Stop, abort running sequence
+                            if self.watchdog.estop_triggered and self.sequence_service.is_running:
+                                await self.sequence_service.abort_sequence("Safety tripwire engaged")
 
-                    await self.storage.record_sample(telemetry)
-                    await self._broadcast_telemetry(telemetry)
-            else:
-                await asyncio.sleep(0.001)
+                        await self.storage.record_sample(telemetry)
+                        await self._broadcast_telemetry(telemetry)
+                else:
+                    await asyncio.sleep(0.001)
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                print(f"[HAL ERROR] Telemetry loop exception: {e}")
+                await asyncio.sleep(0.02)
 
     async def register_websocket(self, ws: WebSocket):
         self.active_websockets.add(ws)
@@ -244,7 +255,7 @@ class ConnectionManager:
         }
 
         dead_sockets = []
-        for ws in self.active_websockets:
+        for ws in list(self.active_websockets):
             try:
                 await ws.send_json(payload)
             except Exception:
