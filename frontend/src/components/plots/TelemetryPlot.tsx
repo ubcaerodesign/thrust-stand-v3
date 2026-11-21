@@ -343,11 +343,12 @@ function drawPlot(
   };
 
   const padLeft = 52;
-  const padRight = 52;
+  const padRight = 56;
   const padTop = customTitle ? 20 : 14;
   const padBottom = 20;
   const plotW = Math.max(10, width - padLeft - padRight);
   const plotH = Math.max(10, height - padTop - padBottom);
+  const gridIntervals = plotH < 90 ? 2 : 4;
 
   if (customTitle) {
     ctx.fillStyle = colors.textTitle;
@@ -359,8 +360,8 @@ function drawPlot(
   // Grid background
   ctx.strokeStyle = colors.bgGrid;
   ctx.lineWidth = 1;
-  for (let i = 0; i <= 3; i++) {
-    const y = padTop + (plotH / 3) * i;
+  for (let i = 0; i <= gridIntervals; i++) {
+    const y = padTop + (plotH / gridIntervals) * i;
     ctx.beginPath();
     ctx.moveTo(padLeft, y);
     ctx.lineTo(width - padRight, y);
@@ -388,19 +389,17 @@ function drawPlot(
     const maxThrust = Math.max(minThrust + 500, Math.ceil((rawMaxThrust + 50) / 100) * 100);
     const maxRPM = Math.max(2000, Math.ceil(Math.max(...slicedData.map((d) => d.rpm)) / 500) * 500);
 
+    let zeroY: number | null = null;
     if (minThrust < 0 && maxThrust > 0) {
-      const zeroY = padTop + plotH - ((0 - minThrust) / (maxThrust - minThrust)) * plotH;
+      zeroY = padTop + plotH - ((0 - minThrust) / (maxThrust - minThrust)) * plotH;
       drawZeroBaseline(ctx, padLeft, zeroY, width - padRight, colors.zeroBaseline);
-      drawAxisLabel(ctx, '0 g', padLeft - 6, zeroY, colors.thrustLine, 'right');
     }
 
     drawLineSeries(ctx, slicedData, (d) => d.thrust, minThrust, maxThrust, padLeft, padTop, plotW, plotH, colors.thrustLine);
     drawLineSeries(ctx, slicedData, (d) => d.rpm, 0, maxRPM, padLeft, padTop, plotW, plotH, colors.rpmLine);
 
-    drawAxisLabel(ctx, `${maxThrust.toFixed(0)} g`, padLeft - 6, padTop, colors.thrustLine, 'right');
-    drawAxisLabel(ctx, `${minThrust.toFixed(0)} g`, padLeft - 6, padTop + plotH, colors.thrustLine, 'right');
-    drawAxisLabel(ctx, `${maxRPM.toFixed(0)} RPM`, width - padRight + 6, padTop, colors.rpmLine, 'left');
-    drawAxisLabel(ctx, '0 RPM', width - padRight + 6, padTop + plotH, colors.rpmLine, 'left');
+    drawAxisScale(ctx, minThrust, maxThrust, padLeft - 6, padTop, plotH, gridIntervals, 0, 'g', colors.thrustLine, 'right', zeroY);
+    drawAxisScale(ctx, 0, maxRPM, width - padRight + 6, padTop, plotH, gridIntervals, 0, 'RPM', colors.rpmLine, 'left');
 
   } else if (tab === 'torque_time') {
     const rawMinTorque = Math.min(...slicedData.map((d) => d.torque));
@@ -408,16 +407,15 @@ function drawPlot(
     const minTorque = Math.min(0, Math.floor((rawMinTorque - 20) / 50) * 50);
     const maxTorque = Math.max(minTorque + 100, Math.ceil((rawMaxTorque + 20) / 50) * 50);
 
+    let zeroY: number | null = null;
     if (minTorque < 0 && maxTorque > 0) {
-      const zeroY = padTop + plotH - ((0 - minTorque) / (maxTorque - minTorque)) * plotH;
+      zeroY = padTop + plotH - ((0 - minTorque) / (maxTorque - minTorque)) * plotH;
       drawZeroBaseline(ctx, padLeft, zeroY, width - padRight, colors.zeroBaseline);
-      drawAxisLabel(ctx, '0 g', padLeft - 6, zeroY, colors.torqueLine, 'right');
     }
 
     drawLineSeries(ctx, slicedData, (d) => d.torque, minTorque, maxTorque, padLeft, padTop, plotW, plotH, colors.torqueLine);
 
-    drawAxisLabel(ctx, `${maxTorque.toFixed(0)} g`, padLeft - 6, padTop, colors.torqueLine, 'right');
-    drawAxisLabel(ctx, `${minTorque.toFixed(0)} g`, padLeft - 6, padTop + plotH, colors.torqueLine, 'right');
+    drawAxisScale(ctx, minTorque, maxTorque, padLeft - 6, padTop, plotH, gridIntervals, 0, 'g', colors.torqueLine, 'right', zeroY);
 
   } else if (tab === 'electrical_time') {
     const rawMinCurrent = Math.min(...slicedData.map((d) => d.current));
@@ -430,19 +428,17 @@ function drawPlot(
     const minVolts = Math.min(0, Math.floor(rawMinVolts - 1));
     const maxVolts = Math.max(minVolts + 18, Math.ceil(rawMaxVolts + 1));
 
+    let zeroY: number | null = null;
     if (minCurrent < 0 && maxCurrent > 0) {
-      const zeroY = padTop + plotH - ((0 - minCurrent) / (maxCurrent - minCurrent)) * plotH;
+      zeroY = padTop + plotH - ((0 - minCurrent) / (maxCurrent - minCurrent)) * plotH;
       drawZeroBaseline(ctx, padLeft, zeroY, width - padRight, colors.zeroBaseline);
-      drawAxisLabel(ctx, '0 A', padLeft - 6, zeroY, colors.currentLine, 'right');
     }
 
     drawLineSeries(ctx, slicedData, (d) => d.current, minCurrent, maxCurrent, padLeft, padTop, plotW, plotH, colors.currentLine);
     drawLineSeries(ctx, slicedData, (d) => d.voltage, minVolts, maxVolts, padLeft, padTop, plotW, plotH, colors.voltageLine);
 
-    drawAxisLabel(ctx, `${maxCurrent.toFixed(1)} A`, padLeft - 6, padTop, colors.currentLine, 'right');
-    drawAxisLabel(ctx, `${minCurrent.toFixed(1)} A`, padLeft - 6, padTop + plotH, colors.currentLine, 'right');
-    drawAxisLabel(ctx, `${maxVolts.toFixed(1)} V`, width - padRight + 6, padTop, colors.voltageLine, 'left');
-    drawAxisLabel(ctx, `${minVolts.toFixed(1)} V`, width - padRight + 6, padTop + plotH, colors.voltageLine, 'left');
+    drawAxisScale(ctx, minCurrent, maxCurrent, padLeft - 6, padTop, plotH, gridIntervals, 1, 'A', colors.currentLine, 'right', zeroY);
+    drawAxisScale(ctx, minVolts, maxVolts, width - padRight + 6, padTop, plotH, gridIntervals, 1, 'V', colors.voltageLine, 'left');
 
   } else if (tab === 'thrust_throttle') {
     const rawMinThrust = Math.min(...slicedData.map((d) => d.thrust));
@@ -450,10 +446,10 @@ function drawPlot(
     const minThrust = Math.min(0, Math.floor((rawMinThrust - 50) / 100) * 100);
     const maxThrust = Math.max(minThrust + 500, Math.ceil((rawMaxThrust + 50) / 100) * 100);
 
+    let zeroY: number | null = null;
     if (minThrust < 0 && maxThrust > 0) {
-      const zeroY = padTop + plotH - ((0 - minThrust) / (maxThrust - minThrust)) * plotH;
+      zeroY = padTop + plotH - ((0 - minThrust) / (maxThrust - minThrust)) * plotH;
       drawZeroBaseline(ctx, padLeft, zeroY, width - padRight, colors.zeroBaseline);
-      drawAxisLabel(ctx, '0 g', padLeft - 6, zeroY, colors.thrustLine, 'right');
     }
 
     ctx.fillStyle = colors.thrustLine;
@@ -466,8 +462,7 @@ function drawPlot(
       ctx.fill();
     });
 
-    drawAxisLabel(ctx, `${maxThrust.toFixed(0)} g`, padLeft - 6, padTop, colors.thrustLine, 'right');
-    drawAxisLabel(ctx, `${minThrust.toFixed(0)} g`, padLeft - 6, padTop + plotH, colors.thrustLine, 'right');
+    drawAxisScale(ctx, minThrust, maxThrust, padLeft - 6, padTop, plotH, gridIntervals, 0, 'g', colors.thrustLine, 'right', zeroY);
   }
 }
 
@@ -509,6 +504,40 @@ function drawLineSeries(
   });
 
   ctx.stroke();
+}
+
+function drawAxisScale(
+  ctx: CanvasRenderingContext2D,
+  minVal: number,
+  maxVal: number,
+  x: number,
+  padTop: number,
+  plotH: number,
+  gridIntervals: number,
+  precision: number,
+  unit: string,
+  color: string,
+  align: CanvasTextAlign,
+  zeroY: number | null = null
+) {
+  const showZeroLabel =
+    zeroY !== null &&
+    Math.abs(zeroY - padTop) >= 12 &&
+    Math.abs(zeroY - (padTop + plotH)) >= 12;
+
+  for (let i = 0; i <= gridIntervals; i++) {
+    const y = padTop + (plotH / gridIntervals) * i;
+    if (i > 0 && i < gridIntervals && showZeroLabel && zeroY !== null && Math.abs(y - zeroY) < 12) {
+      continue;
+    }
+    const val = maxVal - ((maxVal - minVal) / gridIntervals) * i;
+    const displayVal = Math.abs(val) < 1e-9 ? 0 : val;
+    drawAxisLabel(ctx, `${displayVal.toFixed(precision)} ${unit}`, x, y, color, align);
+  }
+
+  if (showZeroLabel && zeroY !== null) {
+    drawAxisLabel(ctx, `${(0).toFixed(precision)} ${unit}`, x, zeroY, color, align);
+  }
 }
 
 function drawAxisLabel(
