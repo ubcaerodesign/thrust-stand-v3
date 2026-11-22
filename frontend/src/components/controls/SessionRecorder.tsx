@@ -8,19 +8,101 @@ interface SessionRecorderProps {
   isHardwareStreaming: boolean;
 }
 
+function extractFilename(contentDisposition: string | null, fallback: string): string {
+  if (!contentDisposition) return fallback;
+  const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;\n]+)/i);
+  if (utf8Match?.[1]) {
+    try {
+      return decodeURIComponent(utf8Match[1]);
+    } catch {
+      return utf8Match[1];
+    }
+  }
+  const asciiMatch = contentDisposition.match(/filename="?([^";\n]+)"?/i);
+  if (asciiMatch?.[1]) {
+    return asciiMatch[1];
+  }
+  return fallback;
+}
+
+async function saveCsvWithDialog(exportUrl: string, fallbackName: string): Promise<void> {
+  const response = await fetch(exportUrl);
+  if (!response.ok) {
+    throw new Error(`HTTP Error ${response.status}`);
+  }
+
+  const filename = extractFilename(response.headers.get('content-disposition'), fallbackName);
+  const bytes = new Uint8Array(await response.arrayBuffer());
+
+  // Tauri native desktop OS Save dialog
+  if ('__TAURI_IPC__' in window) {
+    const [{ save }, { writeBinaryFile }] = await Promise.all([
+      import('@tauri-apps/api/dialog'),
+      import('@tauri-apps/api/fs'),
+    ]);
+    const targetPath = await save({
+      defaultPath: filename,
+      filters: [{ name: 'CSV Files', extensions: ['csv'] }],
+    });
+    if (targetPath) {
+      await writeBinaryFile(targetPath, bytes);
+    }
+    return;
+  }
+
+  // Browser File System Access API (opens native OS Save dialog when supported)
+  const win = window as unknown as {
+    showSaveFilePicker?: (options?: {
+      suggestedName?: string;
+      types?: Array<{ description: string; accept: Record<string, string[]> }>;
+    }) => Promise<{
+      createWritable: () => Promise<{ write: (data: Blob) => Promise<void>; close: () => Promise<void> }>;
+    }>;
+  };
+
+  if (typeof win.showSaveFilePicker === 'function') {
+    try {
+      const handle = await win.showSaveFilePicker({
+        suggestedName: filename,
+        types: [{ description: 'CSV Files', accept: { 'text/csv': ['.csv'] } }],
+      });
+      const writable = await handle.createWritable();
+      await writable.write(new Blob([bytes], { type: 'text/csv' }));
+      await writable.close();
+      return;
+    } catch (err) {
+      if ((err as DOMException)?.name === 'AbortError') {
+        return;
+      }
+      throw err;
+    }
+  }
+
+  // Fallback for browsers without showSaveFilePicker
+  const blobUrl = URL.createObjectURL(new Blob([bytes], { type: 'text/csv' }));
+  const link = document.createElement('a');
+  link.href = blobUrl;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(blobUrl);
+}
+
 export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isHardwareStreaming }) => {
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
   const [elapsedSec, setElapsedSec] = useState<number>(0);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [lastExportUrl, setLastExportUrl] = useState<string | null>(null);
+  const [lastExportFilename, setLastExportFilename] = useState<string>('aerothrust_session.csv');
 
   const [form, setForm] = useState<StartSessionPayload>({
-    name: 'Static_Thrust_Test',
+    name: '',
     competition_class: 'MCR',
-    motor_model: 'Sunnysky 2216 1250KV',
-    propeller_model: 'APC 10x4.7 SF',
-    battery_config: '3S 1000mAh',
+    motor_model: '',
+    propeller_model: '',
+    battery_config: '',
     notes: '',
   });
 
@@ -50,10 +132,24 @@ export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isHardwareStre
     try {
       const res = await api.stopSession();
       setIsRecording(false);
-      if (res.run_id) {
-        setLastExportUrl(api.getExportUrl(res.run_id));
-      }
       setActiveRunId(null);
+
+      if (res.run_id) {
+        const exportUrl = api.getExportUrl(res.run_id);
+        const safePrefix = form.name.trim()
+          ? form.name.trim().replace(/[^a-zA-Z0-9_-]/g, '_')
+          : 'aerothrust_run';
+        const fallbackName = `${safePrefix}_${res.run_id}.csv`;
+
+        setLastExportUrl(exportUrl);
+        setLastExportFilename(fallbackName);
+
+        try {
+          await saveCsvWithDialog(exportUrl, fallbackName);
+        } catch (saveErr) {
+          alert(`Session stopped, but could not save CSV automatically: ${(saveErr as Error).message}`);
+        }
+      }
     } catch (err) {
       alert(`Could not stop session: ${(err as Error).message}`);
     }
@@ -129,28 +225,32 @@ export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isHardwareStre
         )}
 
         {lastExportUrl && (
-          <a
-            href={lastExportUrl}
-            target="_blank"
-            rel="noreferrer"
+          <button
+            type="button"
+            onClick={() => {
+              saveCsvWithDialog(lastExportUrl, lastExportFilename).catch((err) => {
+                alert(`Could not export CSV: ${(err as Error).message}`);
+              });
+            }}
             style={{
               backgroundColor: '#059669',
               color: '#FFFFFF',
+              border: 'none',
               padding: '6px 10px',
               borderRadius: '0px',
               fontSize: '11px',
               fontWeight: 700,
-              textDecoration: 'none',
+              cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '4px',
             }}
-            title="Download last exported CSV file"
+            title="Save last exported CSV file"
           >
             <DownloadIcon size={12} color="#FFFFFF" />
             CSV
-          </a>
+          </button>
         )}
       </div>
 
@@ -161,6 +261,7 @@ export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isHardwareStre
             <input
               type="text"
               value={form.name}
+              placeholder="e.g. Static_Thrust_Test"
               onChange={(e) => setForm({ ...form, name: e.target.value })}
             />
           </div>
@@ -181,6 +282,7 @@ export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isHardwareStre
               <input
                 type="text"
                 value={form.battery_config}
+                placeholder="e.g. 3S 1000mAh"
                 onChange={(e) => setForm({ ...form, battery_config: e.target.value })}
               />
             </div>
@@ -191,6 +293,7 @@ export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isHardwareStre
             <input
               type="text"
               value={form.motor_model}
+              placeholder="e.g. Sunnysky 2216 1250KV"
               onChange={(e) => setForm({ ...form, motor_model: e.target.value })}
             />
           </div>
@@ -200,6 +303,7 @@ export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isHardwareStre
             <input
               type="text"
               value={form.propeller_model}
+              placeholder="e.g. APC 10x4.7 SF"
               onChange={(e) => setForm({ ...form, propeller_model: e.target.value })}
             />
           </div>
@@ -208,6 +312,7 @@ export const SessionRecorder: React.FC<SessionRecorderProps> = ({ isHardwareStre
             <label style={labelStyle}>Notes</label>
             <textarea
               value={form.notes}
+              placeholder="Optional test notes..."
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
               rows={2}
               style={{ resize: 'none' }}

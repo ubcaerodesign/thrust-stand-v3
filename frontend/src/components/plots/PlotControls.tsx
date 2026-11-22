@@ -10,6 +10,8 @@ interface PlotControlsProps {
   onTabChange: (tab: ActivePlotTab) => void;
   onLayoutChange: (mode: LayoutMode) => void;
   onClear: () => void;
+  onJumpToPresent: () => void;
+  isZoomedOrPaused?: boolean;
 }
 
 export const PlotControls: React.FC<PlotControlsProps> = ({
@@ -18,6 +20,8 @@ export const PlotControls: React.FC<PlotControlsProps> = ({
   onTabChange,
   onLayoutChange,
   onClear,
+  onJumpToPresent,
+  isZoomedOrPaused = false,
 }) => {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
@@ -107,22 +111,44 @@ export const PlotControls: React.FC<PlotControlsProps> = ({
         )}
       </div>
 
-      {/* Right side: Clear Buffer */}
-      <button
-        onClick={onClear}
-        style={{
-          background: 'transparent',
-          border: 'var(--border-subtle)',
-          color: 'var(--text-secondary)',
-          borderRadius: '0px',
-          padding: '4px 10px',
-          fontSize: '11px',
-          fontWeight: 700,
-          cursor: 'pointer',
-        }}
-      >
-        Clear Buffer
-      </button>
+      {/* Right side: Jump to Present & Clear Buffer */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <button
+          onClick={onJumpToPresent}
+          disabled={!isZoomedOrPaused}
+          style={{
+            backgroundColor: isZoomedOrPaused ? 'var(--brand-blue)' : 'transparent',
+            border: isZoomedOrPaused ? '1px solid var(--brand-yellow)' : 'var(--border-subtle)',
+            color: isZoomedOrPaused ? 'var(--brand-yellow)' : 'var(--text-secondary)',
+            borderRadius: '0px',
+            padding: '4px 10px',
+            fontSize: '11px',
+            fontWeight: 700,
+            cursor: isZoomedOrPaused ? 'pointer' : 'default',
+            opacity: isZoomedOrPaused ? 1 : 0.45,
+            transition: 'all 0.15s ease',
+          }}
+          title="Jump back to live present telemetry"
+        >
+          Jump to Present ↺
+        </button>
+
+        <button
+          onClick={onClear}
+          style={{
+            background: 'transparent',
+            border: 'var(--border-subtle)',
+            color: 'var(--text-secondary)',
+            borderRadius: '0px',
+            padding: '4px 10px',
+            fontSize: '11px',
+            fontWeight: 700,
+            cursor: 'pointer',
+          }}
+        >
+          Clear Buffer
+        </button>
+      </div>
     </div>
   );
 };

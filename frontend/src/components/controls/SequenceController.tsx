@@ -51,11 +51,11 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
   const [selectedPresetId, setSelectedPresetId] = useState<string>('stepped_sweep_10_100');
   const [isStarting, setIsStarting] = useState<boolean>(false);
 
-  // Custom sweep state parameters
-  const [customStart, setCustomStart] = useState<number>(10);
-  const [customEnd, setCustomEnd] = useState<number>(100);
-  const [customStep, setCustomStep] = useState<number>(10);
-  const [customDwell, setCustomDwell] = useState<number>(2.0);
+  // Custom sweep state parameters stored as strings so clearing inputs doesn't snap back to 0
+  const [customStart, setCustomStart] = useState<string>('10');
+  const [customEnd, setCustomEnd] = useState<string>('100');
+  const [customStep, setCustomStep] = useState<string>('10');
+  const [customDwell, setCustomDwell] = useState<string>('2');
 
   useEffect(() => {
     api.getSequencePresets()
@@ -74,6 +74,34 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
 
   const handleStart = async () => {
     if (!isHardwareStreaming || isEstop || isRunning) return;
+
+    let parsedCustom: { start_pct: number; end_pct: number; step_pct: number; dwell_sec: number } | null = null;
+    if (selectedPresetId === 'custom') {
+      const startPct = parseFloat(customStart);
+      const endPct = parseFloat(customEnd);
+      const stepPct = parseFloat(customStep);
+      const dwellSec = parseFloat(customDwell);
+
+      if (
+        isNaN(startPct) ||
+        isNaN(endPct) ||
+        isNaN(stepPct) ||
+        isNaN(dwellSec) ||
+        stepPct <= 0 ||
+        dwellSec <= 0
+      ) {
+        alert('Please enter valid numbers for all custom sweep settings (Step % and Dwell must be greater than 0).');
+        return;
+      }
+
+      parsedCustom = {
+        start_pct: startPct,
+        end_pct: endPct,
+        step_pct: stepPct,
+        dwell_sec: dwellSec,
+      };
+    }
+
     setIsStarting(true);
     try {
       // Auto-tare all load cell channels before starting sweep so baseline starts at 0
@@ -85,12 +113,9 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
       }
 
       const mode = isDshotEnabled ? 'dshot' : 'pwm';
-      if (selectedPresetId === 'custom') {
+      if (parsedCustom) {
         await api.startCustomSequence({
-          start_pct: customStart,
-          end_pct: customEnd,
-          step_pct: customStep,
-          dwell_sec: customDwell,
+          ...parsedCustom,
           mode,
         });
       } else {
@@ -205,7 +230,7 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
             <input
               type="number"
               value={customStart}
-              onChange={(e) => setCustomStart(parseFloat(e.target.value) || 0)}
+              onChange={(e) => setCustomStart(e.target.value)}
               style={{ width: '55px', padding: '2px 4px', fontSize: '11px' }}
             />
           </div>
@@ -214,7 +239,7 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
             <input
               type="number"
               value={customEnd}
-              onChange={(e) => setCustomEnd(parseFloat(e.target.value) || 0)}
+              onChange={(e) => setCustomEnd(e.target.value)}
               style={{ width: '55px', padding: '2px 4px', fontSize: '11px' }}
             />
           </div>
@@ -223,7 +248,7 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
             <input
               type="number"
               value={customStep}
-              onChange={(e) => setCustomStep(parseFloat(e.target.value) || 1)}
+              onChange={(e) => setCustomStep(e.target.value)}
               style={{ width: '55px', padding: '2px 4px', fontSize: '11px' }}
             />
           </div>
@@ -233,7 +258,7 @@ export const SequenceController: React.FC<SequenceControllerProps> = ({
               type="number"
               step="0.5"
               value={customDwell}
-              onChange={(e) => setCustomDwell(parseFloat(e.target.value) || 1)}
+              onChange={(e) => setCustomDwell(e.target.value)}
               style={{ width: '55px', padding: '2px 4px', fontSize: '11px' }}
             />
           </div>

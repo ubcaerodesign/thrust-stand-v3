@@ -7,11 +7,19 @@
   },
   "package": {
     "productName": "AeroThrust V3",
-    "version": "1.0.8"
+    "version": "1.0.9"
   },
   "tauri": {
     "allowlist": {
       "all": false,
+      "dialog": {
+        "all": false,
+        "save": true
+      },
+      "fs": {
+        "all": false,
+        "writeFile": true
+      },
       "shell": {
         "all": false,
         "open": true,

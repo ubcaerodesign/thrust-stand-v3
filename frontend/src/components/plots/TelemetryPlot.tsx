@@ -8,9 +8,12 @@ interface TelemetryPlotProps {
   theme: 'dark' | 'light';
   getLatestPacket: () => TelemetryPacket | null;
   clearTrigger: number;
+  jumpToPresentTrigger?: number;
+  onZoomStateChange?: (isZoomedOrPaused: boolean) => void;
 }
 
 interface PlotSample {
+  seq: number;
   time: number;
   thrust: number;
   torque: number;
@@ -25,9 +28,25 @@ export const TelemetryPlot: React.FC<TelemetryPlotProps> = ({
   theme,
   getLatestPacket,
   clearTrigger,
+  jumpToPresentTrigger = 0,
+  onZoomStateChange,
 }) => {
   const bufferRef = useRef<PlotSample[]>([]);
+  const seqCounterRef = useRef<number>(0);
+  const zoomedPanesRef = useRef<Set<string>>(new Set());
   const MAX_SAMPLES = 3000; // Expanded to 3,000 samples (1 full minute of 50Hz history)
+
+  const handlePaneZoomChange = useCallback(
+    (paneId: string, isZoomed: boolean) => {
+      if (isZoomed) {
+        zoomedPanesRef.current.add(paneId);
+      } else {
+        zoomedPanesRef.current.delete(paneId);
+      }
+      onZoomStateChange?.(zoomedPanesRef.current.size > 0);
+    },
+    [onZoomStateChange]
+  );
 
   useEffect(() => {
     bufferRef.current = [];
@@ -40,6 +59,7 @@ export const TelemetryPlot: React.FC<TelemetryPlotProps> = ({
       const pkt = getLatestPacket();
       if (pkt) {
         bufferRef.current.push({
+          seq: seqCounterRef.current++,
           time: pkt.uptime_ms / 1000,
           thrust: pkt.thrust_g,
           torque: pkt.torque_g,
@@ -61,7 +81,15 @@ export const TelemetryPlot: React.FC<TelemetryPlotProps> = ({
   if (layoutMode === 'single') {
     return (
       <div style={{ width: '100%', height: '100%', minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
-        <CanvasPane tab={activeTab} theme={theme} bufferRef={bufferRef} />
+        <CanvasPane
+          paneId="single"
+          tab={activeTab}
+          theme={theme}
+          bufferRef={bufferRef}
+          clearTrigger={clearTrigger}
+          jumpToPresentTrigger={jumpToPresentTrigger}
+          onPaneZoomChange={handlePaneZoomChange}
+        />
       </div>
     );
   }
@@ -88,8 +116,26 @@ export const TelemetryPlot: React.FC<TelemetryPlotProps> = ({
           gap: '8px',
         }}
       >
-        <CanvasPane tab="thrust_time" title="Axial Thrust & RPM (Load Cell 1)" theme={theme} bufferRef={bufferRef} />
-        <CanvasPane tab={rightTab} title={rightTitle} theme={theme} bufferRef={bufferRef} />
+        <CanvasPane
+          paneId="split-left"
+          tab="thrust_time"
+          title="Axial Thrust & RPM (Load Cell 1)"
+          theme={theme}
+          bufferRef={bufferRef}
+          clearTrigger={clearTrigger}
+          jumpToPresentTrigger={jumpToPresentTrigger}
+          onPaneZoomChange={handlePaneZoomChange}
+        />
+        <CanvasPane
+          paneId="split-right"
+          tab={rightTab}
+          title={rightTitle}
+          theme={theme}
+          bufferRef={bufferRef}
+          clearTrigger={clearTrigger}
+          jumpToPresentTrigger={jumpToPresentTrigger}
+          onPaneZoomChange={handlePaneZoomChange}
+        />
       </div>
     );
   }
@@ -110,39 +156,116 @@ export const TelemetryPlot: React.FC<TelemetryPlotProps> = ({
       }}
     >
       <div style={{ gridColumn: '1 / 2', gridRow: '1 / 2', minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
-        <CanvasPane tab="thrust_time" title="Axial Thrust & RPM (Load Cell 1)" theme={theme} bufferRef={bufferRef} />
+        <CanvasPane
+          paneId="grid-thrust"
+          tab="thrust_time"
+          title="Axial Thrust & RPM (Load Cell 1)"
+          theme={theme}
+          bufferRef={bufferRef}
+          clearTrigger={clearTrigger}
+          jumpToPresentTrigger={jumpToPresentTrigger}
+          onPaneZoomChange={handlePaneZoomChange}
+        />
       </div>
       <div style={{ gridColumn: '2 / 3', gridRow: '1 / 2', minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
-        <CanvasPane tab="torque_time" title="Reaction Torque (Load Cell 2)" theme={theme} bufferRef={bufferRef} />
+        <CanvasPane
+          paneId="grid-torque"
+          tab="torque_time"
+          title="Reaction Torque (Load Cell 2)"
+          theme={theme}
+          bufferRef={bufferRef}
+          clearTrigger={clearTrigger}
+          jumpToPresentTrigger={jumpToPresentTrigger}
+          onPaneZoomChange={handlePaneZoomChange}
+        />
       </div>
       <div style={{ gridColumn: '1 / 2', gridRow: '2 / 3', minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
-        <CanvasPane tab="electrical_time" title="Electrical (Voltage & Current)" theme={theme} bufferRef={bufferRef} />
+        <CanvasPane
+          paneId="grid-electrical"
+          tab="electrical_time"
+          title="Electrical (Voltage & Current)"
+          theme={theme}
+          bufferRef={bufferRef}
+          clearTrigger={clearTrigger}
+          jumpToPresentTrigger={jumpToPresentTrigger}
+          onPaneZoomChange={handlePaneZoomChange}
+        />
       </div>
       <div style={{ gridColumn: '2 / 3', gridRow: '2 / 3', minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
-        <CanvasPane tab="thrust_throttle" title="Thrust vs. Throttle (%) Curve" theme={theme} bufferRef={bufferRef} />
+        <CanvasPane
+          paneId="grid-throttle"
+          tab="thrust_throttle"
+          title="Thrust vs. Throttle (%) Curve"
+          theme={theme}
+          bufferRef={bufferRef}
+          clearTrigger={clearTrigger}
+          jumpToPresentTrigger={jumpToPresentTrigger}
+          onPaneZoomChange={handlePaneZoomChange}
+        />
       </div>
     </div>
   );
 };
 
 interface CanvasPaneProps {
+  paneId: string;
   tab: ActivePlotTab;
   title?: string;
   theme: 'dark' | 'light';
   bufferRef: React.MutableRefObject<PlotSample[]>;
+  clearTrigger: number;
+  jumpToPresentTrigger: number;
+  onPaneZoomChange: (paneId: string, isZoomed: boolean) => void;
 }
 
-const CanvasPane: React.FC<CanvasPaneProps> = ({ tab, title, theme, bufferRef }) => {
+const CanvasPane: React.FC<CanvasPaneProps> = ({
+  paneId,
+  tab,
+  title,
+  theme,
+  bufferRef,
+  clearTrigger,
+  jumpToPresentTrigger,
+  onPaneZoomChange,
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Pan & Zoom state fractions (0.0 to 1.0 of buffer)
-  const viewStart = useRef<number>(0);
-  const viewEnd = useRef<number>(1);
+  // When true, the viewport continuously follows the live telemetry stream.
+  // When false (after zooming or panning), the viewport locks to [frozenStartSeq, frozenEndSeq]
+  // while bufferRef continues collecting incoming samples in the background.
+  const isFollowingLive = useRef<boolean>(true);
+  const frozenStartSeq = useRef<number>(0);
+  const frozenEndSeq = useRef<number>(0);
   const isDragging = useRef<boolean>(false);
   const dragStartX = useRef<number>(0);
 
   const [isPannedOrZoomed, setIsPannedOrZoomed] = useState<boolean>(false);
+
+  const updateZoomState = useCallback(
+    (zoomed: boolean) => {
+      setIsPannedOrZoomed(zoomed);
+      onPaneZoomChange(paneId, zoomed);
+    },
+    [onPaneZoomChange, paneId]
+  );
+
+  const jumpToPresent = useCallback(() => {
+    isFollowingLive.current = true;
+    frozenStartSeq.current = 0;
+    frozenEndSeq.current = 0;
+    updateZoomState(false);
+  }, [updateZoomState]);
+
+  useEffect(() => {
+    jumpToPresent();
+  }, [clearTrigger, jumpToPresentTrigger, jumpToPresent]);
+
+  useEffect(() => {
+    return () => {
+      onPaneZoomChange(paneId, false);
+    };
+  }, [onPaneZoomChange, paneId]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -167,72 +290,122 @@ const CanvasPane: React.FC<CanvasPaneProps> = ({ tab, title, theme, bufferRef })
     if (e.button === 0) {
       isDragging.current = true;
       dragStartX.current = e.clientX;
+      (e.currentTarget as HTMLElement).style.cursor = 'grabbing';
     }
   };
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging.current) return;
-    const dx = e.clientX - dragStartX.current;
-    dragStartX.current = e.clientX;
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isDragging.current) return;
+      const dx = e.clientX - dragStartX.current;
+      if (dx === 0) return;
+      dragStartX.current = e.clientX;
 
-    const containerWidth = containerRef.current?.clientWidth || 100;
-    const range = viewEnd.current - viewStart.current;
-    const shift = (dx / containerWidth) * range;
+      const data = bufferRef.current;
+      if (data.length < 2) return;
 
-    let newStart = viewStart.current - shift;
-    let newEnd = newStart + range;
+      const firstSeq = data[0].seq;
+      const lastSeq = data[data.length - 1].seq;
+      if (lastSeq - firstSeq < 1) return;
 
-    // Fixed clamping logic to prevent window distortion at boundaries
-    if (newStart < 0) {
-      newStart = 0;
-      newEnd = range;
-    } else if (newEnd > 1) {
-      newEnd = 1;
-      newStart = Math.max(0, 1 - range);
-    }
+      if (isFollowingLive.current) {
+        frozenStartSeq.current = firstSeq;
+        frozenEndSeq.current = lastSeq;
+        isFollowingLive.current = false;
+        updateZoomState(true);
+      }
 
-    viewStart.current = newStart;
-    viewEnd.current = newEnd;
-    setIsPannedOrZoomed(viewStart.current > 0.01 || viewEnd.current < 0.99);
-  }, []);
+      const containerWidth = containerRef.current?.clientWidth || 100;
+      const plotW = Math.max(10, containerWidth - 52 - 56);
+      const span = frozenEndSeq.current - frozenStartSeq.current;
+      const shift = (dx / plotW) * span;
 
-  const handleMouseUp = () => {
+      let newStart = frozenStartSeq.current - shift;
+      let newEnd = newStart + span;
+
+      if (newStart < firstSeq) {
+        newStart = firstSeq;
+        newEnd = Math.min(lastSeq, firstSeq + span);
+      } else if (newEnd > lastSeq) {
+        newEnd = lastSeq;
+        newStart = Math.max(firstSeq, lastSeq - span);
+      }
+
+      frozenStartSeq.current = newStart;
+      frozenEndSeq.current = newEnd;
+    },
+    [bufferRef, updateZoomState]
+  );
+
+  const handleMouseUp = (e: React.MouseEvent) => {
     isDragging.current = false;
+    (e.currentTarget as HTMLElement).style.cursor = 'grab';
   };
 
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault();
-    const zoomFactor = e.deltaY < 0 ? 0.85 : 1.15;
-    const range = viewEnd.current - viewStart.current;
-    const center = (viewStart.current + viewEnd.current) / 2;
+  const handleWheel = useCallback(
+    (e: React.WheelEvent) => {
+      e.preventDefault();
+      const data = bufferRef.current;
+      if (data.length < 2) return;
 
-    let newRange = range * zoomFactor;
-    newRange = Math.max(0.01, Math.min(1.0, newRange));
+      const firstSeq = data[0].seq;
+      const lastSeq = data[data.length - 1].seq;
+      const fullSpan = lastSeq - firstSeq;
+      if (fullSpan < 2) return;
 
-    let newStart = center - newRange / 2;
-    let newEnd = center + newRange / 2;
+      const rect = containerRef.current?.getBoundingClientRect();
+      const padLeft = 52;
+      const padRight = 56;
+      const plotW = rect ? Math.max(10, rect.width - padLeft - padRight) : 100;
+      const anchor = rect
+        ? Math.max(0, Math.min(1, (e.clientX - rect.left - padLeft) / plotW))
+        : 0.5;
 
-    if (newStart < 0) {
-      newEnd -= newStart;
-      newStart = 0;
-    }
-    if (newEnd > 1) {
-      newStart -= (newEnd - 1);
-      newEnd = 1;
-    }
+      const zoomFactor = e.deltaY < 0 ? 0.85 : 1.15;
 
-    if (newStart < 0) newStart = 0;
-    if (newEnd > 1) newEnd = 1;
+      let curStart = isFollowingLive.current ? firstSeq : Math.max(firstSeq, frozenStartSeq.current);
+      let curEnd = isFollowingLive.current ? lastSeq : Math.min(lastSeq, frozenEndSeq.current);
+      if (curEnd <= curStart) {
+        curStart = firstSeq;
+        curEnd = lastSeq;
+      }
 
-    viewStart.current = newStart;
-    viewEnd.current = newEnd;
-    setIsPannedOrZoomed(viewStart.current > 0.01 || viewEnd.current < 0.99);
-  }, []);
+      const curSpan = curEnd - curStart;
+      const newSpan = curSpan * zoomFactor;
+
+      if (e.deltaY > 0 && newSpan >= fullSpan * 0.995) {
+        jumpToPresent();
+        return;
+      }
+
+      const minSpan = Math.min(fullSpan, 15);
+      const clampedSpan = Math.max(minSpan, Math.min(fullSpan, newSpan));
+      const anchorSeq = curStart + anchor * curSpan;
+      let newStart = anchorSeq - anchor * clampedSpan;
+      let newEnd = anchorSeq + (1 - anchor) * clampedSpan;
+
+      if (newStart < firstSeq) {
+        newEnd += firstSeq - newStart;
+        newStart = firstSeq;
+      }
+      if (newEnd > lastSeq) {
+        newStart -= newEnd - lastSeq;
+        newEnd = lastSeq;
+      }
+
+      newStart = Math.max(firstSeq, newStart);
+      newEnd = Math.min(lastSeq, newEnd);
+
+      isFollowingLive.current = false;
+      frozenStartSeq.current = newStart;
+      frozenEndSeq.current = newEnd;
+      updateZoomState(true);
+    },
+    [bufferRef, jumpToPresent, updateZoomState]
+  );
 
   const handleDoubleClick = () => {
-    viewStart.current = 0;
-    viewEnd.current = 1;
-    setIsPannedOrZoomed(false);
+    jumpToPresent();
   };
 
   useEffect(() => {
@@ -243,7 +416,35 @@ const CanvasPane: React.FC<CanvasPaneProps> = ({ tab, title, theme, bufferRef })
       if (canvas && canvas.width > 0 && canvas.height > 0) {
         const ctx = canvas.getContext('2d');
         if (ctx) {
-          drawPlot(ctx, canvas.width, canvas.height, bufferRef.current, tab, theme, title, viewStart.current, viewEnd.current);
+          const data = bufferRef.current;
+          let displayData = data;
+
+          if (!isFollowingLive.current && data.length >= 2) {
+            const firstSeq = data[0].seq;
+            const lastSeq = data[data.length - 1].seq;
+            let sSeq = frozenStartSeq.current;
+            let eSeq = frozenEndSeq.current;
+
+            if (sSeq < firstSeq) {
+              const shiftAmt = firstSeq - sSeq;
+              sSeq = firstSeq;
+              eSeq = Math.min(lastSeq, eSeq + shiftAmt);
+              frozenStartSeq.current = sSeq;
+              frozenEndSeq.current = eSeq;
+            }
+            if (eSeq > lastSeq) {
+              eSeq = lastSeq;
+              frozenEndSeq.current = eSeq;
+            }
+
+            const startIdx = Math.max(0, Math.floor(sSeq - firstSeq));
+            const endIdx = Math.min(data.length - 1, Math.ceil(eSeq - firstSeq));
+            if (endIdx > startIdx) {
+              displayData = data.slice(startIdx, endIdx + 1);
+            }
+          }
+
+          drawPlot(ctx, canvas.width, canvas.height, displayData, tab, theme, title);
         }
       }
       animId = requestAnimationFrame(drawLoop);
@@ -269,7 +470,7 @@ const CanvasPane: React.FC<CanvasPaneProps> = ({ tab, title, theme, bufferRef })
         minWidth: 0,
         minHeight: 0,
         overflow: 'hidden',
-        cursor: isDragging.current ? 'grabbing' : 'grab',
+        cursor: 'grab',
       }}
     >
       <canvas
@@ -290,7 +491,7 @@ const CanvasPane: React.FC<CanvasPaneProps> = ({ tab, title, theme, bufferRef })
         <button
           onClick={(e) => {
             e.stopPropagation();
-            handleDoubleClick();
+            jumpToPresent();
           }}
           style={{
             position: 'absolute',
@@ -306,9 +507,9 @@ const CanvasPane: React.FC<CanvasPaneProps> = ({ tab, title, theme, bufferRef })
             cursor: 'pointer',
             zIndex: 10,
           }}
-          title="Reset zoom & pan to live stream"
+          title="Jump back to live present telemetry"
         >
-          Reset to Live ↺
+          Jump to Present ↺
         </button>
       )}
     </div>
@@ -319,12 +520,10 @@ function drawPlot(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
-  data: PlotSample[],
+  slicedData: PlotSample[],
   tab: ActivePlotTab,
   theme: 'dark' | 'light',
-  customTitle?: string,
-  viewStart: number = 0,
-  viewEnd: number = 1
+  customTitle?: string
 ) {
   ctx.clearRect(0, 0, width, height);
 
@@ -368,19 +567,13 @@ function drawPlot(
     ctx.stroke();
   }
 
-  if (data.length < 2) {
+  if (slicedData.length < 2) {
     ctx.fillStyle = colors.textPlaceholder;
     ctx.font = '700 12px Lato, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('Awaiting live telemetry stream...', width / 2, height / 2);
     return;
   }
-
-  const startIndex = Math.floor(viewStart * (data.length - 1));
-  const endIndex = Math.ceil(viewEnd * (data.length - 1));
-  const slicedData = data.slice(Math.max(0, startIndex), Math.min(data.length, endIndex + 1));
-
-  if (slicedData.length < 2) return;
 
   if (tab === 'thrust_time') {
     const rawMinThrust = Math.min(...slicedData.map((d) => d.thrust));

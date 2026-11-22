@@ -16,8 +16,8 @@ export const CurrentLimitsModal: React.FC<CurrentLimitsModalProps> = ({
   onClose,
   getLatestPacket,
 }) => {
-  const [softLimit, setSoftLimit] = useState<number>(40.0);
-  const [hardLimit, setHardLimit] = useState<number>(55.0);
+  const [softLimit, setSoftLimit] = useState<string>('40');
+  const [hardLimit, setHardLimit] = useState<string>('55');
   const [softEnabled, setSoftEnabled] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [feedback, setFeedback] = useState<{ text: string; success: boolean } | null>(null);
@@ -31,8 +31,8 @@ export const CurrentLimitsModal: React.FC<CurrentLimitsModalProps> = ({
     if (isOpen) {
       api.getCurrentLimits()
         .then((res) => {
-          setSoftLimit(res.soft_current_a);
-          setHardLimit(res.hard_current_a);
+          setSoftLimit(String(res.soft_current_a));
+          setHardLimit(String(res.hard_current_a));
           setSoftEnabled(res.soft_limit_enabled);
         })
         .catch((err) => {
@@ -61,7 +61,15 @@ export const CurrentLimitsModal: React.FC<CurrentLimitsModalProps> = ({
   }, [isOpen, getLatestPacket]);
 
   const handleSave = async () => {
-    if (softLimit >= hardLimit) {
+    const softVal = parseFloat(softLimit);
+    const hardVal = parseFloat(hardLimit);
+
+    if (isNaN(softVal) || isNaN(hardVal) || softVal <= 0 || hardVal <= 0) {
+      setFeedback({ text: 'Please enter valid positive current limit values.', success: false });
+      return;
+    }
+
+    if (softVal >= hardVal) {
       setFeedback({ text: 'Soft limit must be strictly less than hard cutoff limit.', success: false });
       return;
     }
@@ -69,8 +77,8 @@ export const CurrentLimitsModal: React.FC<CurrentLimitsModalProps> = ({
     setIsSaving(true);
     try {
       await api.setCurrentLimits({
-        soft_current_a: softLimit,
-        hard_current_a: hardLimit,
+        soft_current_a: softVal,
+        hard_current_a: hardVal,
         soft_limit_enabled: softEnabled,
       });
       setFeedback({ text: 'Current limit thresholds saved successfully.', success: true });
@@ -136,7 +144,7 @@ export const CurrentLimitsModal: React.FC<CurrentLimitsModalProps> = ({
               max="150"
               value={softLimit}
               disabled={!softEnabled}
-              onChange={(e) => setSoftLimit(parseFloat(e.target.value) || 0)}
+              onChange={(e) => setSoftLimit(e.target.value)}
               style={{ width: '100%', padding: '6px 8px', fontSize: '12px' }}
             />
             <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
@@ -154,7 +162,7 @@ export const CurrentLimitsModal: React.FC<CurrentLimitsModalProps> = ({
               min="1"
               max="150"
               value={hardLimit}
-              onChange={(e) => setHardLimit(parseFloat(e.target.value) || 0)}
+              onChange={(e) => setHardLimit(e.target.value)}
               style={{ width: '100%', padding: '6px 8px', fontSize: '12px' }}
             />
             <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>

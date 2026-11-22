@@ -27,6 +27,8 @@ export default function App() {
   const [plotTab, setPlotTab] = useState<ActivePlotTab>('thrust_time');
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('split');
   const [clearTrigger, setClearTrigger] = useState<number>(0);
+  const [jumpToPresentTrigger, setJumpToPresentTrigger] = useState<number>(0);
+  const [isPlotZoomed, setIsPlotZoomed] = useState<boolean>(false);
   const [isCalibrationOpen, setIsCalibrationOpen] = useState<boolean>(false);
   const [isLimitsOpen, setIsLimitsOpen] = useState<boolean>(false);
 
@@ -302,6 +304,8 @@ export default function App() {
               onTabChange={setPlotTab}
               onLayoutChange={setLayoutMode}
               onClear={() => setClearTrigger((prev) => prev + 1)}
+              onJumpToPresent={() => setJumpToPresentTrigger((prev) => prev + 1)}
+              isZoomedOrPaused={isPlotZoomed}
             />
             <div
               style={{
@@ -318,6 +322,8 @@ export default function App() {
                 theme={theme}
                 getLatestPacket={() => latestPacket.current}
                 clearTrigger={clearTrigger}
+                jumpToPresentTrigger={jumpToPresentTrigger}
+                onZoomStateChange={setIsPlotZoomed}
               />
             </div>
           </div>
